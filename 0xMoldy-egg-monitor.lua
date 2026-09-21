@@ -852,11 +852,11 @@ local function sendEggNotification(eggName, stock)
     local emoji = "🥚"
 
     if eggName == "Blackhole Egg" then
-        emoji = "🌌"
+        emoji = "🌌 "
     elseif eggName == "Solaris Egg" then
-        emoji = "☀️"
+        emoji = "☀️ "
     elseif eggName == "Cherub Egg" then
-        emoji = "🪽"
+        emoji = "🪽 "
     end
 
     local utcTime = os.date("!*t")
@@ -877,7 +877,7 @@ local function sendEggNotification(eggName, stock)
     )
 
     local baseMessage =
-        emoji .. " **" .. eggName .. " SPAWNED!**\n" ..
+        emoji .. "**" .. eggName .. " SPAWNED!**\n" ..
         "Stock: **" .. tostring(stock) .. "**\n" ..
         "Stock Time: **" .. phTime .. "**"
 
