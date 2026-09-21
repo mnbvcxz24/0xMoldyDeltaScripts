@@ -20,13 +20,16 @@ window.Position = UDim2.new(0.5, -200, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 window.BorderSizePixel = 2
 window.Parent = gui
+
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = window
+
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(55, 55, 65)
 stroke.Thickness = 1
 stroke.Parent = window
+
 local title = Instance.new("TextLabel")
 title.Name = "Title"
 title.Size = UDim2.new(1, -20, 0, 30)
@@ -38,6 +41,7 @@ title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = window
+
 local subtitle = Instance.new("TextLabel")
 subtitle.Name = "Subtitle"
 subtitle.Size = UDim2.new(1, -20, 0, 30)
@@ -49,6 +53,7 @@ subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
 subtitle.Parent = window
+
 local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.Size = UDim2.new(0, 35, 0, 35)
@@ -72,9 +77,11 @@ openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 openButton.Visible = false
 openButton.Parent = gui
+
 local openCorner = Instance.new("UICorner")
 openCorner.CornerRadius = UDim.new(1, 0)
 openCorner.Parent = openButton
+
 local openStroke = Instance.new("UIStroke")
 openStroke.Color = Color3.fromRGB(55, 55, 65)
 openStroke.Thickness = 1
@@ -91,6 +98,7 @@ openButton.MouseButton1Click:Connect(function()
 end)
 
 local UserInputService = game:GetService("UserInputService")
+
 local function makeDraggable(object, dragArea)
     local dragging = false
     local dragStart
@@ -130,6 +138,7 @@ local function makeDraggable(object, dragArea)
         end
     end)
 end
+
 makeDraggable(openButton, openButton)
 
 local dragArea = Instance.new("Frame")
@@ -141,12 +150,9 @@ dragArea.Active = true
 dragArea.Parent = window
 
 dragArea.ZIndex = 0
-sidebar.ZIndex = 10
-statusPage.ZIndex = 1
-webhookPage.ZIndex = 1
-title.ZIndex = 5
-subtitle.ZIndex = 5
-closeButton.ZIndex = 20
+title.ZIndex = 1
+subtitle.ZIndex = 1
+closeButton.ZIndex = 2
 
 makeDraggable(window, dragArea)
 
@@ -157,6 +163,7 @@ sidebar.Position = UDim2.new(0, 0, 0, 60)
 sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 sidebar.BorderSizePixel = 1
 sidebar.Parent = window
+
 local sidebarCorner = Instance.new("UICorner")
 sidebarCorner.CornerRadius = UDim.new(0, 8)
 sidebarCorner.Parent = sidebar
@@ -173,6 +180,7 @@ statusButton.Font = Enum.Font.GothamMedium
 statusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 statusButton.TextXAlignment = Enum.TextXAlignment.Left
 statusButton.Parent = sidebar
+
 local statusCorner = Instance.new("UICorner")
 statusCorner.CornerRadius = UDim.new(0, 7)
 statusCorner.Parent = statusButton
@@ -189,13 +197,10 @@ webhookButton.Font = Enum.Font.GothamMedium
 webhookButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 webhookButton.TextXAlignment = Enum.TextXAlignment.Left
 webhookButton.Parent = sidebar
+
 local webhookButtonCorner = Instance.new("UICorner")
 webhookButtonCorner.CornerRadius = UDim.new(0, 7)
 webhookButtonCorner.Parent = webhookButton
-
-sidebar.ZIndex = 10
-statusButton.ZIndex = 11
-webhookButton.ZIndex = 11
 
 local statusPage = Instance.new("ScrollingFrame")
 statusPage.Name = "StatusPage"
@@ -207,13 +212,14 @@ statusPage.ScrollBarThickness = 5
 statusPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 statusPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 statusPage.Parent = window
+
 local statusLayout = Instance.new("UIListLayout")
 statusLayout.Padding = UDim.new(0, 10)
 statusLayout.SortOrder = Enum.SortOrder.LayoutOrder
 statusLayout.Parent = statusPage
-statusPage.ZIndex = 1
 
 local monitoringEnabled = false
+
 local monitoringCard = Instance.new("Frame")
 monitoringCard.Name = "MonitoringCard"
 monitoringCard.Size = UDim2.new(1, -20, 0, 65)
@@ -221,9 +227,11 @@ monitoringCard.Position = UDim2.new(0, 10, 0, 45)
 monitoringCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 monitoringCard.BorderSizePixel = 0
 monitoringCard.Parent = statusPage
+
 local monitoringCorner = Instance.new("UICorner")
 monitoringCorner.CornerRadius = UDim.new(0, 8)
 monitoringCorner.Parent = monitoringCard
+
 local monitoringTitle = Instance.new("TextLabel")
 monitoringTitle.Name = "Title"
 monitoringTitle.Size = UDim2.new(1, -20, 0, 25)
@@ -235,6 +243,7 @@ monitoringTitle.Font = Enum.Font.GothamMedium
 monitoringTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 monitoringTitle.TextXAlignment = Enum.TextXAlignment.Left
 monitoringTitle.Parent = monitoringCard
+
 local monitoringStatus = Instance.new("TextLabel")
 monitoringStatus.Name = "Status"
 monitoringStatus.Size = UDim2.new(1, -20, 0, 20)
@@ -246,6 +255,7 @@ monitoringStatus.Font = Enum.Font.Gotham
 monitoringStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
 monitoringStatus.TextXAlignment = Enum.TextXAlignment.Left
 monitoringStatus.Parent = monitoringCard
+
 local monitoringButton = Instance.new("TextButton")
 monitoringButton.Name = "MonitoringButton"
 monitoringButton.Size = UDim2.new(0, 100, 0, 25)
@@ -257,6 +267,7 @@ monitoringButton.TextSize = 9
 monitoringButton.Font = Enum.Font.GothamMedium
 monitoringButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 monitoringButton.Parent = monitoringCard
+
 local monitoringButtonCorner = Instance.new("UICorner")
 monitoringButtonCorner.CornerRadius = UDim.new(0, 6)
 monitoringButtonCorner.Parent = monitoringButton
@@ -491,16 +502,19 @@ webhookPage.Position = UDim2.new(0, 130, 0, 60)
 webhookPage.BackgroundTransparency = 1
 webhookPage.Visible = false
 webhookPage.Parent = window
+
 local webhookSettingsCard = Instance.new("Frame")
 webhookSettingsCard.Name = "WebhookSettingsCard"
-webhookSettingsCard.Size = UDim2.new(1, -20, 0, 280)
+webhookSettingsCard.Size = UDim2.new(1, -20, 0, 115)
 webhookSettingsCard.Position = UDim2.new(0, 10, 0, 10)
 webhookSettingsCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 webhookSettingsCard.BorderSizePixel = 0
 webhookSettingsCard.Parent = webhookPage
+
 local webhookSettingsCorner = Instance.new("UICorner")
 webhookSettingsCorner.CornerRadius = UDim.new(0, 8)
 webhookSettingsCorner.Parent = webhookSettingsCard
+
 local webhookSettingsTitle = Instance.new("TextLabel")
 webhookSettingsTitle.Name = "Title"
 webhookSettingsTitle.Size = UDim2.new(1, -20, 0, 25)
@@ -512,38 +526,32 @@ webhookSettingsTitle.Font = Enum.Font.GothamMedium
 webhookSettingsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 webhookSettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 webhookSettingsTitle.Parent = webhookSettingsCard
-webhookPage.ZIndex = 1
-local webhookInputs = {}
 
-for i = 1, 3 do
-    local input = Instance.new("TextBox")
-    input.Name = "WebhookInput" .. i
-    input.Size = UDim2.new(1, -20, 0, 35)
-    input.Position = UDim2.new(0, 10, 0, 35 + ((i - 1) * 65))
-    input.TextWrapped = true
-    input.ClearTextOnFocus = false
-    input.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-    input.BorderSizePixel = 0
-    input.PlaceholderText = "Webhook " .. i .. " URL..."
-    input.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
-    input.Text = ""
-    input.TextSize = 10
-    input.Font = Enum.Font.Gotham
-    input.TextColor3 = Color3.fromRGB(255, 255, 255)
-    input.TextXAlignment = Enum.TextXAlignment.Left
-    input.Parent = webhookSettingsCard
+local webhookInput = Instance.new("TextBox")
+webhookInput.Name = "WebhookInput"
+webhookInput.Size = UDim2.new(1, -20, 0, 35)
+webhookInput.Position = UDim2.new(0, 10, 0, 35)
+webhookInput.TextWrapped = true
+webhookInput.ClearTextOnFocus = false
+webhookInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+webhookInput.BorderSizePixel = 0
+webhookInput.PlaceholderText = "Enter webhook URLs..."
+webhookInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+webhookInput.Text = ""
+webhookInput.TextSize = 10
+webhookInput.Font = Enum.Font.Gotham
+webhookInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+webhookInput.TextXAlignment = Enum.TextXAlignment.Left
+webhookInput.Parent = webhookSettingsCard
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
-    corner.Parent = input
-
-    table.insert(webhookInputs, input)
-end
+local webhookInputCorner = Instance.new("UICorner")
+webhookInputCorner.CornerRadius = UDim.new(0, 6)
+webhookInputCorner.Parent = webhookInput
 
 local webhookInfo = Instance.new("TextLabel")
 webhookInfo.Name = "WebhookInfo"
 webhookInfo.Size = UDim2.new(1, -20, 0, 25)
-webhookInfo.Position = UDim2.new(0, 10, 0, 275)
+webhookInfo.Position = UDim2.new(0, 10, 0, 82)
 webhookInfo.BackgroundTransparency = 1
 webhookInfo.Text = "For multiple webhooks, separate each URL with a comma (,)"
 webhookInfo.TextSize = 9
@@ -569,15 +577,10 @@ local STOCK_RESET_TIME = 420
 
 local webhookConnected = false
 
-local function getWebhooks(index)
+local function getWebhooks()
     local webhooks = {}
-    local input = webhookInputs[index]
 
-    if not input then
-        return webhooks
-    end
-
-    for webhook in string.gmatch(input.Text, "([^,]+)") do
+    for webhook in string.gmatch(webhookInput.Text, "([^,]+)") do
         webhook = string.gsub(webhook, "^%s*(.-)%s*$", "%1")
 
         if string.find(webhook, "^https://discord.com/api/webhooks/") then
@@ -588,7 +591,7 @@ local function getWebhooks(index)
     return webhooks
 end
 
-webhookInputs:GetPropertyChangedSignal("Text"):Connect(function()
+webhookInput:GetPropertyChangedSignal("Text"):Connect(function()
     local webhooks = getWebhooks()
 
     if #webhooks > 0 then
@@ -776,20 +779,25 @@ local function isEggSelected(eggName)
     return false
 end
 
-local function sendWebhook(index, message)
-    local webhooks = getWebhooks(index)
+local function sendWebhook(message)
+    local webhooks = getWebhooks()
+
     if #webhooks == 0 then
         return false
     end
+
     local requestFunction =
         (syn and syn.request)
         or (http and http.request)
         or http_request
         or request
+
     if not requestFunction then
         return false
     end
+
     local success = true
+
     for _, webhook in ipairs(webhooks) do
         local sent = pcall(function()
             requestFunction({
@@ -803,10 +811,12 @@ local function sendWebhook(index, message)
                 })
             })
         end)
+
         if not sent then
             success = false
         end
     end
+
     return success
 end
 
@@ -879,8 +889,10 @@ testWebhookButton.MouseButton1Click:Connect(function()
     testWebhookButton.Text = "Test Webhook"
 end)
 
+
 local function sendEggNotification(eggName, stock)
     local emoji = "🥚"
+
     if eggName == "Blackhole Egg" then
         emoji = "🌌"
     elseif eggName == "Solaris Egg" then
@@ -888,16 +900,22 @@ local function sendEggNotification(eggName, stock)
     elseif eggName == "Cherub Egg" then
         emoji = "🪽"
     end
-    local webhookIndex = 1
-    if eggName == "Solaris Egg" then
-        webhookIndex = 2
-    elseif eggName == "Cherub Egg" then
-        webhookIndex = 3
+    
+    local utcTime = os.date("!*t")
+    local phHour = (utcTime.hour + 8) % 24
+
+    local period = phHour >= 12 and "PM" or "AM"
+    local hour12 = phHour % 12
+    if hour12 == 0 then
+        hour12 = 12
     end
+
+    local phTime = string.format("%d:%02d %s PH", hour12, utcTime.min, period)
+
     sendWebhook(
-        webhookIndex,
-        emoji .. " **" .. eggName .. " DETECTED!**\n" ..
-        "Stock: **" .. tostring(stock) .. "**"
+        emoji .. "**" .. eggName .. " DETECTED!**\n" ..
+        "Stock: **" .. tostring(stock) .. "**\n" ..
+        "Stock Time: **" .. phTime .. "**"
     )
 end
 
