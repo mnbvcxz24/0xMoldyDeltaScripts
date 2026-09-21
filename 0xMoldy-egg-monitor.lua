@@ -20,16 +20,13 @@ window.Position = UDim2.new(0.5, -200, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 window.BorderSizePixel = 2
 window.Parent = gui
-
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = window
-
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(55, 55, 65)
 stroke.Thickness = 1
 stroke.Parent = window
-
 local title = Instance.new("TextLabel")
 title.Name = "Title"
 title.Size = UDim2.new(1, -20, 0, 30)
@@ -41,7 +38,6 @@ title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = window
-
 local subtitle = Instance.new("TextLabel")
 subtitle.Name = "Subtitle"
 subtitle.Size = UDim2.new(1, -20, 0, 30)
@@ -53,7 +49,6 @@ subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
 subtitle.Parent = window
-
 local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.Size = UDim2.new(0, 35, 0, 35)
@@ -77,11 +72,9 @@ openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 openButton.Visible = false
 openButton.Parent = gui
-
 local openCorner = Instance.new("UICorner")
 openCorner.CornerRadius = UDim.new(1, 0)
 openCorner.Parent = openButton
-
 local openStroke = Instance.new("UIStroke")
 openStroke.Color = Color3.fromRGB(55, 55, 65)
 openStroke.Thickness = 1
@@ -98,7 +91,6 @@ openButton.MouseButton1Click:Connect(function()
 end)
 
 local UserInputService = game:GetService("UserInputService")
-
 local function makeDraggable(object, dragArea)
     local dragging = false
     local dragStart
@@ -138,7 +130,6 @@ local function makeDraggable(object, dragArea)
         end
     end)
 end
-
 makeDraggable(openButton, openButton)
 
 local dragArea = Instance.new("Frame")
@@ -150,9 +141,12 @@ dragArea.Active = true
 dragArea.Parent = window
 
 dragArea.ZIndex = 0
-title.ZIndex = 1
-subtitle.ZIndex = 1
-closeButton.ZIndex = 2
+sidebar.ZIndex = 10
+statusPage.ZIndex = 1
+webhookPage.ZIndex = 1
+title.ZIndex = 5
+subtitle.ZIndex = 5
+closeButton.ZIndex = 20
 
 makeDraggable(window, dragArea)
 
@@ -163,7 +157,6 @@ sidebar.Position = UDim2.new(0, 0, 0, 60)
 sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 sidebar.BorderSizePixel = 1
 sidebar.Parent = window
-
 local sidebarCorner = Instance.new("UICorner")
 sidebarCorner.CornerRadius = UDim.new(0, 8)
 sidebarCorner.Parent = sidebar
@@ -180,7 +173,6 @@ statusButton.Font = Enum.Font.GothamMedium
 statusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 statusButton.TextXAlignment = Enum.TextXAlignment.Left
 statusButton.Parent = sidebar
-
 local statusCorner = Instance.new("UICorner")
 statusCorner.CornerRadius = UDim.new(0, 7)
 statusCorner.Parent = statusButton
@@ -197,10 +189,13 @@ webhookButton.Font = Enum.Font.GothamMedium
 webhookButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 webhookButton.TextXAlignment = Enum.TextXAlignment.Left
 webhookButton.Parent = sidebar
-
 local webhookButtonCorner = Instance.new("UICorner")
 webhookButtonCorner.CornerRadius = UDim.new(0, 7)
 webhookButtonCorner.Parent = webhookButton
+
+sidebar.ZIndex = 10
+statusButton.ZIndex = 11
+webhookButton.ZIndex = 11
 
 local statusPage = Instance.new("ScrollingFrame")
 statusPage.Name = "StatusPage"
@@ -212,14 +207,13 @@ statusPage.ScrollBarThickness = 5
 statusPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 statusPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 statusPage.Parent = window
-
 local statusLayout = Instance.new("UIListLayout")
 statusLayout.Padding = UDim.new(0, 10)
 statusLayout.SortOrder = Enum.SortOrder.LayoutOrder
 statusLayout.Parent = statusPage
+statusPage.ZIndex = 1
 
 local monitoringEnabled = false
-
 local monitoringCard = Instance.new("Frame")
 monitoringCard.Name = "MonitoringCard"
 monitoringCard.Size = UDim2.new(1, -20, 0, 65)
@@ -227,11 +221,9 @@ monitoringCard.Position = UDim2.new(0, 10, 0, 45)
 monitoringCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 monitoringCard.BorderSizePixel = 0
 monitoringCard.Parent = statusPage
-
 local monitoringCorner = Instance.new("UICorner")
 monitoringCorner.CornerRadius = UDim.new(0, 8)
 monitoringCorner.Parent = monitoringCard
-
 local monitoringTitle = Instance.new("TextLabel")
 monitoringTitle.Name = "Title"
 monitoringTitle.Size = UDim2.new(1, -20, 0, 25)
@@ -243,7 +235,6 @@ monitoringTitle.Font = Enum.Font.GothamMedium
 monitoringTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 monitoringTitle.TextXAlignment = Enum.TextXAlignment.Left
 monitoringTitle.Parent = monitoringCard
-
 local monitoringStatus = Instance.new("TextLabel")
 monitoringStatus.Name = "Status"
 monitoringStatus.Size = UDim2.new(1, -20, 0, 20)
@@ -255,7 +246,6 @@ monitoringStatus.Font = Enum.Font.Gotham
 monitoringStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
 monitoringStatus.TextXAlignment = Enum.TextXAlignment.Left
 monitoringStatus.Parent = monitoringCard
-
 local monitoringButton = Instance.new("TextButton")
 monitoringButton.Name = "MonitoringButton"
 monitoringButton.Size = UDim2.new(0, 100, 0, 25)
@@ -267,7 +257,6 @@ monitoringButton.TextSize = 9
 monitoringButton.Font = Enum.Font.GothamMedium
 monitoringButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 monitoringButton.Parent = monitoringCard
-
 local monitoringButtonCorner = Instance.new("UICorner")
 monitoringButtonCorner.CornerRadius = UDim.new(0, 6)
 monitoringButtonCorner.Parent = monitoringButton
@@ -502,7 +491,6 @@ webhookPage.Position = UDim2.new(0, 130, 0, 60)
 webhookPage.BackgroundTransparency = 1
 webhookPage.Visible = false
 webhookPage.Parent = window
-
 local webhookSettingsCard = Instance.new("Frame")
 webhookSettingsCard.Name = "WebhookSettingsCard"
 webhookSettingsCard.Size = UDim2.new(1, -20, 0, 280)
@@ -510,11 +498,9 @@ webhookSettingsCard.Position = UDim2.new(0, 10, 0, 10)
 webhookSettingsCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 webhookSettingsCard.BorderSizePixel = 0
 webhookSettingsCard.Parent = webhookPage
-
 local webhookSettingsCorner = Instance.new("UICorner")
 webhookSettingsCorner.CornerRadius = UDim.new(0, 8)
 webhookSettingsCorner.Parent = webhookSettingsCard
-
 local webhookSettingsTitle = Instance.new("TextLabel")
 webhookSettingsTitle.Name = "Title"
 webhookSettingsTitle.Size = UDim2.new(1, -20, 0, 25)
@@ -526,14 +512,14 @@ webhookSettingsTitle.Font = Enum.Font.GothamMedium
 webhookSettingsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 webhookSettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 webhookSettingsTitle.Parent = webhookSettingsCard
-
+webhookPage.ZIndex = 1
 local webhookInputs = {}
 
 for i = 1, 3 do
     local input = Instance.new("TextBox")
     input.Name = "WebhookInput" .. i
     input.Size = UDim2.new(1, -20, 0, 35)
-    input.Position = UDim2.new(0, 10, 0, 35 + ((i - 1) * 80))
+    input.Position = UDim2.new(0, 10, 0, 35 + ((i - 1) * 65))
     input.TextWrapped = true
     input.ClearTextOnFocus = false
     input.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
@@ -602,7 +588,7 @@ local function getWebhooks(index)
     return webhooks
 end
 
-webhookInput:GetPropertyChangedSignal("Text"):Connect(function()
+webhookInputs:GetPropertyChangedSignal("Text"):Connect(function()
     local webhooks = getWebhooks()
 
     if #webhooks > 0 then
