@@ -505,7 +505,7 @@ webhookPage.Parent = window
 
 local webhookSettingsCard = Instance.new("Frame")
 webhookSettingsCard.Name = "WebhookSettingsCard"
-webhookSettingsCard.Size = UDim2.new(1, -20, 0, 115)
+webhookSettingsCard.Size = UDim2.new(1, -20, 0, 280)
 webhookSettingsCard.Position = UDim2.new(0, 10, 0, 10)
 webhookSettingsCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 webhookSettingsCard.BorderSizePixel = 0
@@ -527,31 +527,37 @@ webhookSettingsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 webhookSettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 webhookSettingsTitle.Parent = webhookSettingsCard
 
-local webhookInput = Instance.new("TextBox")
-webhookInput.Name = "WebhookInput"
-webhookInput.Size = UDim2.new(1, -20, 0, 35)
-webhookInput.Position = UDim2.new(0, 10, 0, 35)
-webhookInput.TextWrapped = true
-webhookInput.ClearTextOnFocus = false
-webhookInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-webhookInput.BorderSizePixel = 0
-webhookInput.PlaceholderText = "Enter webhook URLs..."
-webhookInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
-webhookInput.Text = ""
-webhookInput.TextSize = 10
-webhookInput.Font = Enum.Font.Gotham
-webhookInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-webhookInput.TextXAlignment = Enum.TextXAlignment.Left
-webhookInput.Parent = webhookSettingsCard
+local webhookInputs = {}
 
-local webhookInputCorner = Instance.new("UICorner")
-webhookInputCorner.CornerRadius = UDim.new(0, 6)
-webhookInputCorner.Parent = webhookInput
+for i = 1, 3 do
+    local input = Instance.new("TextBox")
+    input.Name = "WebhookInput" .. i
+    input.Size = UDim2.new(1, -20, 0, 35)
+    input.Position = UDim2.new(0, 10, 0, 35 + ((i - 1) * 80))
+    input.TextWrapped = true
+    input.ClearTextOnFocus = false
+    input.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    input.BorderSizePixel = 0
+    input.PlaceholderText = "Webhook " .. i .. " URL..."
+    input.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+    input.Text = ""
+    input.TextSize = 10
+    input.Font = Enum.Font.Gotham
+    input.TextColor3 = Color3.fromRGB(255, 255, 255)
+    input.TextXAlignment = Enum.TextXAlignment.Left
+    input.Parent = webhookSettingsCard
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = input
+
+    table.insert(webhookInputs, input)
+end
 
 local webhookInfo = Instance.new("TextLabel")
 webhookInfo.Name = "WebhookInfo"
 webhookInfo.Size = UDim2.new(1, -20, 0, 25)
-webhookInfo.Position = UDim2.new(0, 10, 0, 82)
+webhookInfo.Position = UDim2.new(0, 10, 0, 275)
 webhookInfo.BackgroundTransparency = 1
 webhookInfo.Text = "For multiple webhooks, separate each URL with a comma (,)"
 webhookInfo.TextSize = 9
@@ -577,10 +583,15 @@ local STOCK_RESET_TIME = 420
 
 local webhookConnected = false
 
-local function getWebhooks()
+local function getWebhooks(index)
     local webhooks = {}
+    local input = webhookInputs[index]
 
-    for webhook in string.gmatch(webhookInput.Text, "([^,]+)") do
+    if not input then
+        return webhooks
+    end
+
+    for webhook in string.gmatch(input.Text, "([^,]+)") do
         webhook = string.gsub(webhook, "^%s*(.-)%s*$", "%1")
 
         if string.find(webhook, "^https://discord.com/api/webhooks/") then
@@ -779,25 +790,20 @@ local function isEggSelected(eggName)
     return false
 end
 
-local function sendWebhook(message)
-    local webhooks = getWebhooks()
-
+local function sendWebhook(index, message)
+    local webhooks = getWebhooks(index)
     if #webhooks == 0 then
         return false
     end
-
     local requestFunction =
         (syn and syn.request)
         or (http and http.request)
         or http_request
         or request
-
     if not requestFunction then
         return false
     end
-
     local success = true
-
     for _, webhook in ipairs(webhooks) do
         local sent = pcall(function()
             requestFunction({
@@ -811,12 +817,10 @@ local function sendWebhook(message)
                 })
             })
         end)
-
         if not sent then
             success = false
         end
     end
-
     return success
 end
 
@@ -889,10 +893,8 @@ testWebhookButton.MouseButton1Click:Connect(function()
     testWebhookButton.Text = "Test Webhook"
 end)
 
-
 local function sendEggNotification(eggName, stock)
     local emoji = "🥚"
-
     if eggName == "Blackhole Egg" then
         emoji = "🌌"
     elseif eggName == "Solaris Egg" then
@@ -900,22 +902,16 @@ local function sendEggNotification(eggName, stock)
     elseif eggName == "Cherub Egg" then
         emoji = "🪽"
     end
-    
-    local utcTime = os.date("!*t")
-    local phHour = (utcTime.hour + 8) % 24
-
-    local period = phHour >= 12 and "PM" or "AM"
-    local hour12 = phHour % 12
-    if hour12 == 0 then
-        hour12 = 12
+    local webhookIndex = 1
+    if eggName == "Solaris Egg" then
+        webhookIndex = 2
+    elseif eggName == "Cherub Egg" then
+        webhookIndex = 3
     end
-
-    local phTime = string.format("%d:%02d %s PH", hour12, utcTime.min, period)
-
     sendWebhook(
+        webhookIndex,
         emoji .. " **" .. eggName .. " DETECTED!**\n" ..
-        "Stock: **" .. tostring(stock) .. "**\n" ..
-        "Stock Time: **" .. phTime .. "**"
+        "Stock: **" .. tostring(stock) .. "**"
     )
 end
 
