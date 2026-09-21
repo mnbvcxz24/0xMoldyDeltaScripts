@@ -442,26 +442,31 @@ cherubStock.Parent = etherealCard
 
 local function getEggStock(eggName)
     local playerGui = player:FindFirstChild("PlayerGui")
+
     if not playerGui then
         return 0
     end
 
     local main = playerGui:FindFirstChild("Main")
+
     if not main then
         return 0
     end
 
     local eggTracker = main:FindFirstChild("EggTracker")
+
     if not eggTracker then
         return 0
     end
 
     local eggsHolder = eggTracker:FindFirstChild("EggsHolder")
+
     if not eggsHolder then
         return 0
     end
 
     local egg = eggsHolder:FindFirstChild(eggName)
+
     if not egg then
         return 0
     end
@@ -524,71 +529,29 @@ webhookLayout.Parent = webhookContent
 
 local webhookCards = {}
 local webhookInputs = {}
-local webhookDropdowns = {}
-local webhookLists = {}
+local webhookEggToggles = {}
+local webhookRoleInputs = {}
 local webhookTestButtons = {}
 
-local webhookFilters = {
-    [1] = {
-        ["Blackhole Egg"] = false,
-        ["Solaris Egg"] = false,
-        ["Cherub Egg"] = false
-    },
-    [2] = {
-        ["Blackhole Egg"] = false,
-        ["Solaris Egg"] = false,
-        ["Cherub Egg"] = false
-    },
-    [3] = {
-        ["Blackhole Egg"] = false,
-        ["Solaris Egg"] = false,
-        ["Cherub Egg"] = false
-    }
-}
+local function parseCommaSeparated(text)
+    local values = {}
 
-local function hasAnyFilter(index)
-    for _, selected in pairs(webhookFilters[index]) do
-        if selected then
-            return true
-        end
+    for value in string.gmatch(text or "", "([^,]*)") do
+        value = string.gsub(value, "^%s*(.-)%s*$", "%1")
+        table.insert(values, value)
     end
 
-    return false
-end
-
-local function isEggSelectedForWebhook(index, eggName)
-    if not hasAnyFilter(index) then
-        return true
-    end
-
-    return webhookFilters[index][eggName] == true
-end
-
-local function updateWebhookDropdownText(index)
-    local dropdown = webhookDropdowns[index]
-    local filters = webhookFilters[index]
-
-    local count = 0
-
-    for _, selected in pairs(filters) do
-        if selected then
-            count = count + 1
-        end
-    end
-
-    if count == 0 then
-        dropdown.Text = "  Select Eggs"
-    elseif count == 1 then
-        dropdown.Text = "  1 Egg Selected"
-    else
-        dropdown.Text = "  " .. tostring(count) .. " Eggs Selected"
-    end
+    return values
 end
 
 local function getWebhooksForInput(input)
     local webhooks = {}
 
-    for webhook in string.gmatch(input.Text, "([^,]+)") do
+    if not input then
+        return webhooks
+    end
+
+    for webhook in string.gmatch(input.Text or "", "([^,]+)") do
         webhook = string.gsub(webhook, "^%s*(.-)%s*$", "%1")
 
         if string.find(webhook, "^https://discord.com/api/webhooks/") then
@@ -605,9 +568,7 @@ local function getAllConfiguredWebhooks()
     for index = 1, 3 do
         local webhooks = getWebhooksForInput(webhookInputs[index])
 
-        if #webhooks > 0 then
-            count = count + #webhooks
-        end
+        count = count + #webhooks
     end
 
     return count
@@ -632,7 +593,7 @@ end
 local function createWebhookCard(index)
     local card = Instance.new("Frame")
     card.Name = "WebhookCard" .. tostring(index)
-    card.Size = UDim2.new(1, -10, 0, 200)
+    card.Size = UDim2.new(1, -10, 0, 250)
     card.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
     card.BorderSizePixel = 0
     card.ClipsDescendants = false
@@ -665,10 +626,10 @@ local function createWebhookCard(index)
     input.ClearTextOnFocus = false
     input.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
     input.BorderSizePixel = 0
-    input.PlaceholderText = "Enter webhook URL..."
+    input.PlaceholderText = "  Webhook URLs, comma separated..."
     input.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
     input.Text = ""
-    input.TextSize = 10
+    input.TextSize = 9
     input.Font = Enum.Font.Gotham
     input.TextColor3 = Color3.fromRGB(255, 255, 255)
     input.TextXAlignment = Enum.TextXAlignment.Left
@@ -679,100 +640,92 @@ local function createWebhookCard(index)
     inputCorner.CornerRadius = UDim.new(0, 6)
     inputCorner.Parent = input
 
-    local filterLabel = Instance.new("TextLabel")
-    filterLabel.Name = "FilterLabel"
-    filterLabel.Size = UDim2.new(1, -20, 0, 20)
-    filterLabel.Position = UDim2.new(0, 10, 0, 78)
-    filterLabel.BackgroundTransparency = 1
-    filterLabel.Text = "Egg Filter"
-    filterLabel.TextSize = 10
-    filterLabel.Font = Enum.Font.GothamMedium
-    filterLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
-    filterLabel.TextXAlignment = Enum.TextXAlignment.Left
-    filterLabel.ZIndex = card.ZIndex + 1
-    filterLabel.Parent = card
+    local eggs = {
+        {
+            name = "Blackhole Egg",
+            short = "Blackhole",
+            emoji = "🌌"
+        },
+        {
+            name = "Solaris Egg",
+            short = "Solaris",
+            emoji = "☀️"
+        },
+        {
+            name = "Cherub Egg",
+            short = "Cherub",
+            emoji = "🪽"
+        }
+    }
 
-    local dropdown = Instance.new("TextButton")
-    dropdown.Name = "EggDropdown"
-    dropdown.Size = UDim2.new(1, -20, 0, 35)
-    dropdown.Position = UDim2.new(0, 10, 0, 100)
-    dropdown.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-    dropdown.BorderSizePixel = 0
-    dropdown.Text = "  Select Eggs"
-    dropdown.TextSize = 10
-    dropdown.Font = Enum.Font.Gotham
-    dropdown.TextColor3 = Color3.fromRGB(180, 180, 190)
-    dropdown.TextXAlignment = Enum.TextXAlignment.Left
-    dropdown.ZIndex = card.ZIndex + 2
-    dropdown.Parent = card
+    webhookEggToggles[index] = {}
+    webhookRoleInputs[index] = {}
 
-    local dropdownCorner = Instance.new("UICorner")
-    dropdownCorner.CornerRadius = UDim.new(0, 7)
-    dropdownCorner.Parent = dropdown
+    for eggIndex, eggData in ipairs(eggs) do
+        local y = 78 + ((eggIndex - 1) * 47)
 
-    local dropdownList = Instance.new("Frame")
-    dropdownList.Name = "EggList"
-    dropdownList.Size = UDim2.new(1, -20, 0, 105)
-    dropdownList.Position = UDim2.new(0, 10, 0, 138)
-    dropdownList.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-    dropdownList.BorderSizePixel = 0
-    dropdownList.Visible = false
-    dropdownList.ZIndex = card.ZIndex + 20
-    dropdownList.Parent = card
+        local toggle = Instance.new("TextButton")
+        toggle.Name = eggData.short .. "Toggle"
+        toggle.Size = UDim2.new(0, 105, 0, 35)
+        toggle.Position = UDim2.new(0, 10, 0, y)
+        toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+        toggle.BorderSizePixel = 0
+        toggle.Text = " □  " .. eggData.short
+        toggle.TextSize = 9
+        toggle.Font = Enum.Font.GothamMedium
+        toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
+        toggle.TextXAlignment = Enum.TextXAlignment.Left
+        toggle.ZIndex = card.ZIndex + 2
+        toggle.Parent = card
 
-    local listCorner = Instance.new("UICorner")
-    listCorner.CornerRadius = UDim.new(0, 7)
-    listCorner.Parent = dropdownList
+        local toggleCorner = Instance.new("UICorner")
+        toggleCorner.CornerRadius = UDim.new(0, 6)
+        toggleCorner.Parent = toggle
 
-    local function createOption(name, text, position)
-        local option = Instance.new("TextButton")
-        option.Name = name .. "Option"
-        option.Size = UDim2.new(1, -10, 0, 25)
-        option.Position = UDim2.new(0, 5, 0, position)
-        option.BackgroundTransparency = 1
-        option.Text = "□  " .. text
-        option.TextSize = 10
-        option.Font = Enum.Font.Gotham
-        option.TextColor3 = Color3.fromRGB(180, 180, 190)
-        option.TextXAlignment = Enum.TextXAlignment.Left
-        option.ZIndex = dropdownList.ZIndex + 1
-        option.Parent = dropdownList
+        local roleInput = Instance.new("TextBox")
+        roleInput.Name = eggData.short .. "RoleIDs"
+        roleInput.Size = UDim2.new(1, -135, 0, 35)
+        roleInput.Position = UDim2.new(0, 125, 0, y)
+        roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+        roleInput.BorderSizePixel = 0
+        roleInput.ClearTextOnFocus = false
+        roleInput.TextWrapped = true
+        roleInput.PlaceholderText = "  " .. eggData.short .. " Role IDs..."
+        roleInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+        roleInput.Text = ""
+        roleInput.TextSize = 9
+        roleInput.Font = Enum.Font.Gotham
+        roleInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+        roleInput.TextXAlignment = Enum.TextXAlignment.Left
+        roleInput.ZIndex = card.ZIndex + 2
+        roleInput.Parent = card
 
-        option.MouseButton1Click:Connect(function()
-            webhookFilters[index][text] = not webhookFilters[index][text]
+        local roleCorner = Instance.new("UICorner")
+        roleCorner.CornerRadius = UDim.new(0, 6)
+        roleCorner.Parent = roleInput
 
-            if webhookFilters[index][text] then
-                option.Text = "✓  " .. text
-                option.TextColor3 = Color3.fromRGB(100, 220, 130)
+        webhookEggToggles[index][eggData.name] = toggle
+        webhookRoleInputs[index][eggData.name] = roleInput
+
+        toggle.MouseButton1Click:Connect(function()
+            local current = toggle:GetAttribute("Enabled") == true
+            current = not current
+            toggle:SetAttribute("Enabled", current)
+
+            if current then
+                toggle.Text = "   ✓  " .. eggData.short
+                toggle.TextColor3 = Color3.fromRGB(100, 220, 130)
             else
-                option.Text = "□  " .. text
-                option.TextColor3 = Color3.fromRGB(180, 180, 190)
+                toggle.Text = "   □  " .. eggData.short
+                toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
             end
-
-            updateWebhookDropdownText(index)
         end)
-
-        return option
     end
-
-    createOption("BlackholeEgg", "Blackhole Egg", 5)
-    createOption("SolarisEgg", "Solaris Egg", 40)
-    createOption("CherubEgg", "Cherub Egg", 75)
-
-    dropdown.MouseButton1Click:Connect(function()
-        for i = 1, 3 do
-            if i ~= index and webhookLists[i] then
-                webhookLists[i].Visible = false
-            end
-        end
-
-        dropdownList.Visible = not dropdownList.Visible
-    end)
 
     local testButton = Instance.new("TextButton")
     testButton.Name = "TestWebhookButton"
     testButton.Size = UDim2.new(1, -20, 0, 35)
-    testButton.Position = UDim2.new(0, 10, 0, 150)
+    testButton.Position = UDim2.new(0, 10, 0, 214)
     testButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
     testButton.BorderSizePixel = 0
     testButton.Text = "Test Webhook"
@@ -824,7 +777,8 @@ local function createWebhookCard(index)
                         ["Content-Type"] = "application/json"
                     },
                     Body = HttpService:JSONEncode({
-                        content = "**\n ⚠️TEST — WEBHOOK " .. tostring(index) .. "⚠️**\n\n"
+                        content = "**\n ⚠️TEST — Egg Spawn Notifier " .. tostring(index) .. "⚠️**\n\n" ..
+                        ""     
                     })
                 })
             end)
@@ -846,8 +800,6 @@ local function createWebhookCard(index)
 
     webhookCards[index] = card
     webhookInputs[index] = input
-    webhookDropdowns[index] = dropdown
-    webhookLists[index] = dropdownList
     webhookTestButtons[index] = testButton
 end
 
@@ -869,19 +821,7 @@ local lastDetectionTime = {
 
 local STOCK_RESET_TIME = 420
 
-local function sendWebhook(index, message)
-    local input = webhookInputs[index]
-
-    if not input then
-        return false
-    end
-
-    local webhooks = getWebhooksForInput(input)
-
-    if #webhooks == 0 then
-        return false
-    end
-
+local function sendWebhookToUrl(webhook, message)
     local requestFunction =
         (syn and syn.request)
         or (http and http.request)
@@ -892,26 +832,18 @@ local function sendWebhook(index, message)
         return false
     end
 
-    local success = true
-
-    for _, webhook in ipairs(webhooks) do
-        local sent = pcall(function()
-            requestFunction({
-                Url = webhook,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = HttpService:JSONEncode({
-                    content = message
-                })
+    local success = pcall(function()
+        requestFunction({
+            Url = webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode({
+                content = message
             })
-        end)
-
-        if not sent then
-            success = false
-        end
-    end
+        })
+    end)
 
     return success
 end
@@ -944,14 +876,43 @@ local function sendEggNotification(eggName, stock)
         period
     )
 
-    local message =
-        emoji .. "**" .. eggName .. " DETECTED!**\n" ..
+    local baseMessage =
+        emoji .. " **" .. eggName .. " SPAWNED!**\n" ..
         "Stock: **" .. tostring(stock) .. "**\n" ..
         "Stock Time: **" .. phTime .. "**"
 
     for index = 1, 3 do
-        if isEggSelectedForWebhook(index, eggName) then
-            sendWebhook(index, message)
+        local toggle = webhookEggToggles[index]
+            and webhookEggToggles[index][eggName]
+
+        if toggle and toggle:GetAttribute("Enabled") == true then
+            local input = webhookInputs[index]
+
+            local webhooks = getWebhooksForInput(input)
+
+            local roleInput = webhookRoleInputs[index]
+                and webhookRoleInputs[index][eggName]
+
+            local roleIds = parseCommaSeparated(
+                roleInput and roleInput.Text or ""
+            )
+
+            for webhookIndex, webhook in ipairs(webhooks) do
+                local message = baseMessage
+                local roleId = roleIds[webhookIndex]
+
+                if roleId then
+                    roleId = string.match(roleId, "^%s*(%d+)%s*$")
+
+                    if roleId then
+                        message =
+                            "<@&" .. roleId .. ">\n" ..
+                            baseMessage
+                    end
+                end
+
+                sendWebhookToUrl(webhook, message)
+            end
         end
     end
 end
