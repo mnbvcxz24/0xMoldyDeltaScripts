@@ -913,7 +913,7 @@ local function sendEggNotification(eggName, stock)
     local phTime = string.format("%d:%02d %s PH", hour12, utcTime.min, period)
 
     sendWebhook(
-        emoji .. "**" .. eggName .. " DETECTED!**\n" ..
+        emoji .. " **" .. eggName .. " DETECTED!**\n" ..
         "Stock: **" .. tostring(stock) .. "**\n" ..
         "Stock Time: **" .. phTime .. "**"
     )
