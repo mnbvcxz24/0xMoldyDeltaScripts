@@ -830,7 +830,7 @@ local function getSelectedInStockEggs()
     if isEggSelected("Blackhole Egg") and blackhole > 0 then
         table.insert(
             parts,
-            "🕳️ Blackhole Egg: **" .. tostring(blackhole) .. "**"
+            "🌌 Blackhole Egg: **" .. tostring(blackhole) .. "**"
         )
     end
 
@@ -844,7 +844,7 @@ local function getSelectedInStockEggs()
     if isEggSelected("Cherub Egg") and cherub > 0 then
         table.insert(
             parts,
-            "😇 Cherub Egg: **" .. tostring(cherub) .. "**"
+            "🪽 Cherub Egg: **" .. tostring(cherub) .. "**"
         )
     end
 
@@ -894,9 +894,9 @@ local function sendEggNotification(eggName, stock)
     local emoji = "🥚"
 
     if eggName == "Blackhole Egg" then
-        emoji = "🕳️"
+        emoji = "🌌"
     elseif eggName == "Solaris Egg" then
-        emoji = ""
+        emoji = "☀️"
     elseif eggName == "Cherub Egg" then
         emoji = "🪽"
     end
@@ -913,7 +913,7 @@ local function sendEggNotification(eggName, stock)
     local phTime = string.format("%d:%02d %s PH", hour12, utcTime.min, period)
 
     sendWebhook(
-        "\n" .. emoji .. "* *" .. eggName .. " DETECTED!**\n\n" ..
+        emoji .. "**" .. eggName .. " DETECTED!**\n" ..
         "Stock: **" .. tostring(stock) .. "**\n" ..
         "Stock Time: **" .. phTime .. "**"
     )
