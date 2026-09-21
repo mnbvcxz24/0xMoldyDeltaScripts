@@ -71,7 +71,7 @@ openButton.Size = UDim2.new(0, 45, 0, 45)
 openButton.Position = UDim2.new(0.5, -22, 0.5, -22)
 openButton.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 openButton.BorderSizePixel = 0
-openButton.Text = "◉"
+openButton.Text = "🔍"
 openButton.TextSize = 18
 openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -495,70 +495,365 @@ task.spawn(function()
     end
 end)
 
-local webhookPage = Instance.new("Frame")
+local webhookPage = Instance.new("ScrollingFrame")
 webhookPage.Name = "WebhookPage"
 webhookPage.Size = UDim2.new(1, -130, 1, -60)
 webhookPage.Position = UDim2.new(0, 130, 0, 60)
 webhookPage.BackgroundTransparency = 1
+webhookPage.BorderSizePixel = 0
+webhookPage.ScrollBarThickness = 5
+webhookPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+webhookPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 webhookPage.Visible = false
+webhookPage.ClipsDescendants = true
 webhookPage.Parent = window
 
-local webhookSettingsCard = Instance.new("Frame")
-webhookSettingsCard.Name = "WebhookSettingsCard"
-webhookSettingsCard.Size = UDim2.new(1, -20, 0, 115)
-webhookSettingsCard.Position = UDim2.new(0, 10, 0, 10)
-webhookSettingsCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-webhookSettingsCard.BorderSizePixel = 0
-webhookSettingsCard.Parent = webhookPage
+local webhookContent = Instance.new("Frame")
+webhookContent.Name = "WebhookContent"
+webhookContent.Size = UDim2.new(1, -5, 0, 0)
+webhookContent.AutomaticSize = Enum.AutomaticSize.Y
+webhookContent.BackgroundTransparency = 1
+webhookContent.BorderSizePixel = 0
+webhookContent.ClipsDescendants = false
+webhookContent.Parent = webhookPage
 
-local webhookSettingsCorner = Instance.new("UICorner")
-webhookSettingsCorner.CornerRadius = UDim.new(0, 8)
-webhookSettingsCorner.Parent = webhookSettingsCard
+local webhookLayout = Instance.new("UIListLayout")
+webhookLayout.Padding = UDim.new(0, 10)
+webhookLayout.SortOrder = Enum.SortOrder.LayoutOrder
+webhookLayout.Parent = webhookContent
 
-local webhookSettingsTitle = Instance.new("TextLabel")
-webhookSettingsTitle.Name = "Title"
-webhookSettingsTitle.Size = UDim2.new(1, -20, 0, 25)
-webhookSettingsTitle.Position = UDim2.new(0, 10, 0, 7)
-webhookSettingsTitle.BackgroundTransparency = 1
-webhookSettingsTitle.Text = "Discord Webhooks"
-webhookSettingsTitle.TextSize = 11
-webhookSettingsTitle.Font = Enum.Font.GothamMedium
-webhookSettingsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-webhookSettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
-webhookSettingsTitle.Parent = webhookSettingsCard
+local webhookCards = {}
+local webhookInputs = {}
+local webhookDropdowns = {}
+local webhookLists = {}
+local webhookTestButtons = {}
 
-local webhookInput = Instance.new("TextBox")
-webhookInput.Name = "WebhookInput"
-webhookInput.Size = UDim2.new(1, -20, 0, 35)
-webhookInput.Position = UDim2.new(0, 10, 0, 35)
-webhookInput.TextWrapped = true
-webhookInput.ClearTextOnFocus = false
-webhookInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-webhookInput.BorderSizePixel = 0
-webhookInput.PlaceholderText = "Enter webhook URLs..."
-webhookInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
-webhookInput.Text = ""
-webhookInput.TextSize = 10
-webhookInput.Font = Enum.Font.Gotham
-webhookInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-webhookInput.TextXAlignment = Enum.TextXAlignment.Left
-webhookInput.Parent = webhookSettingsCard
+local webhookFilters = {
+    [1] = {
+        ["Blackhole Egg"] = false,
+        ["Solaris Egg"] = false,
+        ["Cherub Egg"] = false
+    },
+    [2] = {
+        ["Blackhole Egg"] = false,
+        ["Solaris Egg"] = false,
+        ["Cherub Egg"] = false
+    },
+    [3] = {
+        ["Blackhole Egg"] = false,
+        ["Solaris Egg"] = false,
+        ["Cherub Egg"] = false
+    }
+}
 
-local webhookInputCorner = Instance.new("UICorner")
-webhookInputCorner.CornerRadius = UDim.new(0, 6)
-webhookInputCorner.Parent = webhookInput
+local function hasAnyFilter(index)
+    for _, selected in pairs(webhookFilters[index]) do
+        if selected then
+            return true
+        end
+    end
 
-local webhookInfo = Instance.new("TextLabel")
-webhookInfo.Name = "WebhookInfo"
-webhookInfo.Size = UDim2.new(1, -20, 0, 25)
-webhookInfo.Position = UDim2.new(0, 10, 0, 82)
-webhookInfo.BackgroundTransparency = 1
-webhookInfo.Text = "For multiple webhooks, separate each URL with a comma (,)"
-webhookInfo.TextSize = 9
-webhookInfo.Font = Enum.Font.Gotham
-webhookInfo.TextColor3 = Color3.fromRGB(130, 130, 140)
-webhookInfo.TextXAlignment = Enum.TextXAlignment.Left
-webhookInfo.Parent = webhookSettingsCard
+    return false
+end
+
+local function isEggSelectedForWebhook(index, eggName)
+    if not hasAnyFilter(index) then
+        return true
+    end
+
+    return webhookFilters[index][eggName] == true
+end
+
+local function updateWebhookDropdownText(index)
+    local dropdown = webhookDropdowns[index]
+    local filters = webhookFilters[index]
+
+    local count = 0
+
+    for _, selected in pairs(filters) do
+        if selected then
+            count = count + 1
+        end
+    end
+
+    if count == 0 then
+        dropdown.Text = "  Select Eggs"
+    elseif count == 1 then
+        dropdown.Text = "  1 Egg Selected"
+    else
+        dropdown.Text = "  " .. tostring(count) .. " Eggs Selected"
+    end
+end
+
+local function getWebhooksForInput(input)
+    local webhooks = {}
+
+    for webhook in string.gmatch(input.Text, "([^,]+)") do
+        webhook = string.gsub(webhook, "^%s*(.-)%s*$", "%1")
+
+        if string.find(webhook, "^https://discord.com/api/webhooks/") then
+            table.insert(webhooks, webhook)
+        end
+    end
+
+    return webhooks
+end
+
+local function getAllConfiguredWebhooks()
+    local count = 0
+
+    for index = 1, 3 do
+        local webhooks = getWebhooksForInput(webhookInputs[index])
+
+        if #webhooks > 0 then
+            count = count + #webhooks
+        end
+    end
+
+    return count
+end
+
+local webhookConnected = false
+
+local function updateWebhookConnectionStatus()
+    local total = getAllConfiguredWebhooks()
+
+    if total > 0 then
+        webhookConnected = true
+        statusWebhookStatus.Text = "Configured"
+        statusWebhookStatus.TextColor3 = Color3.fromRGB(100, 220, 130)
+    else
+        webhookConnected = false
+        statusWebhookStatus.Text = "Not Connected"
+        statusWebhookStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+    end
+end
+
+local function createWebhookCard(index)
+    local card = Instance.new("Frame")
+    card.Name = "WebhookCard" .. tostring(index)
+    card.Size = UDim2.new(1, -10, 0, 200)
+    card.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+    card.BorderSizePixel = 0
+    card.ClipsDescendants = false
+    card.LayoutOrder = index
+    card.ZIndex = 10 - index
+    card.Parent = webhookContent
+
+    local cardCorner = Instance.new("UICorner")
+    cardCorner.CornerRadius = UDim.new(0, 8)
+    cardCorner.Parent = card
+
+    local cardTitle = Instance.new("TextLabel")
+    cardTitle.Name = "Title"
+    cardTitle.Size = UDim2.new(1, -20, 0, 25)
+    cardTitle.Position = UDim2.new(0, 10, 0, 7)
+    cardTitle.BackgroundTransparency = 1
+    cardTitle.Text = "Discord Webhook " .. tostring(index)
+    cardTitle.TextSize = 11
+    cardTitle.Font = Enum.Font.GothamMedium
+    cardTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    cardTitle.TextXAlignment = Enum.TextXAlignment.Left
+    cardTitle.ZIndex = card.ZIndex + 1
+    cardTitle.Parent = card
+
+    local input = Instance.new("TextBox")
+    input.Name = "WebhookInput"
+    input.Size = UDim2.new(1, -20, 0, 35)
+    input.Position = UDim2.new(0, 10, 0, 35)
+    input.TextWrapped = true
+    input.ClearTextOnFocus = false
+    input.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    input.BorderSizePixel = 0
+    input.PlaceholderText = "Enter webhook URL..."
+    input.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+    input.Text = ""
+    input.TextSize = 10
+    input.Font = Enum.Font.Gotham
+    input.TextColor3 = Color3.fromRGB(255, 255, 255)
+    input.TextXAlignment = Enum.TextXAlignment.Left
+    input.ZIndex = card.ZIndex + 1
+    input.Parent = card
+
+    local inputCorner = Instance.new("UICorner")
+    inputCorner.CornerRadius = UDim.new(0, 6)
+    inputCorner.Parent = input
+
+    local filterLabel = Instance.new("TextLabel")
+    filterLabel.Name = "FilterLabel"
+    filterLabel.Size = UDim2.new(1, -20, 0, 20)
+    filterLabel.Position = UDim2.new(0, 10, 0, 78)
+    filterLabel.BackgroundTransparency = 1
+    filterLabel.Text = "Egg Filter"
+    filterLabel.TextSize = 10
+    filterLabel.Font = Enum.Font.GothamMedium
+    filterLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+    filterLabel.TextXAlignment = Enum.TextXAlignment.Left
+    filterLabel.ZIndex = card.ZIndex + 1
+    filterLabel.Parent = card
+
+    local dropdown = Instance.new("TextButton")
+    dropdown.Name = "EggDropdown"
+    dropdown.Size = UDim2.new(1, -20, 0, 35)
+    dropdown.Position = UDim2.new(0, 10, 0, 100)
+    dropdown.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    dropdown.BorderSizePixel = 0
+    dropdown.Text = "  Select Eggs"
+    dropdown.TextSize = 10
+    dropdown.Font = Enum.Font.Gotham
+    dropdown.TextColor3 = Color3.fromRGB(180, 180, 190)
+    dropdown.TextXAlignment = Enum.TextXAlignment.Left
+    dropdown.ZIndex = card.ZIndex + 2
+    dropdown.Parent = card
+
+    local dropdownCorner = Instance.new("UICorner")
+    dropdownCorner.CornerRadius = UDim.new(0, 7)
+    dropdownCorner.Parent = dropdown
+
+    local dropdownList = Instance.new("Frame")
+    dropdownList.Name = "EggList"
+    dropdownList.Size = UDim2.new(1, -20, 0, 105)
+    dropdownList.Position = UDim2.new(0, 10, 0, 138)
+    dropdownList.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+    dropdownList.BorderSizePixel = 0
+    dropdownList.Visible = false
+    dropdownList.ZIndex = card.ZIndex + 20
+    dropdownList.Parent = card
+
+    local listCorner = Instance.new("UICorner")
+    listCorner.CornerRadius = UDim.new(0, 7)
+    listCorner.Parent = dropdownList
+
+    local function createOption(name, text, position)
+        local option = Instance.new("TextButton")
+        option.Name = name .. "Option"
+        option.Size = UDim2.new(1, -10, 0, 25)
+        option.Position = UDim2.new(0, 5, 0, position)
+        option.BackgroundTransparency = 1
+        option.Text = "□  " .. text
+        option.TextSize = 10
+        option.Font = Enum.Font.Gotham
+        option.TextColor3 = Color3.fromRGB(180, 180, 190)
+        option.TextXAlignment = Enum.TextXAlignment.Left
+        option.ZIndex = dropdownList.ZIndex + 1
+        option.Parent = dropdownList
+
+        option.MouseButton1Click:Connect(function()
+            webhookFilters[index][text] = not webhookFilters[index][text]
+
+            if webhookFilters[index][text] then
+                option.Text = "✓  " .. text
+                option.TextColor3 = Color3.fromRGB(100, 220, 130)
+            else
+                option.Text = "□  " .. text
+                option.TextColor3 = Color3.fromRGB(180, 180, 190)
+            end
+
+            updateWebhookDropdownText(index)
+        end)
+
+        return option
+    end
+
+    createOption("BlackholeEgg", "Blackhole Egg", 5)
+    createOption("SolarisEgg", "Solaris Egg", 40)
+    createOption("CherubEgg", "Cherub Egg", 75)
+
+    dropdown.MouseButton1Click:Connect(function()
+        for i = 1, 3 do
+            if i ~= index and webhookLists[i] then
+                webhookLists[i].Visible = false
+            end
+        end
+
+        dropdownList.Visible = not dropdownList.Visible
+    end)
+
+    local testButton = Instance.new("TextButton")
+    testButton.Name = "TestWebhookButton"
+    testButton.Size = UDim2.new(1, -20, 0, 35)
+    testButton.Position = UDim2.new(0, 10, 0, 150)
+    testButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    testButton.BorderSizePixel = 0
+    testButton.Text = "Test Webhook"
+    testButton.TextSize = 10
+    testButton.Font = Enum.Font.GothamMedium
+    testButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    testButton.ZIndex = card.ZIndex + 2
+    testButton.Parent = card
+
+    local testCorner = Instance.new("UICorner")
+    testCorner.CornerRadius = UDim.new(0, 7)
+    testCorner.Parent = testButton
+
+    input:GetPropertyChangedSignal("Text"):Connect(function()
+        updateWebhookConnectionStatus()
+    end)
+
+    testButton.MouseButton1Click:Connect(function()
+        local webhooks = getWebhooksForInput(input)
+
+        if #webhooks == 0 then
+            testButton.Text = "No Webhook"
+            task.wait(1.5)
+            testButton.Text = "Test Webhook"
+            return
+        end
+
+        local requestFunction =
+            (syn and syn.request)
+            or (http and http.request)
+            or http_request
+            or request
+
+        if not requestFunction then
+            testButton.Text = "Failed"
+            task.wait(1.5)
+            testButton.Text = "Test Webhook"
+            return
+        end
+
+        local success = true
+
+        for _, webhook in ipairs(webhooks) do
+            local sent = pcall(function()
+                requestFunction({
+                    Url = webhook,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = HttpService:JSONEncode({
+                        content = "**\n ⚠️TEST — WEBHOOK " .. tostring(index) .. "⚠️**\n\n"
+                    })
+                })
+            end)
+
+            if not sent then
+                success = false
+            end
+        end
+
+        if success then
+            testButton.Text = "Sent!"
+        else
+            testButton.Text = "Failed"
+        end
+
+        task.wait(1.5)
+        testButton.Text = "Test Webhook"
+    end)
+
+    webhookCards[index] = card
+    webhookInputs[index] = input
+    webhookDropdowns[index] = dropdown
+    webhookLists[index] = dropdownList
+    webhookTestButtons[index] = testButton
+end
+
+createWebhookCard(1)
+createWebhookCard(2)
+createWebhookCard(3)
 
 local lastStock = {
     ["Blackhole Egg"] = 0,
@@ -574,213 +869,14 @@ local lastDetectionTime = {
 
 local STOCK_RESET_TIME = 420
 
+local function sendWebhook(index, message)
+    local input = webhookInputs[index]
 
-local webhookConnected = false
-
-local function getWebhooks()
-    local webhooks = {}
-
-    for webhook in string.gmatch(webhookInput.Text, "([^,]+)") do
-        webhook = string.gsub(webhook, "^%s*(.-)%s*$", "%1")
-
-        if string.find(webhook, "^https://discord.com/api/webhooks/") then
-            table.insert(webhooks, webhook)
-        end
+    if not input then
+        return false
     end
 
-    return webhooks
-end
-
-webhookInput:GetPropertyChangedSignal("Text"):Connect(function()
-    local webhooks = getWebhooks()
-
-    if #webhooks > 0 then
-        webhookConnected = true
-        statusWebhookStatus.Text = "Configured"
-        statusWebhookStatus.TextColor3 = Color3.fromRGB(100, 220, 130)
-    else
-        webhookConnected = false
-        statusWebhookStatus.Text = "Not Connected"
-        statusWebhookStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
-    end
-end)
-
-local filterTitle = Instance.new("TextLabel")
-filterTitle.Name = "FilterTitle"
-filterTitle.Size = UDim2.new(1, -20, 0, 25)
-filterTitle.Position = UDim2.new(0, 10, 0, 170)
-filterTitle.BackgroundTransparency = 1
-filterTitle.Text = "Egg Filter"
-filterTitle.TextSize = 11
-filterTitle.Font = Enum.Font.GothamMedium
-filterTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-filterTitle.TextXAlignment = Enum.TextXAlignment.Left
-filterTitle.Parent = webhookPage
-
-local eggDropdown = Instance.new("TextButton")
-eggDropdown.Name = "EggDropdown"
-eggDropdown.Size = UDim2.new(1, -20, 0, 35)
-eggDropdown.Position = UDim2.new(0, 10, 0, 195)
-eggDropdown.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-eggDropdown.BorderSizePixel = 0
-eggDropdown.Text = "  Select Eggs"
-eggDropdown.TextSize = 10
-eggDropdown.Font = Enum.Font.Gotham
-eggDropdown.TextColor3 = Color3.fromRGB(180, 180, 190)
-eggDropdown.TextXAlignment = Enum.TextXAlignment.Left
-eggDropdown.Parent = webhookPage
-
-local eggDropdownCorner = Instance.new("UICorner")
-eggDropdownCorner.CornerRadius = UDim.new(0, 7)
-eggDropdownCorner.Parent = eggDropdown
-
-local eggList = Instance.new("Frame")
-eggList.Name = "EggList"
-eggList.Size = UDim2.new(1, -20, 0, 105)
-eggList.Position = UDim2.new(0, 10, 0, 235)
-eggList.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-eggList.BorderSizePixel = 0
-eggList.Visible = false
-eggList.Parent = webhookPage
-
-local eggListCorner = Instance.new("UICorner")
-eggListCorner.CornerRadius = UDim.new(0, 7)
-eggListCorner.Parent = eggList
-
-local blackholeOption = Instance.new("TextButton")
-blackholeOption.Name = "BlackholeOption"
-blackholeOption.Size = UDim2.new(1, -10, 0, 25)
-blackholeOption.Position = UDim2.new(0, 5, 0, 5)
-blackholeOption.BackgroundTransparency = 1
-blackholeOption.Text = "□  Blackhole Egg"
-blackholeOption.TextSize = 10
-blackholeOption.Font = Enum.Font.Gotham
-blackholeOption.TextColor3 = Color3.fromRGB(180, 180, 190)
-blackholeOption.TextXAlignment = Enum.TextXAlignment.Left
-blackholeOption.Parent = eggList
-
-local solarisOption = Instance.new("TextButton")
-solarisOption.Name = "SolarisOption"
-solarisOption.Size = UDim2.new(1, -10, 0, 25)
-solarisOption.Position = UDim2.new(0, 5, 0, 40)
-solarisOption.BackgroundTransparency = 1
-solarisOption.Text = "□  Solaris Egg"
-solarisOption.TextSize = 10
-solarisOption.Font = Enum.Font.Gotham
-solarisOption.TextColor3 = Color3.fromRGB(180, 180, 190)
-solarisOption.TextXAlignment = Enum.TextXAlignment.Left
-solarisOption.Parent = eggList
-
-local cherubOption = Instance.new("TextButton")
-cherubOption.Name = "CherubOption"
-cherubOption.Size = UDim2.new(1, -10, 0, 25)
-cherubOption.Position = UDim2.new(0, 5, 0, 75)
-cherubOption.BackgroundTransparency = 1
-cherubOption.Text = "□  Cherub Egg"
-cherubOption.TextSize = 10
-cherubOption.Font = Enum.Font.Gotham
-cherubOption.TextColor3 = Color3.fromRGB(180, 180, 190)
-cherubOption.TextXAlignment = Enum.TextXAlignment.Left
-cherubOption.Parent = eggList
-
-local blackholeSelected = false
-local solarisSelected = false
-local cherubSelected = false
-
-local function updateEggDropdownText()
-    local selectedCount = 0
-
-    if blackholeSelected then
-        selectedCount = selectedCount + 1
-    end
-
-    if solarisSelected then
-        selectedCount = selectedCount + 1
-    end
-
-    if cherubSelected then
-        selectedCount = selectedCount + 1
-    end
-
-    if selectedCount == 0 then
-        eggDropdown.Text = "  Select Eggs"
-    elseif selectedCount == 1 then
-        eggDropdown.Text = "  1 Egg Selected"
-    else
-        eggDropdown.Text = "  " .. selectedCount .. " Eggs Selected"
-    end
-end
-
-eggDropdown.MouseButton1Click:Connect(function()
-    eggList.Visible = not eggList.Visible
-end)
-
-blackholeOption.MouseButton1Click:Connect(function()
-    blackholeSelected = not blackholeSelected
-
-    if blackholeSelected then
-        blackholeOption.Text = "✓  Blackhole Egg"
-        blackholeOption.TextColor3 = Color3.fromRGB(100, 220, 130)
-    else
-        blackholeOption.Text = "□  Blackhole Egg"
-        blackholeOption.TextColor3 = Color3.fromRGB(180, 180, 190)
-    end
-
-    updateEggDropdownText()
-end)
-
-solarisOption.MouseButton1Click:Connect(function()
-    solarisSelected = not solarisSelected
-
-    if solarisSelected then
-        solarisOption.Text = "✓  Solaris Egg"
-        solarisOption.TextColor3 = Color3.fromRGB(100, 220, 130)
-    else
-        solarisOption.Text = "□  Solaris Egg"
-        solarisOption.TextColor3 = Color3.fromRGB(180, 180, 190)
-    end
-
-    updateEggDropdownText()
-end)
-
-cherubOption.MouseButton1Click:Connect(function()
-    cherubSelected = not cherubSelected
-
-    if cherubSelected then
-        cherubOption.Text = "✓  Cherub Egg"
-        cherubOption.TextColor3 = Color3.fromRGB(100, 220, 130)
-    else
-        cherubOption.Text = "□  Cherub Egg"
-        cherubOption.TextColor3 = Color3.fromRGB(180, 180, 190)
-    end
-
-    updateEggDropdownText()
-end)
-
-local function isEggSelected(eggName)
-    if not blackholeSelected
-    and not solarisSelected
-    and not cherubSelected then
-        return true
-    end
-
-    if eggName == "Blackhole Egg" then
-        return blackholeSelected
-    end
-
-    if eggName == "Solaris Egg" then
-        return solarisSelected
-    end
-
-    if eggName == "Cherub Egg" then
-        return cherubSelected
-    end
-
-    return false
-end
-
-local function sendWebhook(message)
-    local webhooks = getWebhooks()
+    local webhooks = getWebhooksForInput(input)
 
     if #webhooks == 0 then
         return false
@@ -820,76 +916,6 @@ local function sendWebhook(message)
     return success
 end
 
-local function getSelectedInStockEggs()
-    local parts = {}
-
-    local blackhole = getEggStock("Blackhole Egg")
-    local solaris = getEggStock("Solaris Egg")
-    local cherub = getEggStock("Cherub Egg")
-
-    if isEggSelected("Blackhole Egg") and blackhole > 0 then
-        table.insert(
-            parts,
-            "🌌 Blackhole Egg: **" .. tostring(blackhole) .. "**"
-        )
-    end
-
-    if isEggSelected("Solaris Egg") and solaris > 0 then
-        table.insert(
-            parts,
-            "☀️ Solaris Egg: **" .. tostring(solaris) .. "**"
-        )
-    end
-
-    if isEggSelected("Cherub Egg") and cherub > 0 then
-        table.insert(
-            parts,
-            "🪽 Cherub Egg: **" .. tostring(cherub) .. "**"
-        )
-    end
-
-    return parts
-end
-
-local testWebhookButton = Instance.new("TextButton")
-testWebhookButton.Name = "TestWebhookButton"
-testWebhookButton.Size = UDim2.new(1, -20, 0, 35)
-testWebhookButton.Position = UDim2.new(0, 10, 0, 135)
-testWebhookButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-testWebhookButton.BorderSizePixel = 0
-testWebhookButton.Text = "Test Webhook"
-testWebhookButton.TextSize = 10
-testWebhookButton.Font = Enum.Font.GothamMedium
-testWebhookButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-testWebhookButton.Parent = webhookPage
-
-local testWebhookCorner = Instance.new("UICorner")
-testWebhookCorner.CornerRadius = UDim.new(0, 7)
-testWebhookCorner.Parent = testWebhookButton
-
-testWebhookButton.MouseButton1Click:Connect(function()
-    if #getWebhooks() == 0 then
-        testWebhookButton.Text = "No Webhook"
-        task.wait(1.5)
-        testWebhookButton.Text = "Test Webhook"
-        return
-    end
-
-    local message =
-        "**\n ⚠️TEST — ETHEREAL EGGS⚠️**\n\n"
-    local success = sendWebhook(message)
-
-    if success then
-        testWebhookButton.Text = "Sent!"
-    else
-        testWebhookButton.Text = "Failed"
-    end
-
-    task.wait(1.5)
-    testWebhookButton.Text = "Test Webhook"
-end)
-
-
 local function sendEggNotification(eggName, stock)
     local emoji = "🥚"
 
@@ -900,34 +926,38 @@ local function sendEggNotification(eggName, stock)
     elseif eggName == "Cherub Egg" then
         emoji = "🪽"
     end
-    
+
     local utcTime = os.date("!*t")
     local phHour = (utcTime.hour + 8) % 24
 
     local period = phHour >= 12 and "PM" or "AM"
     local hour12 = phHour % 12
+
     if hour12 == 0 then
         hour12 = 12
     end
 
-    local phTime = string.format("%d:%02d %s PH", hour12, utcTime.min, period)
+    local phTime = string.format(
+        "%d:%02d %s PH",
+        hour12,
+        utcTime.min,
+        period
+    )
 
-    sendWebhook(
+    local message =
         emoji .. "**" .. eggName .. " DETECTED!**\n" ..
         "Stock: **" .. tostring(stock) .. "**\n" ..
         "Stock Time: **" .. phTime .. "**"
-    )
+
+    for index = 1, 3 do
+        if isEggSelectedForWebhook(index, eggName) then
+            sendWebhook(index, message)
+        end
+    end
 end
 
 local function scanEgg(eggName)
     local stock = getEggStock(eggName)
-
-    if not isEggSelected(eggName) then
-        lastStock[eggName] = stock
-        lastDetectionTime[eggName] = 0
-        return
-    end
-
     local now = os.time()
 
     if stock > 0 then
@@ -960,7 +990,7 @@ task.spawn(function()
 end)
 
 monitoringButton.MouseButton1Click:Connect(function()
-    if #getWebhooks() == 0 then
+    if getAllConfiguredWebhooks() == 0 then
         monitoringEnabled = false
         monitoringStatus.Text = "Webhook Required"
         monitoringStatus.TextColor3 = Color3.fromRGB(255, 170, 80)
