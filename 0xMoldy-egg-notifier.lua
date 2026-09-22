@@ -1,6 +1,5 @@
 local oldGui = game:GetService("CoreGui"):FindFirstChild("EggSpawnMonitoringGUI")
 local player = game:GetService("Players").LocalPlayer
-
 local CoreGui = game:GetService("CoreGui")
 local HttpService = game:GetService("HttpService")
 local gui = Instance.new("ScreenGui")
@@ -20,11 +19,9 @@ window.Position = UDim2.new(0.5, -200, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 window.BorderSizePixel = 2
 window.Parent = gui
-
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = window
-
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(55, 55, 65)
 stroke.Thickness = 1
@@ -77,11 +74,9 @@ openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 openButton.Visible = false
 openButton.Parent = gui
-
 local openCorner = Instance.new("UICorner")
 openCorner.CornerRadius = UDim.new(1, 0)
 openCorner.Parent = openButton
-
 local openStroke = Instance.new("UIStroke")
 openStroke.Color = Color3.fromRGB(55, 55, 65)
 openStroke.Thickness = 1
@@ -148,7 +143,6 @@ dragArea.Position = UDim2.new(0, 0, 0, 0)
 dragArea.BackgroundTransparency = 1
 dragArea.Active = true
 dragArea.Parent = window
-
 dragArea.ZIndex = 0
 title.ZIndex = 1
 subtitle.ZIndex = 1
@@ -163,7 +157,6 @@ sidebar.Position = UDim2.new(0, 0, 0, 60)
 sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 sidebar.BorderSizePixel = 1
 sidebar.Parent = window
-
 local sidebarCorner = Instance.new("UICorner")
 sidebarCorner.CornerRadius = UDim.new(0, 8)
 sidebarCorner.Parent = sidebar
@@ -180,7 +173,6 @@ statusButton.Font = Enum.Font.GothamMedium
 statusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 statusButton.TextXAlignment = Enum.TextXAlignment.Left
 statusButton.Parent = sidebar
-
 local statusCorner = Instance.new("UICorner")
 statusCorner.CornerRadius = UDim.new(0, 7)
 statusCorner.Parent = statusButton
@@ -197,10 +189,26 @@ webhookButton.Font = Enum.Font.GothamMedium
 webhookButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 webhookButton.TextXAlignment = Enum.TextXAlignment.Left
 webhookButton.Parent = sidebar
-
 local webhookButtonCorner = Instance.new("UICorner")
 webhookButtonCorner.CornerRadius = UDim.new(0, 7)
 webhookButtonCorner.Parent = webhookButton
+
+local settingsButton = Instance.new("TextButton")
+settingsButton.Name = "SettingsButton"
+settingsButton.Size = UDim2.new(1, -20, 0, 20)
+settingsButton.Position = UDim2.new(0, 10, 0, 75)
+settingsButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+settingsButton.BorderSizePixel = 0
+settingsButton.Text = "   ⚙   Settings"
+settingsButton.TextSize = 10
+settingsButton.Font = Enum.Font.GothamMedium
+settingsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+settingsButton.TextXAlignment = Enum.TextXAlignment.Left
+settingsButton.Parent = sidebar
+local settingsButtonCorner = Instance.new("UICorner")
+settingsButtonCorner.CornerRadius = UDim.new(0, 7)
+settingsButtonCorner.Parent = settingsButton
+
 
 local statusPage = Instance.new("ScrollingFrame")
 statusPage.Name = "StatusPage"
@@ -212,7 +220,6 @@ statusPage.ScrollBarThickness = 5
 statusPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 statusPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 statusPage.Parent = window
-
 local statusLayout = Instance.new("UIListLayout")
 statusLayout.Padding = UDim.new(0, 10)
 statusLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -227,7 +234,6 @@ monitoringCard.Position = UDim2.new(0, 10, 0, 45)
 monitoringCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 monitoringCard.BorderSizePixel = 0
 monitoringCard.Parent = statusPage
-
 local monitoringCorner = Instance.new("UICorner")
 monitoringCorner.CornerRadius = UDim.new(0, 8)
 monitoringCorner.Parent = monitoringCard
@@ -267,7 +273,6 @@ monitoringButton.TextSize = 9
 monitoringButton.Font = Enum.Font.GothamMedium
 monitoringButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 monitoringButton.Parent = monitoringCard
-
 local monitoringButtonCorner = Instance.new("UICorner")
 monitoringButtonCorner.CornerRadius = UDim.new(0, 6)
 monitoringButtonCorner.Parent = monitoringButton
@@ -279,10 +284,10 @@ statusWebhookCard.Position = UDim2.new(0, 10, 0, 10)
 statusWebhookCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 statusWebhookCard.BorderSizePixel = 0
 statusWebhookCard.Parent = statusPage
-
 local statusWebhookCorner = Instance.new("UICorner")
 statusWebhookCorner.CornerRadius = UDim.new(0, 8)
 statusWebhookCorner.Parent = statusWebhookCard
+
 
 local statusWebhookTitle = Instance.new("TextLabel")
 statusWebhookTitle.Name = "Title"
@@ -315,7 +320,6 @@ weatherCard.Position = UDim2.new(0, 10, 0, 65)
 weatherCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 weatherCard.BorderSizePixel = 0
 weatherCard.Parent = statusPage
-
 local weatherCardCorner = Instance.new("UICorner")
 weatherCardCorner.CornerRadius = UDim.new(0, 8)
 weatherCardCorner.Parent = weatherCard
@@ -351,7 +355,6 @@ etherealCard.Position = UDim2.new(0, 10, 0, 160)
 etherealCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 etherealCard.BorderSizePixel = 0
 etherealCard.Parent = statusPage
-
 local etherealCorner = Instance.new("UICorner")
 etherealCorner.CornerRadius = UDim.new(0, 8)
 etherealCorner.Parent = etherealCard
@@ -440,66 +443,6 @@ cherubStock.TextColor3 = Color3.fromRGB(255, 255, 255)
 cherubStock.TextXAlignment = Enum.TextXAlignment.Right
 cherubStock.Parent = etherealCard
 
-local function getEggStock(eggName)
-    local playerGui = player:FindFirstChild("PlayerGui")
-
-    if not playerGui then
-        return 0
-    end
-
-    local main = playerGui:FindFirstChild("Main")
-
-    if not main then
-        return 0
-    end
-
-    local eggTracker = main:FindFirstChild("EggTracker")
-
-    if not eggTracker then
-        return 0
-    end
-
-    local eggsHolder = eggTracker:FindFirstChild("EggsHolder")
-
-    if not eggsHolder then
-        return 0
-    end
-
-    local egg = eggsHolder:FindFirstChild(eggName)
-
-    if not egg then
-        return 0
-    end
-
-    for _, obj in ipairs(egg:GetDescendants()) do
-        if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-            local text = obj.Text or ""
-            local number = string.match(text, "%d+")
-
-            if number then
-                return tonumber(number)
-            end
-        end
-    end
-
-    return 0
-end
-
-local function updateEtherealStock()
-    blackholeStock.Text = tostring(getEggStock("Blackhole Egg"))
-    solarisStock.Text = tostring(getEggStock("Solaris Egg"))
-    cherubStock.Text = tostring(getEggStock("Cherub Egg"))
-end
-
-updateEtherealStock()
-
-task.spawn(function()
-    while gui.Parent do
-        updateEtherealStock()
-        task.wait(2)
-    end
-end)
-
 local webhookPage = Instance.new("ScrollingFrame")
 webhookPage.Name = "WebhookPage"
 webhookPage.Size = UDim2.new(1, -130, 1, -60)
@@ -533,12 +476,55 @@ local webhookEggToggles = {}
 local webhookRoleInputs = {}
 local webhookTestButtons = {}
 
+local CONFIG_FOLDER = "EggSpawnMonitoring"
+local CONFIG_FILE = CONFIG_FOLDER .. "/config.json"
+
+local function canUseFileStorage()
+    return type(isfile) == "function"
+        and type(readfile) == "function"
+        and type(writefile) == "function"
+end
+
+local function ensureConfigFolder()
+    if type(isfolder) == "function" and type(makefolder) == "function" then
+        if not isfolder(CONFIG_FOLDER) then
+            pcall(function()
+                makefolder(CONFIG_FOLDER)
+            end)
+        end
+    end
+end
+
 local function parseCommaSeparated(text)
     local values = {}
+    text = text or ""
 
-    for value in string.gmatch(text or "", "([^,]*)") do
-        value = string.gsub(value, "^%s*(.-)%s*$", "%1")
-        table.insert(values, value)
+    local startPosition = 1
+
+    while true do
+        local commaPosition = string.find(text, ",", startPosition, true)
+
+        if commaPosition then
+            local value = string.sub(
+                text,
+                startPosition,
+                commaPosition - 1
+            )
+
+            value = string.gsub(value, "^%s*(.-)%s*$", "%1")
+            table.insert(values, value)
+
+            startPosition = commaPosition + 1
+        else
+            local value = string.sub(text, startPosition)
+            value = string.gsub(value, "^%s*(.-)%s*$", "%1")
+
+            if value ~= "" or #values > 0 then
+                table.insert(values, value)
+            end
+
+            break
+        end
     end
 
     return values
@@ -554,7 +540,10 @@ local function getWebhooksForInput(input)
     for webhook in string.gmatch(input.Text or "", "([^,]+)") do
         webhook = string.gsub(webhook, "^%s*(.-)%s*$", "%1")
 
-        if string.find(webhook, "^https://discord.com/api/webhooks/") then
+        if string.find(
+            webhook,
+            "^https://discord.com/api/webhooks/"
+        ) then
             table.insert(webhooks, webhook)
         end
     end
@@ -566,9 +555,7 @@ local function getAllConfiguredWebhooks()
     local count = 0
 
     for index = 1, 3 do
-        local webhooks = getWebhooksForInput(webhookInputs[index])
-
-        count = count + #webhooks
+        count = count + #getWebhooksForInput(webhookInputs[index])
     end
 
     return count
@@ -590,10 +577,73 @@ local function updateWebhookConnectionStatus()
     end
 end
 
+local function saveConfig()
+    if not canUseFileStorage() then
+        return false
+    end
+
+    ensureConfigFolder()
+
+    local config = {
+        webhooks = {},
+        eggs = {},
+        autoExecute = autoExecuteEnabled
+    }
+
+    for index = 1, 3 do
+        config.webhooks[index] =
+            webhookInputs[index]
+            and webhookInputs[index].Text
+            or ""
+
+        config.eggs[index] = {}
+
+        for _, eggName in ipairs({
+            "Blackhole Egg",
+            "Solaris Egg",
+            "Cherub Egg"
+        }) do
+            local toggle =
+                webhookEggToggles[index]
+                and webhookEggToggles[index][eggName]
+
+            local roleInput =
+                webhookRoleInputs[index]
+                and webhookRoleInputs[index][eggName]
+
+            config.eggs[index][eggName] = {
+                enabled =
+                    toggle
+                    and toggle:GetAttribute("Enabled") == true
+                    or false,
+
+                roles =
+                    roleInput
+                    and roleInput.Text
+                    or ""
+            }
+        end
+    end
+
+    local encodeSuccess, encoded = pcall(function()
+        return HttpService:JSONEncode(config)
+    end)
+
+    if not encodeSuccess then
+        return false
+    end
+
+    local writeSuccess = pcall(function()
+        writefile(CONFIG_FILE, encoded)
+    end)
+
+    return writeSuccess
+end
+
 local function createWebhookCard(index)
     local card = Instance.new("Frame")
     card.Name = "WebhookCard" .. tostring(index)
-    card.Size = UDim2.new(1, -10, 0, 250)
+    card.Size = UDim2.new(1, -10, 0, 260)
     card.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
     card.BorderSizePixel = 0
     card.ClipsDescendants = false
@@ -643,18 +693,15 @@ local function createWebhookCard(index)
     local eggs = {
         {
             name = "Blackhole Egg",
-            short = "Blackhole",
-            emoji = "🌌"
+            short = "Blackhole"
         },
         {
             name = "Solaris Egg",
-            short = "Solaris",
-            emoji = "☀️"
+            short = "Solaris"
         },
         {
             name = "Cherub Egg",
-            short = "Cherub",
-            emoji = "🪽"
+            short = "Cherub"
         }
     }
 
@@ -670,13 +717,14 @@ local function createWebhookCard(index)
         toggle.Position = UDim2.new(0, 10, 0, y)
         toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
         toggle.BorderSizePixel = 0
-        toggle.Text = " □  " .. eggData.short
+        toggle.Text = "  □  " .. eggData.short
         toggle.TextSize = 9
         toggle.Font = Enum.Font.GothamMedium
         toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
         toggle.TextXAlignment = Enum.TextXAlignment.Left
         toggle.ZIndex = card.ZIndex + 2
         toggle.Parent = card
+        toggle:SetAttribute("Enabled", false)
 
         local toggleCorner = Instance.new("UICorner")
         toggleCorner.CornerRadius = UDim.new(0, 6)
@@ -685,12 +733,12 @@ local function createWebhookCard(index)
         local roleInput = Instance.new("TextBox")
         roleInput.Name = eggData.short .. "RoleIDs"
         roleInput.Size = UDim2.new(1, -135, 0, 35)
-        roleInput.Position = UDim2.new(0, 125, 0, y)
+        roleInput.Position = UDim2.new(0, 120, 0, y)
         roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
         roleInput.BorderSizePixel = 0
         roleInput.ClearTextOnFocus = false
         roleInput.TextWrapped = true
-        roleInput.PlaceholderText = "  " .. eggData.short .. " Role IDs..."
+        roleInput.PlaceholderText = "  Role IDs..."
         roleInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
         roleInput.Text = ""
         roleInput.TextSize = 9
@@ -708,17 +756,39 @@ local function createWebhookCard(index)
         webhookRoleInputs[index][eggData.name] = roleInput
 
         toggle.MouseButton1Click:Connect(function()
-            local current = toggle:GetAttribute("Enabled") == true
+            local current =
+                toggle:GetAttribute("Enabled") == true
+
             current = not current
-            toggle:SetAttribute("Enabled", current)
+
+            toggle:SetAttribute(
+                "Enabled",
+                current
+            )
 
             if current then
-                toggle.Text = "   ✓  " .. eggData.short
+                toggle.Text =
+                    "  ✓  " .. eggData.short
+
                 toggle.TextColor3 = Color3.fromRGB(100, 220, 130)
             else
-                toggle.Text = "   □  " .. eggData.short
+                toggle.Text =
+                    "  □  " .. eggData.short
+
                 toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
             end
+
+            task.delay(0.1, function()
+                saveConfig()
+            end)
+        end)
+
+        roleInput:GetPropertyChangedSignal("Text"):Connect(function()
+            task.delay(0.3, function()
+                if gui.Parent then
+                    saveConfig()
+                end
+            end)
         end)
     end
 
@@ -741,6 +811,12 @@ local function createWebhookCard(index)
 
     input:GetPropertyChangedSignal("Text"):Connect(function()
         updateWebhookConnectionStatus()
+
+        task.delay(0.3, function()
+            if gui.Parent then
+                saveConfig()
+            end
+        end)
     end)
 
     testButton.MouseButton1Click:Connect(function()
@@ -767,7 +843,7 @@ local function createWebhookCard(index)
         end
 
         local success = true
-
+            
         for _, webhook in ipairs(webhooks) do
             local sent = pcall(function()
                 requestFunction({
@@ -777,8 +853,10 @@ local function createWebhookCard(index)
                         ["Content-Type"] = "application/json"
                     },
                     Body = HttpService:JSONEncode({
-                        content = "**\n ⚠️TEST — Egg Spawn Notifier " .. tostring(index) .. "⚠️**\n\n" ..
-                        ""     
+                        content =
+                            "**\n ⚠️TEST — WEBHOOK "
+                            .. tostring(index)
+                            .. "⚠️**\n\n"
                     })
                 })
             end)
@@ -793,7 +871,6 @@ local function createWebhookCard(index)
         else
             testButton.Text = "Failed"
         end
-
         task.wait(1.5)
         testButton.Text = "Test Webhook"
     end)
@@ -806,6 +883,271 @@ end
 createWebhookCard(1)
 createWebhookCard(2)
 createWebhookCard(3)
+
+local settingsPage = Instance.new("ScrollingFrame")
+settingsPage.Name = "SettingsPage"
+settingsPage.Size = UDim2.new(1, -130, 1, -60)
+settingsPage.Position = UDim2.new(0, 130, 0, 60)
+settingsPage.BackgroundTransparency = 1
+settingsPage.BorderSizePixel = 0
+settingsPage.ScrollBarThickness = 5
+settingsPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+settingsPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
+settingsPage.Visible = false
+settingsPage.Parent = window
+
+local settingsLayout = Instance.new("UIListLayout")
+settingsLayout.Padding = UDim.new(0, 10)
+settingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+settingsLayout.Parent = settingsPage
+
+local autoExecuteEnabled = false
+
+local autoExecuteCard = Instance.new("Frame")
+autoExecuteCard.Name = "AutoExecuteCard"
+autoExecuteCard.Size = UDim2.new(1, -20, 0, 65)
+autoExecuteCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+autoExecuteCard.BorderSizePixel = 0
+autoExecuteCard.Parent = settingsPage
+
+local autoExecuteCorner = Instance.new("UICorner")
+autoExecuteCorner.CornerRadius = UDim.new(0, 8)
+autoExecuteCorner.Parent = autoExecuteCard
+
+local autoExecuteTitle = Instance.new("TextLabel")
+autoExecuteTitle.Name = "Title"
+autoExecuteTitle.Size = UDim2.new(1, -130, 0, 25)
+autoExecuteTitle.Position = UDim2.new(0, 10, 0, 7)
+autoExecuteTitle.BackgroundTransparency = 1
+autoExecuteTitle.Text = "●  Auto Execute"
+autoExecuteTitle.TextSize = 11
+autoExecuteTitle.Font = Enum.Font.GothamMedium
+autoExecuteTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoExecuteTitle.TextXAlignment = Enum.TextXAlignment.Left
+autoExecuteTitle.Parent = autoExecuteCard
+
+local autoExecuteStatus = Instance.new("TextLabel")
+autoExecuteStatus.Name = "Status"
+autoExecuteStatus.Size = UDim2.new(1, -130, 0, 20)
+autoExecuteStatus.Position = UDim2.new(0, 10, 0, 32)
+autoExecuteStatus.BackgroundTransparency = 1
+autoExecuteStatus.Text = "Disabled"
+autoExecuteStatus.TextSize = 10
+autoExecuteStatus.Font = Enum.Font.Gotham
+autoExecuteStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+autoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
+autoExecuteStatus.Parent = autoExecuteCard
+
+local autoExecuteButton = Instance.new("TextButton")
+autoExecuteButton.Name = "AutoExecuteButton"
+autoExecuteButton.Size = UDim2.new(0, 100, 0, 25)
+autoExecuteButton.Position = UDim2.new(1, -110, 0, 20)
+autoExecuteButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+autoExecuteButton.BorderSizePixel = 0
+autoExecuteButton.Text = "OFF"
+autoExecuteButton.TextSize = 9
+autoExecuteButton.Font = Enum.Font.GothamMedium
+autoExecuteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoExecuteButton.Parent = autoExecuteCard
+
+local autoExecuteButtonCorner = Instance.new("UICorner")
+autoExecuteButtonCorner.CornerRadius = UDim.new(0, 6)
+autoExecuteButtonCorner.Parent = autoExecuteButton
+
+local function updateAutoExecuteUI()
+    if autoExecuteEnabled then
+        autoExecuteStatus.Text = "Enabled"
+        autoExecuteStatus.TextColor3 = Color3.fromRGB(100, 220, 130)
+
+        autoExecuteButton.Text = "ON"
+    else
+        autoExecuteStatus.Text = "Disabled"
+        autoExecuteStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+
+        autoExecuteButton.Text = "OFF"
+    end
+end
+
+
+local function loadConfig()
+    if not canUseFileStorage() then
+        return false
+    end
+
+    if type(isfile) ~= "function" then
+        return false
+    end
+
+    local exists = false
+
+    local existsSuccess = pcall(function()
+        exists = isfile(CONFIG_FILE)
+    end)
+
+    if not existsSuccess or not exists then
+        return false
+    end
+
+    local readSuccess, data = pcall(function()
+        return readfile(CONFIG_FILE)
+    end)
+
+    if not readSuccess or not data or data == "" then
+        return false
+    end
+
+    local decodeSuccess, config = pcall(function()
+        return HttpService:JSONDecode(data)
+    end)
+
+    if not decodeSuccess or type(config) ~= "table" then
+        return false
+    end
+
+    if config.autoExecute == true then
+        autoExecuteEnabled = true
+    else
+        autoExecuteEnabled = false
+    end
+
+    if type(config.webhooks) == "table" then
+        for index = 1, 3 do
+            if webhookInputs[index] then
+                webhookInputs[index].Text =
+                    tostring(config.webhooks[index] or "")
+            end
+        end
+    end
+
+    if type(config.eggs) == "table" then
+        for index = 1, 3 do
+            local savedEggs = config.eggs[index]
+
+            if type(savedEggs) == "table" then
+                for _, eggName in ipairs({
+                    "Blackhole Egg",
+                    "Solaris Egg",
+                    "Cherub Egg"
+                }) do
+                    local saved = savedEggs[eggName]
+
+                    if type(saved) == "table" then
+                        local toggle =
+                            webhookEggToggles[index]
+                            and webhookEggToggles[index][eggName]
+
+                        local roleInput =
+                            webhookRoleInputs[index]
+                            and webhookRoleInputs[index][eggName]
+
+                        local enabled =
+                            saved.enabled == true
+
+                        local roles =
+                            tostring(saved.roles or "")
+
+                        if toggle then
+                            toggle:SetAttribute(
+                                "Enabled",
+                                enabled
+                            )
+
+                            local shortName =
+                                eggName:gsub(" Egg", "")
+
+                            if enabled then
+                                toggle.Text =
+                                    "  ✓  " .. shortName
+
+                                toggle.TextColor3 =
+                                    Color3.fromRGB(
+                                        100,
+                                        220,
+                                        130
+                                    )
+                            else
+                                toggle.Text =
+                                    "  □  " .. shortName
+
+                                toggle.TextColor3 =
+                                    Color3.fromRGB(
+                                        180,
+                                        180,
+                                        190
+                                    )
+                            end
+                        end
+
+                        if roleInput then
+                            roleInput.Text = roles
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    updateAutoExecuteUI()
+    updateWebhookConnectionStatus()
+
+    return true
+end
+
+local function getEggStock(eggName)
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then
+        return 0
+    end
+    local main = playerGui:FindFirstChild("Main")
+    if not main then
+        return 0
+    end
+    local eggTracker = main:FindFirstChild("EggTracker")
+    if not eggTracker then
+        return 0
+    end
+    local eggsHolder = eggTracker:FindFirstChild("EggsHolder")
+    if not eggsHolder then
+        return 0
+    end
+    local egg = eggsHolder:FindFirstChild(eggName)
+    if not egg then
+        return 0
+    end
+    for _, obj in ipairs(egg:GetDescendants()) do
+        if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+            local text = obj.Text or ""
+            local number = string.match(text, "%d+")
+            if number then
+                return tonumber(number)
+            end
+        end
+    end
+    return 0
+end
+
+local function updateEtherealStock()
+    blackholeStock.Text = tostring(getEggStock("Blackhole Egg"))
+    solarisStock.Text = tostring(getEggStock("Solaris Egg"))
+    cherubStock.Text = tostring(getEggStock("Cherub Egg"))
+end
+
+updateEtherealStock()
+
+task.spawn(function()
+    while gui.Parent do
+        updateEtherealStock()
+        task.wait(2)
+    end
+end)
+
+local autoLoaded = loadConfig()
+
+if autoLoaded then
+    task.delay(0.5, function()
+        updateWebhookConnectionStatus()
+    end)
+end
 
 local lastStock = {
     ["Blackhole Egg"] = 0,
@@ -827,11 +1169,9 @@ local function sendWebhookToUrl(webhook, message)
         or (http and http.request)
         or http_request
         or request
-
     if not requestFunction then
         return false
     end
-
     local success = pcall(function()
         requestFunction({
             Url = webhook,
@@ -844,7 +1184,6 @@ local function sendWebhookToUrl(webhook, message)
             })
         })
     end)
-
     return success
 end
 
@@ -877,41 +1216,61 @@ local function sendEggNotification(eggName, stock)
     )
 
     local baseMessage =
-        emoji .. "**" .. eggName .. " SPAWNED!**\n" ..
-        "Stock: **" .. tostring(stock) .. "**\n" ..
-        "Stock Time: **" .. phTime .. "**"
+        emoji
+        .. "**"
+        .. eggName
+        .. " SPAWNED!**\n"
+        .. "Stock: **"
+        .. tostring(stock)
+        .. "**\n"
+        .. "Stock Time: **"
+        .. phTime
+        .. "**"
 
     for index = 1, 3 do
-        local toggle = webhookEggToggles[index]
+        local toggle =
+            webhookEggToggles[index]
             and webhookEggToggles[index][eggName]
 
-        if toggle and toggle:GetAttribute("Enabled") == true then
-            local input = webhookInputs[index]
+        if toggle
+        and toggle:GetAttribute("Enabled") == true then
 
+            local input = webhookInputs[index]
             local webhooks = getWebhooksForInput(input)
 
-            local roleInput = webhookRoleInputs[index]
+            local roleInput =
+                webhookRoleInputs[index]
                 and webhookRoleInputs[index][eggName]
 
-            local roleIds = parseCommaSeparated(
-                roleInput and roleInput.Text or ""
-            )
+            local roleIds =
+                parseCommaSeparated(
+                    roleInput and roleInput.Text or ""
+                )
 
             for webhookIndex, webhook in ipairs(webhooks) do
                 local message = baseMessage
                 local roleId = roleIds[webhookIndex]
 
                 if roleId then
-                    roleId = string.match(roleId, "^%s*(%d+)%s*$")
+                    roleId =
+                        string.match(
+                            roleId,
+                            "^%s*(%d+)%s*$"
+                        )
 
                     if roleId then
                         message =
-                            "<@&" .. roleId .. ">\n" ..
-                            baseMessage
+                            "<@&"
+                            .. roleId
+                            .. ">\n\n"
+                            .. baseMessage
                     end
                 end
 
-                sendWebhookToUrl(webhook, message)
+                sendWebhookToUrl(
+                    webhook,
+                    message
+                )
             end
         end
     end
@@ -924,11 +1283,21 @@ local function scanEgg(eggName)
     if stock > 0 then
         if lastDetectionTime[eggName] == 0 then
             if lastStock[eggName] <= 0 then
-                sendEggNotification(eggName, stock)
+                sendEggNotification(
+                    eggName,
+                    stock
+                )
+
                 lastDetectionTime[eggName] = now
             end
-        elseif now - lastDetectionTime[eggName] >= STOCK_RESET_TIME then
-            sendEggNotification(eggName, stock)
+        elseif now - lastDetectionTime[eggName]
+            >= STOCK_RESET_TIME then
+
+            sendEggNotification(
+                eggName,
+                stock
+            )
+
             lastDetectionTime[eggName] = now
         end
     else
@@ -953,8 +1322,10 @@ end)
 monitoringButton.MouseButton1Click:Connect(function()
     if getAllConfiguredWebhooks() == 0 then
         monitoringEnabled = false
-        monitoringStatus.Text = "Webhook Required"
-        monitoringStatus.TextColor3 = Color3.fromRGB(255, 170, 80)
+        monitoringStatus.Text =
+            "Webhook Required"
+        monitoringStatus.TextColor3 =
+            Color3.fromRGB(255, 170, 80)
         monitoringButton.Text = "Start"
         return
     end
@@ -962,16 +1333,21 @@ monitoringButton.MouseButton1Click:Connect(function()
     monitoringEnabled = not monitoringEnabled
 
     if monitoringEnabled then
-        lastStock["Blackhole Egg"] = getEggStock("Blackhole Egg")
-        lastStock["Solaris Egg"] = getEggStock("Solaris Egg")
-        lastStock["Cherub Egg"] = getEggStock("Cherub Egg")
-
+        lastStock["Blackhole Egg"] =
+            getEggStock("Blackhole Egg")
+        lastStock["Solaris Egg"] =
+            getEggStock("Solaris Egg")
+        lastStock["Cherub Egg"] =
+            getEggStock("Cherub Egg")
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
 
         monitoringStatus.Text = "Running"
-        monitoringStatus.TextColor3 = Color3.fromRGB(100, 220, 130)
+
+        monitoringStatus.TextColor3 =
+            Color3.fromRGB(100,220,130)
+
         monitoringButton.Text = "Stop"
     else
         lastStock["Blackhole Egg"] = 0
@@ -983,7 +1359,10 @@ monitoringButton.MouseButton1Click:Connect(function()
         lastDetectionTime["Cherub Egg"] = 0
 
         monitoringStatus.Text = "Stopped"
-        monitoringStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+
+        monitoringStatus.TextColor3 =
+            Color3.fromRGB(180, 180, 190)
+
         monitoringButton.Text = "Start"
     end
 end)
@@ -991,15 +1370,53 @@ end)
 statusButton.MouseButton1Click:Connect(function()
     statusPage.Visible = true
     webhookPage.Visible = false
+    settingsPage.Visible = false
 
-    statusButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
-    webhookButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    statusButton.BackgroundColor3 =
+        Color3.fromRGB(55, 55, 65)
+
+    webhookButton.BackgroundColor3 =
+        Color3.fromRGB(45, 45, 55)
+
+    settingsButton.BackgroundColor3 =
+        Color3.fromRGB(45, 45, 55)
 end)
 
 webhookButton.MouseButton1Click:Connect(function()
     statusPage.Visible = false
     webhookPage.Visible = true
+    settingsPage.Visible = false
 
-    statusButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    webhookButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
+    statusButton.BackgroundColor3 =
+        Color3.fromRGB(45, 45, 55)
+
+    webhookButton.BackgroundColor3 =
+        Color3.fromRGB(55, 55, 65)
+
+    settingsButton.BackgroundColor3 =
+        Color3.fromRGB(45, 45, 55)
 end)
+
+settingsButton.MouseButton1Click:Connect(function()
+    statusPage.Visible = false
+    webhookPage.Visible = false
+    settingsPage.Visible = true
+
+    statusButton.BackgroundColor3 =
+        Color3.fromRGB(45, 45, 55)
+
+    webhookButton.BackgroundColor3 =
+        Color3.fromRGB(45, 45, 55)
+
+    settingsButton.BackgroundColor3 =
+        Color3.fromRGB(55, 55, 65)
+end)
+
+autoExecuteButton.MouseButton1Click:Connect(function()
+    autoExecuteEnabled = not autoExecuteEnabled
+
+    updateAutoExecuteUI()
+    saveConfig()
+end)
+
+updateAutoExecuteUI()
