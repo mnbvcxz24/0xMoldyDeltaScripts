@@ -485,27 +485,27 @@ local webhookWeatherRoleInputs = {}
 
 local weatherMutationInfo = {
     Thunder = {
-        emoji = "🟦",
+        emoji = "🌩️",
         cash = "2x",
         speed = "2x"
     },
     Volt = {
-        emoji = "🟨",
+        emoji = "⚡",
         cash = "3x",
         speed = "3x"
     },
     Raging = {
-        emoji = "🟥",
+        emoji = "🔥",
         cash = "4x",
         speed = "4x"
     },
-    Void = {
-        emoji = "⬛",
+    Dreadful = {
+        emoji = "🌑",
         cash = "10x",
         speed = "10x"
     },
     Eternal = {
-        emoji = "🟪",
+        emoji = "💜",
         cash = "100x",
         speed = "100x"
     }
@@ -1395,7 +1395,17 @@ end
 local function sendWeatherNotification(weatherVariant)
     local m=weatherMutationInfo[weatherVariant]
     if not m then return end
-    local base="⛈️ **Weather Detected**\n"..m.emoji.." "..weatherVariant.."\n💰 "..m.cash.." Cash • ⚡ "..m.speed.." Speed"
+
+    local weatherStartTime = os.time()
+    local weatherEndTime = weatherStartTime + (5 * 60)
+    
+    local base = "⛈️ **Weather Detected**\n" ..
+    m.emoji .. " **" .. string.upper(weatherVariant) .. "**\n" ..
+    "💰 " .. m.cash .. " Cash • ⚡ " .. m.speed .. " Speed\n\n" ..
+    "🕐 Start Time: <t:" .. weatherStartTime .. ":t>\n" ..
+    "🔄 End Time: <t:" .. weatherEndTime .. ":t>\n" ..
+    "⏳ Ends: <t:" .. weatherEndTime .. ":R>"
+    
     for i=1,3 do
         local t=webhookWeatherToggles[i]
         if t and t:GetAttribute("Enabled")==true then
@@ -1441,41 +1451,33 @@ local function sendEggNotification(eggName, stock)
     local emoji = "🥚"
 
     if eggName == "Blackhole Egg" then
-        emoji = "🌌 "
+        emoji = "🌀 "
     elseif eggName == "Solaris Egg" then
         emoji = "☀️ "
     elseif eggName == "Cherub Egg" then
         emoji = "🪽 "
     end
-
-    local utcTime = os.date("!*t")
-    local phHour = (utcTime.hour + 8) % 24
-
-    local period = phHour >= 12 and "PM" or "AM"
-    local hour12 = phHour % 12
-
-    if hour12 == 0 then
-        hour12 = 12
-    end
-
-    local phTime = string.format(
-        "%d:%02d %s PH",
-        hour12,
-        utcTime.min,
-        period
-    )
-
+    
+	local resetTime = os.time() + (7 * 60)
+	local stockTimestamp = os.time()
+  
     local baseMessage =
         emoji
         .. "**"
-        .. eggName
-        .. " SPAWNED!**\n"
-        .. "Stock: **"
+        .. string.upper(eggName)
+        .. " Spawned!**\n\n"
+        .. "📦 Stock: **"
         .. tostring(stock)
         .. "**\n"
-        .. "Stock Time: **"
-        .. phTime
-        .. "**"
+        .. "🕐 Stock Time: <t:"
+        .. stockTimestamp
+        .. ":t>\n"
+        .. "🔄 Reset Time: <t:"
+        .. resetTime
+        .. ":t>\n"
+        .. "⏳ Resets: <t:"
+        .. resetTime
+        .. ":R>"
 
     for index = 1, 3 do
         local toggle =
@@ -1512,7 +1514,7 @@ local function sendEggNotification(eggName, stock)
                         message =
                             "<@&"
                             .. roleId
-                            .. ">\n\n"
+                            .. ">\n"
                             .. baseMessage
                     end
                 end
