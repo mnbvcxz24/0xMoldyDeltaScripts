@@ -12,9 +12,8 @@ gui.Name = "EggSpawnNotifierGUI"
 gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
-
-local CONFIG_FILE = "Workspace/EggSpawnNotifierConfig.json"
-local AUTOEXECUTE_FILE = "Autoexecute/EggSpawnNotifier.lua"
+local CONFIG_FILE = "RAP-notifier/RAP-notifier-config.json"
+local AUTOEXECUTE_FILE = "../Autoexecute/RAP-notifier-autoexec.lua"
 local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/0xMoldy-egg-notifier.lua"))()'
 
 local window = Instance.new("Frame")
@@ -1571,53 +1570,55 @@ task.spawn(function()
     end
 end)
 
-monitoringButton.MouseButton1Click:Connect(function()
+local function startMonitoring()
     if getAllConfiguredWebhooks() == 0 then
         monitoringEnabled = false
-        monitoringStatus.Text =
-            "Webhook Required"
-        monitoringStatus.TextColor3 =
-            Color3.fromRGB(255, 170, 80)
+        monitoringStatus.Text = "Webhook Required"
+        monitoringStatus.TextColor3 = Color3.fromRGB(255, 170, 80)
         monitoringButton.Text = "Start"
         return
     end
 
-    monitoringEnabled = not monitoringEnabled
+    monitoringEnabled = true
 
+    lastStock["Blackhole Egg"] = getEggStock("Blackhole Egg")
+    lastStock["Solaris Egg"] = getEggStock("Solaris Egg")
+    lastStock["Cherub Egg"] = getEggStock("Cherub Egg")
+
+    lastDetectionTime["Blackhole Egg"] = 0
+    lastDetectionTime["Solaris Egg"] = 0
+    lastDetectionTime["Cherub Egg"] = 0
+
+    monitoringStatus.Text = "Running"
+    monitoringStatus.TextColor3 = Color3.fromRGB(100,220,130)
+    monitoringButton.Text = "Stop"
+end
+
+local function stopMonitoring()
+    monitoringEnabled = false
+
+    lastStock["Blackhole Egg"] = 0
+    lastStock["Solaris Egg"] = 0
+    lastStock["Cherub Egg"] = 0
+
+    lastDetectionTime["Blackhole Egg"] = 0
+    lastDetectionTime["Solaris Egg"] = 0
+    lastDetectionTime["Cherub Egg"] = 0
+
+    monitoringStatus.Text = "Stopped"
+    monitoringStatus.TextColor3 = Color3.fromRGB(180,180,190)
+    monitoringButton.Text = "Start"
+end
+
+monitoringButton.MouseButton1Click:Connect(function()
     if monitoringEnabled then
-        lastStock["Blackhole Egg"] =
-            getEggStock("Blackhole Egg")
-        lastStock["Solaris Egg"] =
-            getEggStock("Solaris Egg")
-        lastStock["Cherub Egg"] =
-            getEggStock("Cherub Egg")
-        lastDetectionTime["Blackhole Egg"] = 0
-        lastDetectionTime["Solaris Egg"] = 0
-        lastDetectionTime["Cherub Egg"] = 0
-
-        monitoringStatus.Text = "Running"
-
-        monitoringStatus.TextColor3 =
-            Color3.fromRGB(100,220,130)
-
-        monitoringButton.Text = "Stop"
+        stopMonitoring()
     else
-        lastStock["Blackhole Egg"] = 0
-        lastStock["Solaris Egg"] = 0
-        lastStock["Cherub Egg"] = 0
-
-        lastDetectionTime["Blackhole Egg"] = 0
-        lastDetectionTime["Solaris Egg"] = 0
-        lastDetectionTime["Cherub Egg"] = 0
-
-        monitoringStatus.Text = "Stopped"
-
-        monitoringStatus.TextColor3 =
-            Color3.fromRGB(180, 180, 190)
-
-        monitoringButton.Text = "Start"
+        startMonitoring()
     end
 end)
+
+startMonitoring()
 
 statusButton.MouseButton1Click:Connect(function()
     statusPage.Visible = true
