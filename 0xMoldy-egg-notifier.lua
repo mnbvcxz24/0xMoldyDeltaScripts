@@ -1016,9 +1016,9 @@ local function createWebhookCard(index)
                     },
                     Body = HttpService:JSONEncode({
                         content =
-                            "**\n ⚠️TEST — WEBHOOK "
+                            "**\n :placard:  Notifier test — all systems working! "
                             .. tostring(index)
-                            .. "⚠️**\n\n"
+                            .. " :white_check_mark: **\n\n"
                     })
                 })
             end)
