@@ -1,16 +1,21 @@
-local oldGui = game:GetService("CoreGui"):FindFirstChild("EggSpawnMonitoringGUI")
+local oldGui = game:GetService("CoreGui"):FindFirstChild("EggSpawnNotifierGUI")
+if oldGui then
+    oldGui:Destroy()
+end
+
 local player = game:GetService("Players").LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local HttpService = game:GetService("HttpService")
 local gui = Instance.new("ScreenGui")
 
-gui.Name = "EggSpawnMonitoringGUI"
+gui.Name = "EggSpawnNotifierGUI"
 gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
-if oldGui then
-    oldGui:Destroy()
-end
+
+local CONFIG_FILE = "Workspace/EggSpawnNotifierConfig.json"
+local AUTOEXECUTE_FILE = "Autoexecute/EggSpawnNotifier.lua"
+local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/0xMoldy-egg-notifier.lua"))()'
 
 local window = Instance.new("Frame")
 window.Name = "MainWindow"
@@ -32,7 +37,7 @@ title.Name = "Title"
 title.Size = UDim2.new(1, -20, 0, 30)
 title.Position = UDim2.new(0, 10, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "Egg Spawn Monitoring"
+title.Text = "Egg Spawn Notifier"
 title.TextSize = 14
 title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -44,7 +49,7 @@ subtitle.Name = "Subtitle"
 subtitle.Size = UDim2.new(1, -20, 0, 30)
 subtitle.Position = UDim2.new(0, 10, 0, 33)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Egg Spawn Monitoring"
+subtitle.Text = "Ride a Pet • Egg Spawn Notifier"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -475,24 +480,41 @@ local webhookInputs = {}
 local webhookEggToggles = {}
 local webhookRoleInputs = {}
 local webhookTestButtons = {}
+local webhookWeatherToggles = {}
+local webhookWeatherRoleInputs = {}
 
-local CONFIG_FOLDER = "EggSpawnMonitoring"
-local CONFIG_FILE = CONFIG_FOLDER .. "/config.json"
+local weatherMutationInfo = {
+    Thunder = {
+        emoji = "🟦",
+        cash = "2x",
+        speed = "2x"
+    },
+    Volt = {
+        emoji = "🟨",
+        cash = "3x",
+        speed = "3x"
+    },
+    Raging = {
+        emoji = "🟥",
+        cash = "4x",
+        speed = "4x"
+    },
+    Void = {
+        emoji = "⬛",
+        cash = "10x",
+        speed = "10x"
+    },
+    Eternal = {
+        emoji = "🟪",
+        cash = "100x",
+        speed = "100x"
+    }
+}
 
 local function canUseFileStorage()
     return type(isfile) == "function"
         and type(readfile) == "function"
         and type(writefile) == "function"
-end
-
-local function ensureConfigFolder()
-    if type(isfolder) == "function" and type(makefolder) == "function" then
-        if not isfolder(CONFIG_FOLDER) then
-            pcall(function()
-                makefolder(CONFIG_FOLDER)
-            end)
-        end
-    end
 end
 
 local function parseCommaSeparated(text)
@@ -569,12 +591,41 @@ local function updateWebhookConnectionStatus()
     if total > 0 then
         webhookConnected = true
         statusWebhookStatus.Text = "Configured"
-        statusWebhookStatus.TextColor3 = Color3.fromRGB(100, 220, 130)
+        statusWebhookStatus.TextColor3 =
+            Color3.fromRGB(100, 220, 130)
     else
         webhookConnected = false
         statusWebhookStatus.Text = "Not Connected"
-        statusWebhookStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+        statusWebhookStatus.TextColor3 =
+            Color3.fromRGB(180, 180, 190)
     end
+end
+
+local autoExecuteEnabled = false
+
+local function checkAutoExecute()
+    if type(isfile) == "function" then
+        return isfile(AUTOEXECUTE_FILE)
+    end
+    return false
+end
+
+local function enableAutoExecute()
+    if type(writefile) == "function" then
+        writefile(AUTOEXECUTE_FILE, AUTOEXECUTE_CONTENT)
+        return true
+    end
+    return false
+end
+
+local function disableAutoExecute()
+    if type(isfile) == "function" and type(delfile) == "function" then
+        if isfile(AUTOEXECUTE_FILE) then
+            delfile(AUTOEXECUTE_FILE)
+        end
+        return true
+    end
+    return false
 end
 
 local function saveConfig()
@@ -582,12 +633,10 @@ local function saveConfig()
         return false
     end
 
-    ensureConfigFolder()
-
     local config = {
         webhooks = {},
         eggs = {},
-        autoExecute = autoExecuteEnabled
+        weather = {},
     }
 
     for index = 1, 3 do
@@ -623,6 +672,18 @@ local function saveConfig()
                     or ""
             }
         end
+
+        config.weather[index] = {
+            enabled =
+                webhookWeatherToggles[index]
+                and webhookWeatherToggles[index]:GetAttribute("Enabled") == true
+                or false,
+
+            role =
+                webhookWeatherRoleInputs[index]
+                and webhookWeatherRoleInputs[index].Text
+                or ""
+        }
     end
 
     local encodeSuccess, encoded = pcall(function()
@@ -643,7 +704,7 @@ end
 local function createWebhookCard(index)
     local card = Instance.new("Frame")
     card.Name = "WebhookCard" .. tostring(index)
-    card.Size = UDim2.new(1, -10, 0, 260)
+    card.Size = UDim2.new(1, -10, 0, 380)
     card.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
     card.BorderSizePixel = 0
     card.ClipsDescendants = false
@@ -770,12 +831,22 @@ local function createWebhookCard(index)
                 toggle.Text =
                     "  ✓  " .. eggData.short
 
-                toggle.TextColor3 = Color3.fromRGB(100, 220, 130)
+                toggle.TextColor3 =
+                    Color3.fromRGB(
+                        100,
+                        220,
+                        130
+                    )
             else
                 toggle.Text =
                     "  □  " .. eggData.short
 
-                toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
+                toggle.TextColor3 =
+                    Color3.fromRGB(
+                        180,
+                        180,
+                        190
+                    )
             end
 
             task.delay(0.1, function()
@@ -792,10 +863,102 @@ local function createWebhookCard(index)
         end)
     end
 
+
+    local weatherTitle = Instance.new("TextLabel")
+    weatherTitle.Name = "WeatherTitle"
+    weatherTitle.Size = UDim2.new(1, -20, 0, 20)
+    weatherTitle.Position = UDim2.new(0, 10, 0, 212)
+    weatherTitle.BackgroundTransparency = 1
+    weatherTitle.Text = "Weather Notifications"
+    weatherTitle.TextSize = 10
+    weatherTitle.Font = Enum.Font.GothamMedium
+    weatherTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    weatherTitle.TextXAlignment = Enum.TextXAlignment.Left
+    weatherTitle.ZIndex = card.ZIndex + 2
+    weatherTitle.Parent = card
+
+    local weatherToggle = Instance.new("TextButton")
+    weatherToggle.Name = "WeatherToggle"
+    weatherToggle.Size = UDim2.new(0, 105, 0, 35)
+    weatherToggle.Position = UDim2.new(0, 10, 0, 234)
+    weatherToggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    weatherToggle.BorderSizePixel = 0
+    weatherToggle.Text = "  □  Weather"
+    weatherToggle.TextSize = 9
+    weatherToggle.Font = Enum.Font.GothamMedium
+    weatherToggle.TextColor3 = Color3.fromRGB(180, 180, 190)
+    weatherToggle.TextXAlignment = Enum.TextXAlignment.Left
+    weatherToggle.ZIndex = card.ZIndex + 2
+    weatherToggle.Parent = card
+    weatherToggle:SetAttribute("Enabled", false)
+
+    local weatherToggleCorner = Instance.new("UICorner")
+    weatherToggleCorner.CornerRadius = UDim.new(0, 6)
+    weatherToggleCorner.Parent = weatherToggle
+
+    local weatherRoleInput = Instance.new("TextBox")
+    weatherRoleInput.Name = "WeatherRoleID"
+    weatherRoleInput.Size = UDim2.new(1, -135, 0, 35)
+    weatherRoleInput.Position = UDim2.new(0, 120, 0, 234)
+    weatherRoleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    weatherRoleInput.BorderSizePixel = 0
+    weatherRoleInput.ClearTextOnFocus = false
+    weatherRoleInput.TextWrapped = true
+    weatherRoleInput.PlaceholderText = "  Weather Role ID..."
+    weatherRoleInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+    weatherRoleInput.Text = ""
+    weatherRoleInput.TextSize = 9
+    weatherRoleInput.Font = Enum.Font.Gotham
+    weatherRoleInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    weatherRoleInput.TextXAlignment = Enum.TextXAlignment.Left
+    weatherRoleInput.ZIndex = card.ZIndex + 2
+    weatherRoleInput.Parent = card
+
+    local weatherRoleCorner = Instance.new("UICorner")
+    weatherRoleCorner.CornerRadius = UDim.new(0, 6)
+    weatherRoleCorner.Parent = weatherRoleInput
+
+    webhookWeatherToggles[index] = weatherToggle
+    webhookWeatherRoleInputs[index] = weatherRoleInput
+
+    weatherToggle.MouseButton1Click:Connect(function()
+        local current =
+            weatherToggle:GetAttribute("Enabled") == true
+
+        current = not current
+
+        weatherToggle:SetAttribute(
+            "Enabled",
+            current
+        )
+
+        if current then
+            weatherToggle.Text = "  ✓  Weather"
+            weatherToggle.TextColor3 =
+                Color3.fromRGB(100, 220, 130)
+        else
+            weatherToggle.Text = "  □  Weather"
+            weatherToggle.TextColor3 =
+                Color3.fromRGB(180, 180, 190)
+        end
+
+        task.delay(0.1, function()
+            saveConfig()
+        end)
+    end)
+
+    weatherRoleInput:GetPropertyChangedSignal("Text"):Connect(function()
+        task.delay(0.3, function()
+            if gui.Parent then
+                saveConfig()
+            end
+        end)
+    end)
+
     local testButton = Instance.new("TextButton")
     testButton.Name = "TestWebhookButton"
     testButton.Size = UDim2.new(1, -20, 0, 35)
-    testButton.Position = UDim2.new(0, 10, 0, 214)
+    testButton.Position = UDim2.new(0, 10, 0, 285)
     testButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
     testButton.BorderSizePixel = 0
     testButton.Text = "Test Webhook"
@@ -901,8 +1064,6 @@ settingsLayout.Padding = UDim.new(0, 10)
 settingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 settingsLayout.Parent = settingsPage
 
-local autoExecuteEnabled = false
-
 local autoExecuteCard = Instance.new("Frame")
 autoExecuteCard.Name = "AutoExecuteCard"
 autoExecuteCard.Size = UDim2.new(1, -20, 0, 65)
@@ -957,12 +1118,14 @@ autoExecuteButtonCorner.Parent = autoExecuteButton
 local function updateAutoExecuteUI()
     if autoExecuteEnabled then
         autoExecuteStatus.Text = "Enabled"
-        autoExecuteStatus.TextColor3 = Color3.fromRGB(100, 220, 130)
+        autoExecuteStatus.TextColor3 =
+            Color3.fromRGB(100, 220, 130)
 
         autoExecuteButton.Text = "ON"
     else
         autoExecuteStatus.Text = "Disabled"
-        autoExecuteStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+        autoExecuteStatus.TextColor3 =
+            Color3.fromRGB(180, 180, 190)
 
         autoExecuteButton.Text = "OFF"
     end
@@ -1002,12 +1165,6 @@ local function loadConfig()
 
     if not decodeSuccess or type(config) ~= "table" then
         return false
-    end
-
-    if config.autoExecute == true then
-        autoExecuteEnabled = true
-    else
-        autoExecuteEnabled = false
     end
 
     if type(config.webhooks) == "table" then
@@ -1086,7 +1243,54 @@ local function loadConfig()
             end
         end
     end
+if type(config.weather) == "table" then
+        for index = 1, 3 do
+            local savedWeather = config.weather[index]
 
+            if type(savedWeather) == "table" then
+                local toggle =
+                    webhookWeatherToggles[index]
+
+                local roleInput =
+                    webhookWeatherRoleInputs[index]
+
+                local enabled =
+                    savedWeather.enabled == true
+
+                local role =
+                    tostring(savedWeather.role or "")
+
+                if toggle then
+                    toggle:SetAttribute(
+                        "Enabled",
+                        enabled
+                    )
+
+                    if enabled then
+                        toggle.Text = "  ✓  Weather"
+                        toggle.TextColor3 =
+                            Color3.fromRGB(
+                                100,
+                                220,
+                                130
+                            )
+                    else
+                        toggle.Text = "  □  Weather"
+                        toggle.TextColor3 =
+                            Color3.fromRGB(
+                                180,
+                                180,
+                                190
+                            )
+                    end
+                end
+
+                if roleInput then
+                    roleInput.Text = role
+                end
+            end
+        end
+    end
     updateAutoExecuteUI()
     updateWebhookConnectionStatus()
 
@@ -1141,13 +1345,14 @@ task.spawn(function()
     end
 end)
 
-local autoLoaded = loadConfig()
+loadConfig()
 
-if autoLoaded then
-    task.delay(0.5, function()
-        updateWebhookConnectionStatus()
-    end)
-end
+autoExecuteEnabled = checkAutoExecute()
+updateAutoExecuteUI()
+
+task.delay(0.5, function()
+    updateWebhookConnectionStatus()
+end)
 
 local lastStock = {
     ["Blackhole Egg"] = 0,
@@ -1185,6 +1390,51 @@ local function sendWebhookToUrl(webhook, message)
         })
     end)
     return success
+end
+
+local function sendWeatherNotification(weatherVariant)
+    local m=weatherMutationInfo[weatherVariant]
+    if not m then return end
+    local base="⛈️ **Weather Detected**\n"..m.emoji.." "..weatherVariant.."\n💰 "..m.cash.." Cash • ⚡ "..m.speed.." Speed"
+    for i=1,3 do
+        local t=webhookWeatherToggles[i]
+        if t and t:GetAttribute("Enabled")==true then
+            local role=string.match(webhookWeatherRoleInputs[i] and webhookWeatherRoleInputs[i].Text or "","^%s*(%d+)%s*$")
+            for _,webhook in ipairs(getWebhooksForInput(webhookInputs[i])) do
+                sendWebhookToUrl(webhook,role and "<@&"..role..">\n"..base or base)
+            end
+        end
+    end
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+local GameRemotes = Remotes and Remotes:FindFirstChild("Game")
+local AddWeather = GameRemotes and GameRemotes:FindFirstChild("AddWeather")
+
+local currentWeather = "None"
+
+local function updateWeatherUI()
+    if currentWeather == "None" then
+        weatherStatus.Text = "No weather detected"
+    else
+        weatherStatus.Text = currentWeather
+    end
+end
+
+if AddWeather and AddWeather:IsA("RemoteEvent") then
+    AddWeather.OnClientEvent:Connect(function(
+        weatherType,
+        weatherVariant,
+        weatherValue
+    )
+        currentWeather =
+            tostring(weatherVariant or "Unknown")
+
+        updateWeatherUI()
+
+        sendWeatherNotification(currentWeather)
+    end)
 end
 
 local function sendEggNotification(eggName, stock)
@@ -1413,10 +1663,14 @@ settingsButton.MouseButton1Click:Connect(function()
 end)
 
 autoExecuteButton.MouseButton1Click:Connect(function()
-    autoExecuteEnabled = not autoExecuteEnabled
+    if checkAutoExecute() then
+        disableAutoExecute()
+    else
+        enableAutoExecute()
+    end
 
+    autoExecuteEnabled = checkAutoExecute()
     updateAutoExecuteUI()
-    saveConfig()
 end)
 
 updateAutoExecuteUI()
