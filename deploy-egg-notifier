@@ -15,7 +15,7 @@ gui.Parent = CoreGui
 
 local CONFIG_FILE = "rap_notifier/rap_notifier_config.json"
 local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec.lua"
-local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://pastefy.app/4UORIFE2/raw"))()'
+local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/deploy-egg-notifier"))()'
 
 local window = Instance.new("Frame")
 window.Name = "MainWindow"
