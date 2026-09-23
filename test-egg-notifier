@@ -1,4 +1,4 @@
-local oldGui = game:GetService("CoreGui"):FindFirstChild("EggSpawnNotifierGUI")
+local oldGui = game:GetService("CoreGui"):FindFirstChild("EggSpawnNotifierGUI_Test")
 if oldGui then
     oldGui:Destroy()
 end
@@ -8,14 +8,14 @@ local CoreGui = game:GetService("CoreGui")
 local HttpService = game:GetService("HttpService")
 local gui = Instance.new("ScreenGui")
 
-gui.Name = "EggSpawnNotifierGUI"
+gui.Name = "EggSpawnNotifierGUI_Test"
 gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
 
-local CONFIG_FILE = "rap_notifier/rap_notifier_config.json"
-local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec.lua"
-local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("link"))()"))()'
+local CONFIG_FILE = "rap_notifier/rap_notifier_config_test.json"
+local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec_test.lua"
+local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/test-egg-notifier"))()'
 
 local window = Instance.new("Frame")
 window.Name = "MainWindow"
