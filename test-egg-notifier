@@ -812,7 +812,7 @@ local function createWebhookCard(index)
         local roleInput = Instance.new("TextBox")
         roleInput.Name = eggData.short .. "RoleIDs"
         roleInput.Size = UDim2.new(1, -135, 0, 20)
-        roleInput.Position = UDim2.new(0, 10, 0, y)
+        roleInput.Position = UDim2.new(0, 120, 0, y)
         roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
         roleInput.BorderSizePixel = 0
         roleInput.ClearTextOnFocus = false
@@ -931,7 +931,7 @@ local function createWebhookCard(index)
             local roleInput = Instance.new("TextBox")
             roleInput.Name = weatherName .. "RoleIDs"
             roleInput.Size = UDim2.new(1, -135, 0, 20)
-            roleInput.Position = UDim2.new(0, 10, 0, y)
+            roleInput.Position = UDim2.new(0, 120, 0, y)
             roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
             roleInput.BorderSizePixel = 0
             roleInput.ClearTextOnFocus = false
