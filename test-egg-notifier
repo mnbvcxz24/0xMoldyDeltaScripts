@@ -788,12 +788,12 @@ local function createWebhookCard(index)
     webhookRoleInputs[index] = {}
 
     for eggIndex, eggData in ipairs(eggs) do
-        local y = 78 + ((eggIndex - 1) * 47)
+        local y = 78 + ((eggIndex - 1) * 35)
 
         local toggle = Instance.new("TextButton")
         toggle.Name = eggData.short .. "Toggle"
         toggle.Size = UDim2.new(0, 105, 0, 20)
-        toggle.Position = UDim2.new(0, 10, 0, 45)
+        toggle.Position = UDim2.new(0, 10, 0, y)
         toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
         toggle.BorderSizePixel = 0
         toggle.Text = "  □  " .. eggData.short
@@ -812,7 +812,7 @@ local function createWebhookCard(index)
         local roleInput = Instance.new("TextBox")
         roleInput.Name = eggData.short .. "RoleIDs"
         roleInput.Size = UDim2.new(1, -135, 0, 20)
-        roleInput.Position = UDim2.new(0, 10, 0, 45)
+        roleInput.Position = UDim2.new(0, 10, 0, y)
         roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
         roleInput.BorderSizePixel = 0
         roleInput.ClearTextOnFocus = false
@@ -907,12 +907,12 @@ local function createWebhookCard(index)
         }
         
         for weatherIndex, weatherName in ipairs(weatherVariants) do
-            local y = 234 + ((weatherIndex - 1) * 47)
+            local y = 234 + ((weatherIndex - 1) * 35)
         
             local toggle = Instance.new("TextButton")
             toggle.Name = weatherName .. "Toggle"
             toggle.Size = UDim2.new(0, 105, 0, 20)
-            toggle.Position = UDim2.new(0, 10, 0, 55)
+            toggle.Position = UDim2.new(0, 10, 0, y)
             toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
             toggle.BorderSizePixel = 0
             toggle.Text = "  □  " .. weatherName
@@ -931,7 +931,7 @@ local function createWebhookCard(index)
             local roleInput = Instance.new("TextBox")
             roleInput.Name = weatherName .. "RoleIDs"
             roleInput.Size = UDim2.new(1, -135, 0, 20)
-            roleInput.Position = UDim2.new(0, 10, 0, 55)
+            roleInput.Position = UDim2.new(0, 10, 0, y)
             roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
             roleInput.BorderSizePixel = 0
             roleInput.ClearTextOnFocus = false
