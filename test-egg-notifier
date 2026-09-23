@@ -788,7 +788,7 @@ local function createWebhookCard(index)
     webhookRoleInputs[index] = {}
 
     for eggIndex, eggData in ipairs(eggs) do
-        local y = 68 + ((eggIndex - 1) * 47)
+        local y = 78 + ((eggIndex - 1) * 27)
 
         local toggle = Instance.new("TextButton")
         toggle.Name = eggData.short .. "Toggle"
@@ -907,7 +907,7 @@ local function createWebhookCard(index)
         }
         
         for weatherIndex, weatherName in ipairs(weatherVariants) do
-            local y = 224 + ((weatherIndex - 1) * 47)
+            local y = 234 + ((weatherIndex - 1) * 27)
         
             local toggle = Instance.new("TextButton")
             toggle.Name = weatherName .. "Toggle"
