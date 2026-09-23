@@ -1394,15 +1394,17 @@ local lastDetectionTime = {
 
 local STOCK_RESET_TIME = 420
 
-local function sendWebhookToUrl(webhook, message)
+local function sendWebhookToUrl(webhook, body)
     local requestFunction =
         (syn and syn.request)
         or (http and http.request)
         or http_request
         or request
+
     if not requestFunction then
         return false
     end
+
     local success = pcall(function()
         requestFunction({
             Url = webhook,
@@ -1410,11 +1412,10 @@ local function sendWebhookToUrl(webhook, message)
             Headers = {
                 ["Content-Type"] = "application/json"
             },
-            Body = HttpService:JSONEncode({
-                content = message
-            })
+            Body = body
         })
     end)
+
     return success
 end
 
@@ -1529,37 +1530,68 @@ if AddWeather and AddWeather:IsA("RemoteEvent") then
     end)
 end
 
-local function sendEggNotification(eggName, stock)
-    local emoji = "🥚"
+local eggEmojis = {
+    ["Blackhole Egg"] = "🌀",
+    ["Solaris Egg"] = "☀️",
+    ["Cherub Egg"] = "🪽"
+}
 
-    if eggName == "Blackhole Egg" then
-        emoji = "🌀 "
-    elseif eggName == "Solaris Egg" then
-        emoji = "☀️ "
-    elseif eggName == "Cherub Egg" then
-        emoji = "🪽 "
-    end
+local eggEmbedColors = {
+    ["Blackhole Egg"] = 0x8E44AD,
+    ["Solaris Egg"] = 0xE53935,
+    ["Cherub Egg"] = 0xF6D77A
+}
+
+local eggThumbnails = {
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6ab4aca4&is=6ab35b24&hm=c7028814e47869365ae61eb1bbc4929ba2ca8ec859f342dae5866b708928ca57",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7"
+}
+
+local function sendEggNotification(eggName, stock)
+	local emoji = eggEmojis[eggName] or "🥚"
     
 	local resetTime = os.time() + (7 * 60)
 	local stockTimestamp = os.time()
   
-    local baseMessage =
-        emoji
-        .. "**"
-        .. string.upper(eggName)
-        .. " Spawned!**\n\n"
-        .. "📦 Stock: **"
-        .. tostring(stock)
-        .. "**\n"
-        .. "🕐 Stock Time: <t:"
-        .. stockTimestamp
-        .. ":t>\n"
-        .. "🔄 Reset Time: <t:"
-        .. resetTime
-        .. ":t>\n"
-        .. "⏳ Resets: <t:"
-        .. resetTime
-        .. ":R>"
+	local embedColor = eggEmbedColors[eggName] or 0xFFFFFF
+	local thumbnailUrl = eggThumbnails[eggName]
+	
+	local embed = {
+	    title = emoji .. " " .. string.upper(eggName) .. " SPAWNED!",
+	    color = embedColor,
+	
+	    thumbnail = {
+	        url = thumbnailUrl
+	    },
+	
+	    fields = {
+	        {
+	            name = "📦 Stock",
+	            value = tostring(stock),
+	            inline = false
+	        },
+	        {
+	            name = "🕐 Stock Time",
+	            value = "<t:" .. stockTimestamp .. ":t>",
+	            inline = true
+	        },
+	        {
+	            name = "🔄 Reset Time",
+	            value = "<t:" .. resetTime .. ":t>",
+	            inline = true
+	        },
+	        {
+	            name = "⏳ Resets",
+	            value = "<t:" .. resetTime .. ":R>",
+	            inline = false
+	        }
+	    },
+	
+	    footer = {
+	        text = "Ride a Pet • Egg Stock Notifier"
+	    }
+	}
 
     for index = 1, 3 do
         local toggle =
@@ -1581,31 +1613,6 @@ local function sendEggNotification(eggName, stock)
                     roleInput and roleInput.Text or ""
                 )
 
-            for webhookIndex, webhook in ipairs(webhooks) do
-                local message = baseMessage
-                local roleId = roleIds[webhookIndex]
-
-                if roleId then
-                    roleId =
-                        string.match(
-                            roleId,
-                            "^%s*(%d+)%s*$"
-                        )
-
-                    if roleId then
-                        message =
-                            "<@&"
-                            .. roleId
-                            .. ">\n"
-                            .. baseMessage
-                    end
-                end
-
-                sendWebhookToUrl(
-                    webhook,
-                    message
-                )
-            end
         end
     end
 end
