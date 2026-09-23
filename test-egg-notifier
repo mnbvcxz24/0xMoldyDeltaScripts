@@ -722,7 +722,7 @@ end
 local function createWebhookCard(index)
     local card = Instance.new("Frame")
     card.Name = "WebhookCard" .. tostring(index)
-    card.Size = UDim2.new(1, -10, 0, 515)
+    card.Size = UDim2.new(1, -10, 0, 400)
     card.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
     card.BorderSizePixel = 0
     card.ClipsDescendants = false
@@ -911,7 +911,7 @@ local function createWebhookCard(index)
         
             local toggle = Instance.new("TextButton")
             toggle.Name = weatherName .. "Toggle"
-            toggle.Size = UDim2.new(0, 105, 0, 35)
+            toggle.Size = UDim2.new(0, 105, 0, 20)
             toggle.Position = UDim2.new(0, 10, 0, y)
             toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
             toggle.BorderSizePixel = 0
@@ -930,7 +930,7 @@ local function createWebhookCard(index)
         
             local roleInput = Instance.new("TextBox")
             roleInput.Name = weatherName .. "RoleIDs"
-            roleInput.Size = UDim2.new(1, -135, 0, 35)
+            roleInput.Size = UDim2.new(1, -135, 0, 20)
             roleInput.Position = UDim2.new(0, 120, 0, y)
             roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
             roleInput.BorderSizePixel = 0
