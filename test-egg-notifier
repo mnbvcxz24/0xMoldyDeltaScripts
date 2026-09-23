@@ -885,7 +885,7 @@ local function createWebhookCard(index)
         local weatherTitle = Instance.new("TextLabel")
         weatherTitle.Name = "WeatherTitle"
         weatherTitle.Size = UDim2.new(1, -20, 0, 20)
-        weatherTitle.Position = UDim2.new(0, 10, 0, 212)
+        weatherTitle.Position = UDim2.new(0, 10, 0, 162)
         weatherTitle.BackgroundTransparency = 1
         weatherTitle.Text = "Weather Notifications"
         weatherTitle.TextSize = 10
@@ -983,7 +983,7 @@ local function createWebhookCard(index)
     local testButton = Instance.new("TextButton")
     testButton.Name = "TestWebhookButton"
     testButton.Size = UDim2.new(1, -20, 0, 35)
-    testButton.Position = UDim2.new(0, 10, 0, 475)
+    testButton.Position = UDim2.new(0, 10, 0, 425)
     testButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
     testButton.BorderSizePixel = 0
     testButton.Text = "Test Webhook"
