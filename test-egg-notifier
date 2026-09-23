@@ -1436,7 +1436,7 @@ local weatherThumbnails = {
 }
 
 local function sendWeatherNotification(weatherVariant)
-    local m = weatherMutations[weatherVariant]
+    local m = weatherMutationInfo[weatherVariant]
     if not m then
         return
     end
@@ -1457,7 +1457,7 @@ local function sendWeatherNotification(weatherVariant)
             .. " "
             .. string.upper(weatherVariant)
             .. " WEATHER!",
-        
+
         color = embedColor,
 
         thumbnail = {
@@ -1509,8 +1509,8 @@ local function sendWeatherNotification(weatherVariant)
             local webhooks = getWebhooksForInput(input)
 
             local roleInput =
-                webhookRoleInputs[index]
-                and webhookRoleInputs[index][weatherVariant]
+                webhookWeatherRoleInputs[index]
+                and webhookWeatherRoleInputs[index][weatherVariant]
 
             local roleIds =
                 parseCommaSeparated(
