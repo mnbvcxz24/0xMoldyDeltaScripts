@@ -1616,13 +1616,13 @@ local function sendEggNotification(eggName, stock)
 
         fields = {
             {
-                name = "**💎Rarity** Ethereal",
-                value = "\u{200B}",
+                name = "💎Rarity",
+                value = "Ethereal",
                 inline = false
             },
             {
-                name = "📦 Stock " .. stock,
-                value = "\u{200B}",
+                name = "📦 Stock ",
+                value = tostring(stock),
                 inline = false
             },
             {
