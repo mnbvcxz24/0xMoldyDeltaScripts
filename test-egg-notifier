@@ -1419,35 +1419,83 @@ local function sendWebhookToUrl(webhook, body)
     return success
 end
 
+local weatherEmbedColors = {
+    Thunder = 0x3498DB,
+    Volt = 0xF1C40F,
+    Raging = 0xE74C3C,
+    Dreadful = 0x2C2C54,
+    Eternal = 0x9B59B6
+}
+
+local weatherThumbnails = {
+    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
+    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
+    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
+    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
+}
+
 local function sendWeatherNotification(weatherVariant)
-    local m = weatherMutationInfo[weatherVariant]
+    local m = weatherMutations[weatherVariant]
     if not m then
         return
     end
 
     local weatherStartTime = os.time()
-    local weatherEndTime = weatherStartTime + (5 * 60)
+    local weatherEndTime = weatherStartTime + 300
 
-    local base =
-        "⛈️ **Weather Detected**\n"
-        .. m.emoji
-        .. " **"
-        .. string.upper(weatherVariant)
-        .. "**\n"
-        .. "💰 "
-        .. m.cash
-        .. " Cash • ⚡ "
-        .. m.speed
-        .. " Speed\n\n"
-        .. "🕐 Start Time: <t:"
-        .. weatherStartTime
-        .. ":t>\n"
-        .. "🔄 End Time: <t:"
-        .. weatherEndTime
-        .. ":t>\n"
-        .. "⏳ Ends: <t:"
-        .. weatherEndTime
-        .. ":R>"
+    local embedColor =
+        weatherEmbedColors[weatherVariant]
+        or 0xFFFFFF
+
+    local thumbnailUrl =
+        weatherThumbnails[weatherVariant]
+
+    local embed = {
+        title =
+            m.emoji
+            .. " "
+            .. string.upper(weatherVariant)
+            .. " WEATHER!",
+        
+        color = embedColor,
+
+        thumbnail = {
+            url = thumbnailUrl
+        },
+
+        fields = {
+            {
+                name = "💰 Cash",
+                value = m.cash,
+                inline = true
+            },
+            {
+                name = "⚡ Speed",
+                value = m.speed,
+                inline = true
+            },
+            {
+                name = "🕐 Start Time",
+                value = "<t:" .. weatherStartTime .. ":t>",
+                inline = true
+            },
+            {
+                name = "🔄 End Time",
+                value = "<t:" .. weatherEndTime .. ":t>",
+                inline = true
+            },
+            {
+                name = "⏳ Ends",
+                value = "<t:" .. weatherEndTime .. ":R>",
+                inline = false
+            }
+        },
+
+        footer = {
+            text = "Ride a Pet • Weather Notifier"
+        }
+    }
 
     for index = 1, 3 do
         local toggle =
@@ -1457,23 +1505,21 @@ local function sendWeatherNotification(weatherVariant)
         if toggle
         and toggle:GetAttribute("Enabled") == true then
 
+            local input = webhookInputs[index]
+            local webhooks = getWebhooksForInput(input)
+
             local roleInput =
-                webhookWeatherRoleInputs[index]
-                and webhookWeatherRoleInputs[index][weatherVariant]
+                webhookRoleInputs[index]
+                and webhookRoleInputs[index][weatherVariant]
 
             local roleIds =
                 parseCommaSeparated(
                     roleInput and roleInput.Text or ""
                 )
 
-            local webhooks =
-                getWebhooksForInput(
-                    webhookInputs[index]
-                )
-
             for webhookIndex, webhook in ipairs(webhooks) do
-                local message = base
                 local roleId = roleIds[webhookIndex]
+                local content = ""
 
                 if roleId then
                     roleId =
@@ -1483,17 +1529,20 @@ local function sendWeatherNotification(weatherVariant)
                         )
 
                     if roleId then
-                        message =
-                            "<@&"
-                            .. roleId
-                            .. ">\n"
-                            .. base
+                        content = "<@&" .. roleId .. ">"
                     end
                 end
 
+                local payload = {
+                    content = content,
+                    embeds = {
+                        embed
+                    }
+                }
+
                 sendWebhookToUrl(
                     webhook,
-                    message
+                    HttpService:JSONEncode(payload)
                 )
             end
         end
