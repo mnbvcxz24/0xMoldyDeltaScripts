@@ -1616,7 +1616,7 @@ local function sendEggNotification(eggName, stock)
 
         fields = {
             {
-                name = "💎Rarity",
+                name = "💎 Rarity",
                 value = "Ethereal",
                 inline = false
             },
