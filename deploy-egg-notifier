@@ -1617,12 +1617,12 @@ local function sendEggNotification(eggName, stock)
         fields = {
             {
                 name = "**💎Rarity** Ethereal",
-                value = "\u200b",
+                value = "\u{200B}",
                 inline = false
             },
             {
                 name = "📦 Stock " .. stock,
-                value = "\u200b",
+                value = "\u{200B}",
                 inline = false
             },
             {
