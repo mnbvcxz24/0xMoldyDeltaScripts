@@ -15,7 +15,7 @@ gui.Parent = CoreGui
 
 local CONFIG_FILE = "rap_notifier/rap_notifier_config.json"
 local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec.lua"
-local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/deploy-egg-notifier"))()'
+local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("link"))()"))()'
 
 local window = Instance.new("Frame")
 window.Name = "MainWindow"
@@ -1394,15 +1394,17 @@ local lastDetectionTime = {
 
 local STOCK_RESET_TIME = 420
 
-local function sendWebhookToUrl(webhook, message)
+local function sendWebhookToUrl(webhook, body)
     local requestFunction =
         (syn and syn.request)
         or (http and http.request)
         or http_request
         or request
+
     if not requestFunction then
         return false
     end
+
     local success = pcall(function()
         requestFunction({
             Url = webhook,
@@ -1410,13 +1412,28 @@ local function sendWebhookToUrl(webhook, message)
             Headers = {
                 ["Content-Type"] = "application/json"
             },
-            Body = HttpService:JSONEncode({
-                content = message
-            })
+            Body = body
         })
     end)
+
     return success
 end
+
+local weatherEmbedColors = {
+    Thunder = 0x3498DB,
+    Volt = 0xF1C40F,
+    Raging = 0xE74C3C,
+    Dreadful = 0x2C2C54,
+    Eternal = 0x9B59B6
+}
+
+local weatherThumbnails = {
+    Thunder = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209096361517096/IMG_20260923_143520.jpg?ex=6ab4c6df&is=6ab3755f&hm=a71168a97d06404c1b4a9a1090eaa1f5caef0ebcb15b5bc5f446bbe9e40d8ab4",
+    Volt = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209092616130580/IMG_20260923_143555.jpg?ex=6ab4c6de&is=6ab3755e&hm=4beed06297e95faaf5e966b434a2e905805aa50a66bf5017d9a33f82cff4abb7",
+    Raging = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209085884272660/IMG_20260923_144257.jpg?ex=6ab4c6dc&is=6ab3755c&hm=8c233d34e6da750999bba2b61566042ecfe3e8a905b51624e42ffff294ede4a2",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209081576595526/IMG_20260923_144323.jpg?ex=6ab4c6db&is=6ab3755b&hm=980dfdff266bc6efe80ae2068017d2db0c8bdd4e3b96e6c3644fe6f505abd107",
+    Eternal = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209077579292683/IMG_20260923_144412.jpg?ex=6ab4c6da&is=6ab3755a&hm=38d7bfe9663d654431d5b086224de6b296d344ad46e77cb15e17f97719f5d409"
+}
 
 local function sendWeatherNotification(weatherVariant)
     local m = weatherMutationInfo[weatherVariant]
@@ -1425,28 +1442,60 @@ local function sendWeatherNotification(weatherVariant)
     end
 
     local weatherStartTime = os.time()
-    local weatherEndTime = weatherStartTime + (5 * 60)
+    local weatherEndTime = weatherStartTime + 300
 
-    local base =
-        "⛈️ **Weather Detected**\n"
-        .. m.emoji
-        .. " **"
-        .. string.upper(weatherVariant)
-        .. "**\n"
-        .. "💰 "
-        .. m.cash
-        .. " Cash • ⚡ "
-        .. m.speed
-        .. " Speed\n\n"
-        .. "🕐 Start Time: <t:"
-        .. weatherStartTime
-        .. ":t>\n"
-        .. "🔄 End Time: <t:"
-        .. weatherEndTime
-        .. ":t>\n"
-        .. "⏳ Ends: <t:"
-        .. weatherEndTime
-        .. ":R>"
+    local embedColor =
+        weatherEmbedColors[weatherVariant]
+        or 0xFFFFFF
+
+    local thumbnailUrl =
+        weatherThumbnails[weatherVariant]
+
+    local embed = {
+        title =
+            m.emoji
+            .. " "
+            .. string.upper(weatherVariant)
+            .. " WEATHER!",
+
+        color = embedColor,
+
+        thumbnail = {
+            url = thumbnailUrl
+        },
+
+        fields = {
+            {
+                name = "💰 Cash",
+                value = m.cash,
+                inline = true
+            },
+            {
+                name = "⚡ Speed",
+                value = m.speed,
+                inline = true
+            },
+            {
+                name = "🕐 Start Time",
+                value = "<t:" .. weatherStartTime .. ":t>",
+                inline = true
+            },
+            {
+                name = "🔄 End Time",
+                value = "<t:" .. weatherEndTime .. ":t>",
+                inline = true
+            },
+            {
+                name = "⏳ Ends",
+                value = "<t:" .. weatherEndTime .. ":R>",
+                inline = false
+            }
+        },
+
+        footer = {
+            text = "Ride a Pet • Weather Notifier"
+        }
+    }
 
     for index = 1, 3 do
         local toggle =
@@ -1455,6 +1504,9 @@ local function sendWeatherNotification(weatherVariant)
 
         if toggle
         and toggle:GetAttribute("Enabled") == true then
+
+            local input = webhookInputs[index]
+            local webhooks = getWebhooksForInput(input)
 
             local roleInput =
                 webhookWeatherRoleInputs[index]
@@ -1465,14 +1517,9 @@ local function sendWeatherNotification(weatherVariant)
                     roleInput and roleInput.Text or ""
                 )
 
-            local webhooks =
-                getWebhooksForInput(
-                    webhookInputs[index]
-                )
-
             for webhookIndex, webhook in ipairs(webhooks) do
-                local message = base
                 local roleId = roleIds[webhookIndex]
+                local content = ""
 
                 if roleId then
                     roleId =
@@ -1482,17 +1529,20 @@ local function sendWeatherNotification(weatherVariant)
                         )
 
                     if roleId then
-                        message =
-                            "<@&"
-                            .. roleId
-                            .. ">\n"
-                            .. base
+                        content = "<@&" .. roleId .. ">"
                     end
                 end
 
+                local payload = {
+                    content = content,
+                    embeds = {
+                        embed
+                    }
+                }
+
                 sendWebhookToUrl(
                     webhook,
-                    message
+                    HttpService:JSONEncode(payload)
                 )
             end
         end
@@ -1529,37 +1579,68 @@ if AddWeather and AddWeather:IsA("RemoteEvent") then
     end)
 end
 
-local function sendEggNotification(eggName, stock)
-    local emoji = "🥚"
+local eggEmojis = {
+    ["Blackhole Egg"] = "🌀",
+    ["Solaris Egg"] = "☀️",
+    ["Cherub Egg"] = "🪽"
+}
 
-    if eggName == "Blackhole Egg" then
-        emoji = "🌀 "
-    elseif eggName == "Solaris Egg" then
-        emoji = "☀️ "
-    elseif eggName == "Cherub Egg" then
-        emoji = "🪽 "
-    end
-    
-	local resetTime = os.time() + (7 * 60)
-	local stockTimestamp = os.time()
-  
-    local baseMessage =
-        emoji
-        .. "**"
-        .. string.upper(eggName)
-        .. " Spawned!**\n\n"
-        .. "📦 Stock: **"
-        .. tostring(stock)
-        .. "**\n"
-        .. "🕐 Stock Time: <t:"
-        .. stockTimestamp
-        .. ":t>\n"
-        .. "🔄 Reset Time: <t:"
-        .. resetTime
-        .. ":t>\n"
-        .. "⏳ Resets: <t:"
-        .. resetTime
-        .. ":R>"
+local eggEmbedColors = {
+    ["Blackhole Egg"] = 0x8E44AD,
+    ["Solaris Egg"] = 0xE53935,
+    ["Cherub Egg"] = 0xF6D77A
+}
+
+local eggThumbnails = {
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181599439954000/Black_Hole_Egg_RideAPet.webp?ex=6ab4ad43&is=6ab35bc3&hm=fd4d2986dd751d4f3f19ec2827d4fa7cc0b8aa1b6e6ef618f8f69c60ceb9e85e",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181572025847918/Solaris_Egg_RideAPet.webp?ex=6ab4ad3c&is=6ab35bbc&hm=48ac2993a0ebe5893fbe4044eec06a5167b9d593d68dbbd81f8ffb5421595b6c",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181588698333284/Cherub_Egg_RideAPet.webp?ex=6ab4ad40&is=6ab35bc0&hm=42810aa6aef22fb43d959dea576d59ed9d3542c515beac49a6da9d00ed5779a6"
+}
+
+local function sendEggNotification(eggName, stock)
+    local emoji = eggEmojis[eggName] or "🥚"
+
+    local resetTime = os.time() + (7 * 60)
+    local stockTimestamp = os.time()
+
+    local embedColor = eggEmbedColors[eggName] or 0xFFFFFF
+    local thumbnailUrl = eggThumbnails[eggName]
+
+    local embed = {
+        title = emoji .. " " .. string.upper(eggName) .. " SPAWNED!",
+        color = embedColor,
+
+        thumbnail = {
+            url = thumbnailUrl
+        },
+
+        fields = {
+            {
+                name = "📦 Stock",
+                value = tostring(stock),
+                inline = false
+            },
+            {
+                name = "🕐 Stock Time",
+                value = "<t:" .. stockTimestamp .. ":t>",
+                inline = true
+            },
+            {
+                name = "🔄 Reset Time",
+                value = "<t:" .. resetTime .. ":t>",
+                inline = true
+            },
+            {
+                name = "⏳ Resets",
+                value = "<t:" .. resetTime .. ":R>",
+                inline = false
+            }
+        },
+
+        footer = {
+            text = "Ride a Pet • Egg Stock Notifier"
+        }
+    }
 
     for index = 1, 3 do
         local toggle =
@@ -1582,8 +1663,8 @@ local function sendEggNotification(eggName, stock)
                 )
 
             for webhookIndex, webhook in ipairs(webhooks) do
-                local message = baseMessage
                 local roleId = roleIds[webhookIndex]
+                local content = ""
 
                 if roleId then
                     roleId =
@@ -1593,17 +1674,20 @@ local function sendEggNotification(eggName, stock)
                         )
 
                     if roleId then
-                        message =
-                            "<@&"
-                            .. roleId
-                            .. ">\n"
-                            .. baseMessage
+                        content = "<@&" .. roleId .. ">"
                     end
                 end
 
+                local payload = {
+                    content = content,
+                    embeds = {
+                        embed
+                    }
+                }
+
                 sendWebhookToUrl(
                     webhook,
-                    message
+                    HttpService:JSONEncode(payload)
                 )
             end
         end
