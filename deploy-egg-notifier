@@ -73,7 +73,7 @@ openButton.Size = UDim2.new(0, 45, 0, 45)
 openButton.Position = UDim2.new(0.5, -22, 0.5, -22)
 openButton.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 openButton.BorderSizePixel = 0
-openButton.Text = "🔍"
+openButton.Text = "🔧"
 openButton.TextSize = 18
 openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1599,6 +1599,7 @@ local eggThumbnails = {
 
 local function sendEggNotification(eggName, stock)
     local emoji = eggEmojis[eggName] or "🥚"
+
     local resetTime = os.time() + (7 * 60)
     local stockTimestamp = os.time()
 
@@ -1646,50 +1647,48 @@ local function sendEggNotification(eggName, stock)
             webhookEggToggles[index]
             and webhookEggToggles[index][eggName]
 
-        if toggle then
-            local enabled = toggle:GetAttribute("Enabled")
+        if toggle
+        and toggle:GetAttribute("Enabled") == true then
 
-            if enabled == true then
-                local input = webhookInputs[index]
+            local input = webhookInputs[index]
+            local webhooks = getWebhooksForInput(input)
 
-                local webhooks = getWebhooksForInput(input)
+            local roleInput =
+                webhookRoleInputs[index]
+                and webhookRoleInputs[index][eggName]
 
-                local roleInput =
-                    webhookRoleInputs[index]
-                    and webhookRoleInputs[index][eggName]
+            local roleIds =
+                parseCommaSeparated(
+                    roleInput and roleInput.Text or ""
+                )
 
-                local roleIds =
-                    parseCommaSeparated(
-                        roleInput and roleInput.Text or ""
-                    )
+            for webhookIndex, webhook in ipairs(webhooks) do
+                local roleId = roleIds[webhookIndex]
+                local content = ""
 
-                for webhookIndex, webhook in ipairs(webhooks) do
-                    local roleId = roleIds[webhookIndex]
-                    local content = ""
-
-                    if roleId then
-                        roleId = string.match(
+                if roleId then
+                    roleId =
+                        string.match(
                             roleId,
                             "^%s*(%d+)%s*$"
                         )
 
-                        if roleId then
-                            content = "<@&" .. roleId .. ">"
-                        end
+                    if roleId then
+                        content = "<@&" .. roleId .. ">"
                     end
-
-                    local payload = {
-                        content = content,
-                        embeds = {
-                            embed
-                        }
-                    }
-
-                    sendWebhookToUrl(
-                        webhook,
-                        HttpService:JSONEncode(payload)
-                    )
                 end
+
+                local payload = {
+                    content = content,
+                    embeds = {
+                        embed
+                    }
+                }
+
+                sendWebhookToUrl(
+                    webhook,
+                    HttpService:JSONEncode(payload)
+                )
             end
         end
     end
@@ -1702,11 +1701,21 @@ local function scanEgg(eggName)
     if stock > 0 then
         if lastDetectionTime[eggName] == 0 then
             if lastStock[eggName] <= 0 then
-                sendEggNotification(eggName, stock)
+                sendEggNotification(
+                    eggName,
+                    stock
+                )
+
                 lastDetectionTime[eggName] = now
             end
-        elseif now - lastDetectionTime[eggName] >= STOCK_RESET_TIME then
-            sendEggNotification(eggName, stock)
+        elseif now - lastDetectionTime[eggName]
+            >= STOCK_RESET_TIME then
+
+            sendEggNotification(
+                eggName,
+                stock
+            )
+
             lastDetectionTime[eggName] = now
         end
     else
