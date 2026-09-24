@@ -1701,21 +1701,11 @@ local function scanEgg(eggName)
     if stock > 0 then
         if lastDetectionTime[eggName] == 0 then
             if lastStock[eggName] <= 0 then
-                sendEggNotification(
-                    eggName,
-                    stock
-                )
-
+                sendEggNotification(eggName, stock)
                 lastDetectionTime[eggName] = now
             end
-        elseif now - lastDetectionTime[eggName]
-            >= STOCK_RESET_TIME then
-
-            sendEggNotification(
-                eggName,
-                stock
-            )
-
+        elseif now - lastDetectionTime[eggName] >= STOCK_RESET_TIME then
+            sendEggNotification(eggName, stock)
             lastDetectionTime[eggName] = now
         end
     else
