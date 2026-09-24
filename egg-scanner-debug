@@ -1,0 +1,183 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local oldGui = game:GetService("CoreGui"):FindFirstChild("EggScanDebug")
+if oldGui then
+    oldGui:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "EggScanDebug"
+gui.ResetOnSpawn = false
+gui.Parent = game:GetService("CoreGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 280)
+frame.Position = UDim2.new(0.5, -200, 0.5, -140)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -20, 0, 35)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.BackgroundTransparency = 1
+title.Text = "🥚 Egg Scanner Debug"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 16
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -20, 1, -50)
+status.Position = UDim2.new(0, 10, 0, 45)
+status.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
+status.TextColor3 = Color3.fromRGB(220, 220, 220)
+status.TextSize = 13
+status.Font = Enum.Font.Code
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.TextYAlignment = Enum.TextYAlignment.Top
+status.Text = "Starting..."
+status.Parent = frame
+
+local lastStock = {
+    ["Blackhole Egg"] = 0,
+    ["Solaris Egg"] = 0,
+    ["Cherub Egg"] = 0
+}
+
+local lastDetectionTime = {
+    ["Blackhole Egg"] = 0,
+    ["Solaris Egg"] = 0,
+    ["Cherub Egg"] = 0
+}
+
+local STOCK_RESET_TIME = 60
+
+local function getEggStock(eggName)
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then
+        return 0
+    end
+
+    local main = playerGui:FindFirstChild("Main", true)
+    if not main then
+        return 0
+    end
+
+    local eggTracker = main:FindFirstChild("EggTracker", true)
+    if not eggTracker then
+        return 0
+    end
+
+    local eggsHolder = eggTracker:FindFirstChild("EggsHolder", true)
+    if not eggsHolder then
+        return 0
+    end
+
+    local egg = eggsHolder:FindFirstChild(eggName, true)
+    if not egg then
+        return 0
+    end
+
+    for _, obj in ipairs(egg:GetDescendants()) do
+        if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+            local text = obj.Text or ""
+            local number = string.match(text, "%d+")
+
+            if number then
+                return tonumber(number)
+            end
+        end
+    end
+
+    return 0
+end
+
+local function scanEgg(eggName)
+    local stock = getEggStock(eggName)
+    local now = os.time()
+
+    local oldStock = lastStock[eggName] or 0
+    local detection = lastDetectionTime[eggName] or 0
+
+    local result = "WAITING"
+
+    if stock > 0 then
+        if detection == 0 then
+            if oldStock <= 0 then
+                result = "NEW EGG DETECTED"
+            else
+                result = "IN STOCK"
+            end
+        elseif now - detection >= STOCK_RESET_TIME then
+            result = "RESET READY"
+        else
+            result = "IN STOCK"
+        end
+    else
+        result = "NO STOCK"
+    end
+
+    lastStock[eggName] = stock
+
+    return stock, oldStock, detection, result
+end
+
+task.spawn(function()
+    while gui.Parent do
+        local lines = {}
+
+        table.insert(lines, "SCANNER STATUS")
+        table.insert(lines, "────────────────────────")
+
+        for _, eggName in ipairs({
+            "Blackhole Egg",
+            "Solaris Egg",
+            "Cherub Egg"
+        }) do
+            local stock, oldStock, detection, result =
+                scanEgg(eggName)
+
+            table.insert(
+                lines,
+                eggName
+            )
+
+            table.insert(
+                lines,
+                "  Stock: " .. tostring(stock)
+            )
+
+            table.insert(
+                lines,
+                "  Last Stock: " .. tostring(oldStock)
+            )
+
+            table.insert(
+                lines,
+                "  Detection: " .. tostring(detection)
+            )
+
+            table.insert(
+                lines,
+                "  Status: " .. result
+            )
+
+            table.insert(lines, "")
+        end
+
+        table.insert(
+            lines,
+            "Updated: " .. os.date("%H:%M:%S")
+        )
+
+        status.Text = table.concat(lines, "\n")
+
+        task.wait(2)
+    end
+end)
