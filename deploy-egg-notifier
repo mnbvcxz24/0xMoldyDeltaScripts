@@ -1599,7 +1599,6 @@ local eggThumbnails = {
 
 local function sendEggNotification(eggName, stock)
     local emoji = eggEmojis[eggName] or "🥚"
-
     local resetTime = os.time() + (7 * 60)
     local stockTimestamp = os.time()
 
@@ -1616,7 +1615,7 @@ local function sendEggNotification(eggName, stock)
 
         fields = {
             {
-                name = "📦 Stock ",
+                name = "📦 Stock",
                 value = tostring(stock),
                 inline = false
             },
@@ -1647,48 +1646,50 @@ local function sendEggNotification(eggName, stock)
             webhookEggToggles[index]
             and webhookEggToggles[index][eggName]
 
-        if toggle
-        and toggle:GetAttribute("Enabled") == true then
+        if toggle then
+            local enabled = toggle:GetAttribute("Enabled")
 
-            local input = webhookInputs[index]
-            local webhooks = getWebhooksForInput(input)
+            if enabled == true then
+                local input = webhookInputs[index]
 
-            local roleInput =
-                webhookRoleInputs[index]
-                and webhookRoleInputs[index][eggName]
+                local webhooks = getWebhooksForInput(input)
 
-            local roleIds =
-                parseCommaSeparated(
-                    roleInput and roleInput.Text or ""
-                )
+                local roleInput =
+                    webhookRoleInputs[index]
+                    and webhookRoleInputs[index][eggName]
 
-            for webhookIndex, webhook in ipairs(webhooks) do
-                local roleId = roleIds[webhookIndex]
-                local content = ""
+                local roleIds =
+                    parseCommaSeparated(
+                        roleInput and roleInput.Text or ""
+                    )
 
-                if roleId then
-                    roleId =
-                        string.match(
+                for webhookIndex, webhook in ipairs(webhooks) do
+                    local roleId = roleIds[webhookIndex]
+                    local content = ""
+
+                    if roleId then
+                        roleId = string.match(
                             roleId,
                             "^%s*(%d+)%s*$"
                         )
 
-                    if roleId then
-                        content = "<@&" .. roleId .. ">"
+                        if roleId then
+                            content = "<@&" .. roleId .. ">"
+                        end
                     end
-                end
 
-                local payload = {
-                    content = content,
-                    embeds = {
-                        embed
+                    local payload = {
+                        content = content,
+                        embeds = {
+                            embed
+                        }
                     }
-                }
 
-                sendWebhookToUrl(
-                    webhook,
-                    HttpService:JSONEncode(payload)
-                )
+                    sendWebhookToUrl(
+                        webhook,
+                        HttpService:JSONEncode(payload)
+                    )
+                end
             end
         end
     end
