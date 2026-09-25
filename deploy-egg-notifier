@@ -1645,11 +1645,11 @@ local weatherEmbedColors = {
 }
 
 local weatherThumbnails = {
-    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
-    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
-    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
-    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
-    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
+    Thunder = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209096361517096/IMG_20260923_143520.jpg?ex=6ab4c6df&is=6ab3755f&hm=a71168a97d06404c1b4a9a1090eaa1f5caef0ebcb15b5bc5f446bbe9e40d8ab4",
+    Volt = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209092616130580/IMG_20260923_143555.jpg?ex=6ab4c6de&is=6ab3755e&hm=4beed06297e95faaf5e966b434a2e905805aa50a66bf5017d9a33f82cff4abb7",
+    Raging = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209085884272660/IMG_20260923_144257.jpg?ex=6ab4c6dc&is=6ab3755c&hm=8c233d34e6da750999bba2b61566042ecfe3e8a905b51624e42ffff294ede4a2",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209081576595526/IMG_20260923_144323.jpg?ex=6ab4c6db&is=6ab3755b&hm=980dfdff266bc6efe80ae2068017d2db0c8bdd4e3b96e6c3644fe6f505abd107",
+    Eternal = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209077579292683/IMG_20260923_144412.jpg?ex=6ab4c6da&is=6ab3755a&hm=38d7bfe9663d654431d5b086224de6b296d344ad46e77cb15e17f97719f5d409"
 }
 
 local function sendWeatherNotification(weatherVariant)
@@ -1877,9 +1877,9 @@ local eggEmbedColors = {
 }
 
 local eggThumbnails = {
-    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6ab4aca4&is=6ab35b24&hm=c7028814e47869365ae61eb1bbc4929ba2ca8ec859f342dae5866b708928ca57",
-    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
-    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7"
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181599439954000/Black_Hole_Egg_RideAPet.webp?ex=6ab4ad43&is=6ab35bc3&hm=fd4d2986dd751d4f3f19ec2827d4fa7cc0b8aa1b6e6ef618f8f69c60ceb9e85e",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181572025847918/Solaris_Egg_RideAPet.webp?ex=6ab4ad3c&is=6ab35bbc&hm=48ac2993a0ebe5893fbe4044eec06a5167b9d593d68dbbd81f8ffb5421595b6c",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181588698333284/Cherub_Egg_RideAPet.webp?ex=6ab4ad40&is=6ab35bc0&hm=42810aa6aef22fb43d959dea576d59ed9d3542c515beac49a6da9d00ed5779a6"
 }
 
 local function buildEggHistoryPayload(eggName, history)
