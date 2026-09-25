@@ -578,65 +578,6 @@ local function getEggHistory(eggName)
     return eggSpawnHistory[eggName]
 end
 
-local function buildEggHistoryPayload(eggName, history)
-    local emoji = eggEmojis[eggName]
-    local color = eggEmbedColors[eggName]
-    local thumbnail = eggThumbnails[eggName]
-
-    local lines = {}
-
-    for _, entry in ipairs(history.entries) do
-        table.insert(
-            lines,
-            "📦 Stock " .. tostring(entry.stock)
-            .. "\n"
-            .. "🕐 Stock time <t:"
-            .. tostring(entry.timestamp)
-            .. ":t> • <t:"
-            .. tostring(entry.timestamp)
-            .. ":R>"
-        )
-    end
-
-    local firstTimestamp
-
-    if history.entries[1] then
-        firstTimestamp = history.entries[1].timestamp
-    else
-        firstTimestamp = os.time()
-    end
-
-    local description =
-        "📅 <t:"
-        .. tostring(firstTimestamp)
-        .. ":D>\n\n"
-        .. table.concat(lines, "\n\n")
-
-    return {
-        embeds = {
-            {
-                title =
-                    emoji
-                    .. " "
-                    .. string.upper(eggName)
-                    .. " — SPAWN HISTORY",
-
-                description = description,
-
-                color = color,
-
-                thumbnail = {
-                    url = thumbnail
-                },
-
-                footer = {
-                    text = "Ride a Pet • Egg Spawn History"
-                }
-            }
-        }
-    }
-end
-
 local function parseCommaSeparated(text)
     local values = {}
     text = text or ""
@@ -1940,6 +1881,65 @@ local eggThumbnails = {
     ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
     ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7"
 }
+
+local function buildEggHistoryPayload(eggName, history)
+    local emoji = eggEmojis[eggName]
+    local color = eggEmbedColors[eggName]
+    local thumbnail = eggThumbnails[eggName]
+
+    local lines = {}
+
+    for _, entry in ipairs(history.entries) do
+        table.insert(
+            lines,
+            "📦 Stock " .. tostring(entry.stock)
+            .. "\n"
+            .. "🕐 Stock time <t:"
+            .. tostring(entry.timestamp)
+            .. ":t> • <t:"
+            .. tostring(entry.timestamp)
+            .. ":R>"
+        )
+    end
+
+    local firstTimestamp
+
+    if history.entries[1] then
+        firstTimestamp = history.entries[1].timestamp
+    else
+        firstTimestamp = os.time()
+    end
+
+    local description =
+        "📅 <t:"
+        .. tostring(firstTimestamp)
+        .. ":D>\n\n"
+        .. table.concat(lines, "\n\n")
+
+    return {
+        embeds = {
+            {
+                title =
+                    emoji
+                    .. " "
+                    .. string.upper(eggName)
+                    .. " — SPAWN HISTORY",
+
+                description = description,
+
+                color = color,
+
+                thumbnail = {
+                    url = thumbnail
+                },
+
+                footer = {
+                    text = "Ride a Pet • Egg Spawn History"
+                }
+            }
+        }
+    }
+end
 
 local function sendEggNotification(eggName, stock)
     local emoji = eggEmojis[eggName] or "🥚"
