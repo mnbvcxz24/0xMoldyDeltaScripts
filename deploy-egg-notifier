@@ -1914,7 +1914,7 @@ local function buildEggHistoryPayload(eggName, history)
         "📅 <t:"
         .. tostring(firstTimestamp)
         .. ":D>\n\n"
-        .. table.concat(lines, "\n\n")
+        .. table.concat(lines, "\n")
 
     return {
         embeds = {
