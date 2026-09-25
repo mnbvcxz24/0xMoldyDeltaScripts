@@ -2077,7 +2077,7 @@ task.spawn(function()
             scanEgg("Cherub Egg")
         end
 
-        task.wait(2)
+        task.wait(3)
     end
 end)
 
