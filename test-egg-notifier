@@ -14,8 +14,10 @@ gui.Parent = CoreGui
 
 
 local CONFIG_FILE = "rap_notifier/rap_notifier_config_test.json"
+local EGG_HISTORY_FILE = "rap_notifier/egg_spawn_history_test.json"
 local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec_test.lua"
 local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/test-egg-notifier"))()'
+
 
 local window = Instance.new("Frame")
 window.Name = "MainWindow"
@@ -519,6 +521,122 @@ local function canUseFileStorage()
         and type(writefile) == "function"
 end
 
+local eggSpawnHistory = {}
+
+local function loadEggSpawnHistory()
+    if not canUseFileStorage() then
+        return
+    end
+
+    if not isfile(EGG_HISTORY_FILE) then
+        return
+    end
+
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(
+            readfile(EGG_HISTORY_FILE)
+        )
+    end)
+
+    if success and type(data) == "table" then
+        eggSpawnHistory = data
+    end
+end
+
+local function saveEggSpawnHistory()
+    if not canUseFileStorage() then
+        return
+    end
+
+    pcall(function()
+        writefile(
+            EGG_HISTORY_FILE,
+            game:GetService("HttpService"):JSONEncode(
+                eggSpawnHistory
+            )
+        )
+    end)
+end
+
+local function getHistoryDate()
+    return os.date("%Y-%m-%d")
+end
+
+local function getEggHistory(eggName)
+    local today = getHistoryDate()
+
+    if not eggSpawnHistory[eggName]
+        or eggSpawnHistory[eggName].date ~= today then
+
+        eggSpawnHistory[eggName] = {
+            date = today,
+            messageId = nil,
+            entries = {}
+        }
+    end
+
+    return eggSpawnHistory[eggName]
+end
+
+local function buildEggHistoryPayload(eggName, history)
+    local emoji = eggEmojis[eggName]
+    local color = eggEmbedColors[eggName]
+    local thumbnail = eggThumbnails[eggName]
+
+    local lines = {}
+
+    for _, entry in ipairs(history.entries) do
+        table.insert(
+            lines,
+            "📦 Stock " .. tostring(entry.stock)
+            .. "\n"
+            .. "🕐 Stock time <t:"
+            .. tostring(entry.timestamp)
+            .. ":t> • <t:"
+            .. tostring(entry.timestamp)
+            .. ":R>"
+        )
+    end
+
+    local firstTimestamp
+
+    if history.entries[1] then
+        firstTimestamp = history.entries[1].timestamp
+    else
+        firstTimestamp = os.time()
+    end
+
+    local description =
+        "📅 <t:"
+        .. tostring(firstTimestamp)
+        .. ":D>\n\n"
+        .. table.concat(lines, "\n\n")
+
+    return {
+        embeds = {
+            {
+                title =
+                    emoji
+                    .. " "
+                    .. string.upper(eggName)
+                    .. " — SPAWN HISTORY",
+
+                description = description,
+
+                color = color,
+
+                thumbnail = {
+                    url = thumbnail
+                },
+
+                footer = {
+                    text = "Ride a Pet • Egg Spawn History"
+                }
+            }
+        }
+    }
+end
+
 local function parseCommaSeparated(text)
     local values = {}
     text = text or ""
@@ -639,8 +757,15 @@ local function saveConfig()
         webhooks = {},
         eggs = {},
         weather = {},
+        eggHistory = {
+            webhook = eggHistoryWebhookInput and eggHistoryWebhookInput.Text or "",
+            eggs = {}
+        }
     }
-
+    for eggName, toggle in pairs(eggHistoryToggles) do
+        config.eggHistory.eggs[eggName] =
+            toggle:GetAttribute("Enabled") == true
+    end
     for index = 1, 3 do
         config.webhooks[index] =
             webhookInputs[index]
@@ -1447,6 +1572,33 @@ local function loadConfig()
     return true
 end
 
+if config.eggHistory then
+    if eggHistoryWebhookInput then
+        eggHistoryWebhookInput.Text =
+            config.eggHistory.webhook or ""
+    end
+
+    for eggName, toggle in pairs(eggHistoryToggles) do
+        local enabled =
+            config.eggHistory.eggs
+            and config.eggHistory.eggs[eggName] == true
+
+        toggle:SetAttribute("Enabled", enabled)
+
+        local shortName = eggName:gsub(" Egg", "")
+
+        if enabled then
+            toggle.Text = "  ✓  " .. shortName
+            toggle.TextColor3 =
+                Color3.fromRGB(100, 220, 130)
+        else
+            toggle.Text = "  □  " .. shortName
+            toggle.TextColor3 =
+                Color3.fromRGB(180, 180, 190)
+        end
+    end
+end
+
 local function getEggStock(eggName)
     local playerGui = player:FindFirstChild("PlayerGui")
     if not playerGui then
@@ -1496,7 +1648,7 @@ task.spawn(function()
 end)
 
 loadConfig()
-
+loadEggSpawnHistory()
 autoExecuteEnabled = checkAutoExecute()
 updateAutoExecuteUI()
 
@@ -1671,6 +1823,74 @@ local function sendWeatherNotification(weatherVariant)
             end
         end
     end
+end
+
+local function sendEggHistoryWebhook(webhook, body, method, messageId)
+    local requestFunction =
+        (syn and syn.request)
+        or (http and http.request)
+        or http_request
+        or request
+
+    if not requestFunction then
+        return false, nil
+    end
+
+    local url = webhook
+
+    if method == "PATCH" then
+        local webhookId, webhookToken =
+            string.match(
+                webhook,
+                "^https://discord%.com/api/webhooks/(%d+)/([^%?]+)"
+            )
+
+        if not webhookId or not webhookToken or not messageId then
+            return false, nil
+        end
+
+        url =
+            "https://discord.com/api/webhooks/"
+            .. webhookId
+            .. "/"
+            .. webhookToken
+            .. "/messages/"
+            .. tostring(messageId)
+    else
+        url = webhook .. "?wait=true"
+    end
+
+    local success, response = pcall(function()
+        return requestFunction({
+            Url = url,
+            Method = method or "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = game:GetService("HttpService"):JSONEncode(body)
+        })
+    end)
+
+    if not success or not response then
+        return false, nil
+    end
+
+    local statusCode = response.StatusCode
+
+    if statusCode and (statusCode < 200 or statusCode >= 300) then
+        return false, response
+    end
+
+    local responseData
+
+    if response.Body then
+        pcall(function()
+            responseData =
+                game:GetService("HttpService"):JSONDecode(response.Body)
+        end)
+    end
+
+    return true, responseData
 end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
