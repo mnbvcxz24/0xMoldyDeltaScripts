@@ -1565,38 +1565,38 @@ local function loadConfig()
             end
         end
     end
+    
+    if config.eggHistory then
+        if eggHistoryWebhookInput then
+            eggHistoryWebhookInput.Text =
+                config.eggHistory.webhook or ""
+        end
+    
+        for eggName, toggle in pairs(eggHistoryToggles) do
+            local enabled =
+                config.eggHistory.eggs
+                and config.eggHistory.eggs[eggName] == true
+    
+            toggle:SetAttribute("Enabled", enabled)
+    
+            local shortName = eggName:gsub(" Egg", "")
+    
+            if enabled then
+                toggle.Text = "  ✓  " .. shortName
+                toggle.TextColor3 =
+                    Color3.fromRGB(100, 220, 130)
+            else
+                toggle.Text = "  □  " .. shortName
+                toggle.TextColor3 =
+                    Color3.fromRGB(180, 180, 190)
+            end
+        end
+    end
 
     updateAutoExecuteUI()
     updateWebhookConnectionStatus()
 
     return true
-end
-
-if config.eggHistory then
-    if eggHistoryWebhookInput then
-        eggHistoryWebhookInput.Text =
-            config.eggHistory.webhook or ""
-    end
-
-    for eggName, toggle in pairs(eggHistoryToggles) do
-        local enabled =
-            config.eggHistory.eggs
-            and config.eggHistory.eggs[eggName] == true
-
-        toggle:SetAttribute("Enabled", enabled)
-
-        local shortName = eggName:gsub(" Egg", "")
-
-        if enabled then
-            toggle.Text = "  ✓  " .. shortName
-            toggle.TextColor3 =
-                Color3.fromRGB(100, 220, 130)
-        else
-            toggle.Text = "  □  " .. shortName
-            toggle.TextColor3 =
-                Color3.fromRGB(180, 180, 190)
-        end
-    end
 end
 
 local function getEggStock(eggName)
