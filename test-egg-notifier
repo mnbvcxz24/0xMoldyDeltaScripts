@@ -1834,6 +1834,79 @@ local function sendEggHistoryWebhook(webhook, body, method, messageId)
     return true, responseData
 end
 
+local function sendEggHistory(eggName, stock)
+    local toggle = eggHistoryToggles[eggName]
+
+    if not toggle
+        or toggle:GetAttribute("Enabled") ~= true then
+        return
+    end
+
+    if not eggHistoryWebhookInput then
+        return
+    end
+
+    local webhook = eggHistoryWebhookInput.Text
+
+    if webhook == ""
+        or not string.find(
+            webhook,
+            "^https://discord.com/api/webhooks/"
+        ) then
+        return
+    end
+
+    local history = getEggHistory(eggName)
+
+    local timestamp = os.time()
+
+    table.insert(
+        history.entries,
+        {
+            stock = stock,
+            timestamp = timestamp
+        }
+    )
+
+    local payload =
+        buildEggHistoryPayload(
+            eggName,
+            history
+        )
+
+    if history.messageId then
+        local success =
+            sendEggHistoryWebhook(
+                webhook,
+                payload,
+                "PATCH",
+                history.messageId
+            )
+
+        if not success then
+            history.messageId = nil
+        end
+    end
+
+    if not history.messageId then
+        local success, response =
+            sendEggHistoryWebhook(
+                webhook,
+                payload,
+                "POST"
+            )
+
+        if success
+            and response
+            and response.id then
+
+            history.messageId = response.id
+        end
+    end
+
+    saveEggSpawnHistory()
+end
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
 local GameRemotes = Remotes and Remotes:FindFirstChild("Game")
@@ -2049,7 +2122,10 @@ local function scanEgg(eggName)
                     eggName,
                     stock
                 )
-
+                sendEggHistory(
+                    eggName,
+                    stock
+                )
                 lastDetectionTime[eggName] = now
             end
         elseif now - lastDetectionTime[eggName]
@@ -2059,7 +2135,10 @@ local function scanEgg(eggName)
                 eggName,
                 stock
             )
-
+            sendEggHistory(
+                eggName,
+                stock
+            )
             lastDetectionTime[eggName] = now
         end
     else
