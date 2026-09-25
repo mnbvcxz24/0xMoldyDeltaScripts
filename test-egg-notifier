@@ -482,6 +482,8 @@ local webhookRoleInputs = {}
 local webhookTestButtons = {}
 local webhookWeatherToggles = {}
 local webhookWeatherRoleInputs = {}
+local eggHistoryWebhookInput
+local eggHistoryToggles = {}
 
 local weatherMutationInfo = {
     Thunder = {
@@ -1071,6 +1073,128 @@ end
 createWebhookCard(1)
 createWebhookCard(2)
 createWebhookCard(3)
+
+local eggHistoryCard = Instance.new("Frame")
+eggHistoryCard.Name = "EggSpawnHistoryCard"
+eggHistoryCard.Size = UDim2.new(1, -10, 0, 180)
+eggHistoryCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+eggHistoryCard.BorderSizePixel = 0
+eggHistoryCard.ClipsDescendants = false
+eggHistoryCard.LayoutOrder = 4
+eggHistoryCard.ZIndex = 6
+eggHistoryCard.Parent = webhookContent
+
+local eggHistoryCorner = Instance.new("UICorner")
+eggHistoryCorner.CornerRadius = UDim.new(0, 8)
+eggHistoryCorner.Parent = eggHistoryCard
+
+local eggHistoryTitle = Instance.new("TextLabel")
+eggHistoryTitle.Name = "Title"
+eggHistoryTitle.Size = UDim2.new(1, -20, 0, 25)
+eggHistoryTitle.Position = UDim2.new(0, 10, 0, 7)
+eggHistoryTitle.BackgroundTransparency = 1
+eggHistoryTitle.Text = "Egg Spawn History"
+eggHistoryTitle.TextSize = 11
+eggHistoryTitle.Font = Enum.Font.GothamMedium
+eggHistoryTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+eggHistoryTitle.TextXAlignment = Enum.TextXAlignment.Left
+eggHistoryTitle.ZIndex = 7
+eggHistoryTitle.Parent = eggHistoryCard
+
+local eggHistoryInput = Instance.new("TextBox")
+eggHistoryInput.Name = "WebhookInput"
+eggHistoryInput.Size = UDim2.new(1, -20, 0, 35)
+eggHistoryInput.Position = UDim2.new(0, 10, 0, 35)
+eggHistoryInput.TextWrapped = true
+eggHistoryInput.ClearTextOnFocus = false
+eggHistoryInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+eggHistoryInput.BorderSizePixel = 0
+eggHistoryInput.PlaceholderText = "  Discord Webhook"
+eggHistoryInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+eggHistoryInput.Text = ""
+eggHistoryInput.TextSize = 9
+eggHistoryInput.Font = Enum.Font.Gotham
+eggHistoryInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+eggHistoryInput.TextXAlignment = Enum.TextXAlignment.Left
+eggHistoryInput.ZIndex = 7
+eggHistoryInput.Parent = eggHistoryCard
+
+local eggHistoryInputCorner = Instance.new("UICorner")
+eggHistoryInputCorner.CornerRadius = UDim.new(0, 6)
+eggHistoryInputCorner.Parent = eggHistoryInput
+
+eggHistoryWebhookInput = eggHistoryInput
+
+local historyEggs = {
+    {
+        name = "Cherub Egg",
+        short = "Cherub"
+    },
+    {
+        name = "Solaris Egg",
+        short = "Solaris"
+    },
+    {
+        name = "Blackhole Egg",
+        short = "Blackhole"
+    }
+}
+
+for eggIndex, eggData in ipairs(historyEggs) do
+    local y = 78 + ((eggIndex - 1) * 27)
+
+    local toggle = Instance.new("TextButton")
+    toggle.Name = eggData.short .. "HistoryToggle"
+    toggle.Size = UDim2.new(0, 140, 0, 20)
+    toggle.Position = UDim2.new(0, 10, 0, y)
+    toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    toggle.BorderSizePixel = 0
+    toggle.Text = "  □  " .. eggData.short
+    toggle.TextSize = 9
+    toggle.Font = Enum.Font.GothamMedium
+    toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
+    toggle.TextXAlignment = Enum.TextXAlignment.Left
+    toggle.ZIndex = 8
+    toggle.Parent = eggHistoryCard
+
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 6)
+    toggleCorner.Parent = toggle
+
+    toggle:SetAttribute("Enabled", false)
+
+    eggHistoryToggles[eggData.name] = toggle
+
+    toggle.MouseButton1Click:Connect(function()
+        local enabled = not (
+            toggle:GetAttribute("Enabled") == true
+        )
+
+        toggle:SetAttribute("Enabled", enabled)
+
+        if enabled then
+            toggle.Text = "  ✓  " .. eggData.short
+            toggle.TextColor3 =
+                Color3.fromRGB(100, 220, 130)
+        else
+            toggle.Text = "  □  " .. eggData.short
+            toggle.TextColor3 =
+                Color3.fromRGB(180, 180, 190)
+        end
+
+        task.delay(0.1, function()
+            saveConfig()
+        end)
+    end)
+end
+
+eggHistoryInput:GetPropertyChangedSignal("Text"):Connect(function()
+    task.delay(0.3, function()
+        if gui.Parent then
+            saveConfig()
+        end
+    end)
+end)
 
 local settingsPage = Instance.new("ScrollingFrame")
 settingsPage.Name = "SettingsPage"
