@@ -450,6 +450,30 @@ cherubStock.TextColor3 = Color3.fromRGB(255, 255, 255)
 cherubStock.TextXAlignment = Enum.TextXAlignment.Right
 cherubStock.Parent = etherealCard
 
+local volcanicLabel = Instance.new("TextLabel")
+volcanicLabel.Name = "VolcanicEgg"
+volcanicLabel.Size = UDim2.new(1, -30, 0, 20)
+volcanicLabel.Position = UDim2.new(0, 15, 0, 110)
+volcanicLabel.BackgroundTransparency = 1
+volcanicLabel.Text = "Volcanic Egg"
+volcanicLabel.TextSize = 10
+volcanicLabel.Font = Enum.Font.Gotham
+volcanicLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+volcanicLabel.TextXAlignment = Enum.TextXAlignment.Left
+volcanicLabel.Parent = etherealCard
+
+local volcanicStock = Instance.new("TextLabel")
+volcanicStock.Name = "Stock"
+volcanicStock.Size = UDim2.new(0, 30, 0, 20)
+volcanicStock.Position = UDim2.new(1, -45, 0, 110)
+volcanicStock.BackgroundTransparency = 1
+volcanicStock.Text = "0"
+volcanicStock.TextSize = 10
+volcanicStock.Font = Enum.Font.GothamBold
+volcanicStock.TextColor3 = Color3.fromRGB(255, 255, 255)
+volcanicStock.TextXAlignment = Enum.TextXAlignment.Right
+volcanicStock.Parent = etherealCard
+
 local webhookPage = Instance.new("ScrollingFrame")
 webhookPage.Name = "WebhookPage"
 webhookPage.Size = UDim2.new(1, -130, 1, -60)
