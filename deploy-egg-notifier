@@ -2542,14 +2542,10 @@ monitoringButton.MouseButton1Click:Connect(function()
     monitoringEnabled = not monitoringEnabled
 
     if monitoringEnabled then
-        lastStock["Blackhole Egg"] =
-            getEggStock("Blackhole Egg")
-        lastStock["Solaris Egg"] =
-            getEggStock("Solaris Egg")
-        lastStock["Cherub Egg"] =
-            getEggStock("Cherub Egg")
-        lastStock["Volcanic Egg"] =
-            getEggStock("Volcanic Egg")
+        lastStock["Blackhole Egg"] = getEggStock("Blackhole Egg")
+        lastStock["Solaris Egg"] = getEggStock("Solaris Egg")
+        lastStock["Cherub Egg"] = getEggStock("Cherub Egg")
+        lastStock["Volcanic Egg"] = getEggStock("Volcanic Egg")
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
