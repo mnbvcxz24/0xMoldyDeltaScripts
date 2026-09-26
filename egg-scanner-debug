@@ -12,10 +12,11 @@ gui.ResetOnSpawn = false
 gui.Parent = game:GetService("CoreGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 500, 0, 500)
-frame.Position = UDim2.new(0.5, -250, 0.5, -250)
+frame.Size = UDim2.new(0, 520, 0, 500)
+frame.Position = UDim2.new(0.5, -260, 0.5, -250)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 frame.BorderSizePixel = 0
+frame.ClipsDescendants = true
 frame.Parent = gui
 
 local corner = Instance.new("UICorner")
@@ -30,6 +31,7 @@ title.Text = "🥚 EggTracker / EggsHolder Scanner"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.TextSize = 16
 title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
 local scroll = Instance.new("ScrollingFrame")
@@ -37,30 +39,57 @@ scroll.Size = UDim2.new(1, -20, 1, -50)
 scroll.Position = UDim2.new(0, 10, 0, 45)
 scroll.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
 scroll.BorderSizePixel = 0
-scroll.ScrollBarThickness = 8
-scroll.ScrollBarImageTransparency = 0.2
-scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scroll.ClipsDescendants = true
+scroll.ScrollBarThickness = 10
+scroll.ScrollBarImageTransparency = 0
 scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 scroll.Parent = frame
 
 local scrollCorner = Instance.new("UICorner")
 scrollCorner.CornerRadius = UDim.new(0, 8)
 scrollCorner.Parent = scroll
 
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0, 8)
+padding.PaddingBottom = UDim.new(0, 8)
+padding.PaddingLeft = UDim.new(0, 8)
+padding.PaddingRight = UDim.new(0, 18)
+padding.Parent = scroll
+
 local status = Instance.new("TextLabel")
-status.Size = UDim2.new(1, -12, 0, 0)
-status.Position = UDim2.new(0, 6, 0, 6)
 status.BackgroundTransparency = 1
+status.Size = UDim2.new(1, 0, 0, 100)
+status.Position = UDim2.new(0, 0, 0, 0)
 status.TextColor3 = Color3.fromRGB(220, 220, 220)
 status.TextSize = 12
 status.Font = Enum.Font.Code
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextYAlignment = Enum.TextYAlignment.Top
-status.TextWrapped = false
-status.AutomaticSize = Enum.AutomaticSize.Y
+status.TextWrapped = true
 status.Text = "Starting..."
 status.Parent = scroll
+
+local function updateCanvas()
+    task.wait()
+
+    local height = status.TextBounds.Y + 20
+
+    status.Size = UDim2.new(
+        1,
+        0,
+        0,
+        height
+    )
+
+    scroll.CanvasSize = UDim2.new(
+        0,
+        0,
+        0,
+        height + 16
+    )
+end
 
 local function getEggsHolder()
     local playerGui = player:FindFirstChild("PlayerGui")
@@ -95,7 +124,7 @@ local function getEggTexts(egg)
 
             if text ~= "" then
                 table.insert(texts, {
-                    name = obj.Name,
+                    name = obj:GetFullName(),
                     text = text
                 })
             end
@@ -122,6 +151,7 @@ local lastStock = {}
 local function scanEgg(egg)
     local eggName = egg.Name
     local texts = getEggTexts(egg)
+
     local stock, stockObject, stockText =
         getEggStockFromTexts(texts)
 
@@ -160,25 +190,23 @@ local function buildScan()
     local eggsHolder = getEggsHolder()
 
     if not eggsHolder then
-        return {
+        return table.concat({
             "EGG SCANNER",
-            "────────────────────────────────",
+            "────────────────────────────────────────",
+            "",
             "EggTracker / EggsHolder not found",
             "",
             "Waiting..."
-        }
+        }, "\n")
     end
 
     local lines = {}
 
     table.insert(lines, "EGG TRACKER / EGGS HOLDER")
-    table.insert(lines, "────────────────────────────────")
+    table.insert(lines, "────────────────────────────────────────")
+    table.insert(lines, "")
 
-    local eggs = {}
-
-    for _, child in ipairs(eggsHolder:GetChildren()) do
-        table.insert(eggs, child)
-    end
+    local eggs = eggsHolder:GetChildren()
 
     table.sort(eggs, function(a, b)
         return a.Name < b.Name
@@ -237,7 +265,12 @@ local function buildScan()
                 lines,
                 "    [" ..
                 tostring(textData.name) ..
-                "] = " ..
+                "]"
+            )
+
+            table.insert(
+                lines,
+                "      = " ..
                 tostring(textData.text)
             )
         end
@@ -247,7 +280,7 @@ local function buildScan()
 
     table.insert(
         lines,
-        "────────────────────────────────"
+        "────────────────────────────────────────"
     )
 
     table.insert(
@@ -255,13 +288,14 @@ local function buildScan()
         "Updated: " .. os.date("%H:%M:%S")
     )
 
-    return lines
+    return table.concat(lines, "\n")
 end
 
 task.spawn(function()
     while gui.Parent do
-        local lines = buildScan()
-        status.Text = table.concat(lines, "\n")
+        status.Text = buildScan()
+
+        updateCanvas()
 
         task.wait(2)
     end
