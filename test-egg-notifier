@@ -1812,13 +1812,15 @@ end)
 local lastStock = {
     ["Blackhole Egg"] = 0,
     ["Solaris Egg"] = 0,
-    ["Cherub Egg"] = 0
+    ["Cherub Egg"] = 0,
+    ["Volcanic Egg"] = 0
 }
 
 local lastDetectionTime = {
     ["Blackhole Egg"] = 0,
     ["Solaris Egg"] = 0,
-    ["Cherub Egg"] = 0
+    ["Cherub Egg"] = 0,
+    ["Volcanic Egg"] = 0
 }
 
 local STOCK_RESET_TIME = 420
