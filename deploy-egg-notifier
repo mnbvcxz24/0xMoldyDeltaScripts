@@ -75,7 +75,7 @@ openButton.Size = UDim2.new(0, 45, 0, 45)
 openButton.Position = UDim2.new(0.5, -22, 0.5, -22)
 openButton.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 openButton.BorderSizePixel = 0
-openButton.Text = "W"
+openButton.Text = "🔧"
 openButton.TextSize = 18
 openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -486,6 +486,10 @@ local webhookWeatherToggles = {}
 local webhookWeatherRoleInputs = {}
 local eggHistoryWebhookInput
 local eggHistoryToggles = {}
+local radarRestockWebhookInput
+local radarRestockToggles = {}
+local radarRestockRoleInputs = {}
+
 
 local weatherMutationInfo = {
     Thunder = {
@@ -701,11 +705,27 @@ local function saveConfig()
         eggHistory = {
             webhook = eggHistoryWebhookInput and eggHistoryWebhookInput.Text or "",
             eggs = {}
+        },
+        radarRestock = {
+            webhook = radarRestockWebhookInput
+                and radarRestockWebhookInput.Text
+                or "",
+            radars = {},
+            roles = {}
         }
     }
     for eggName, toggle in pairs(eggHistoryToggles) do
         config.eggHistory.eggs[eggName] =
             toggle:GetAttribute("Enabled") == true
+    end
+    for radarName, toggle in pairs(radarRestockToggles) do
+    config.radarRestock.radars[radarName] =
+        toggle:GetAttribute("Enabled") == true
+    end
+    
+    for radarName, input in pairs(radarRestockRoleInputs) do
+        config.radarRestock.roles[radarName] =
+            input.Text
     end
     for index = 1, 3 do
         config.webhooks[index] =
@@ -718,7 +738,8 @@ local function saveConfig()
         for _, eggName in ipairs({
             "Blackhole Egg",
             "Solaris Egg",
-            "Cherub Egg"
+            "Cherub Egg",
+            "Volcanic Egg"
         }) do
             local toggle =
                 webhookEggToggles[index]
@@ -849,6 +870,10 @@ local function createWebhookCard(index)
         {
             name = "Cherub Egg",
             short = "Cherub"
+        },
+        {
+            name = "Volcanic Egg",
+            short = "Volcanic"
         }
     }
 
@@ -1203,6 +1228,10 @@ local historyEggs = {
     {
         name = "Blackhole Egg",
         short = "Blackhole"
+    },
+    {
+        name = "Volcanic Egg",
+        short = "Volcanic"
     }
 }
 
@@ -1255,6 +1284,154 @@ for eggIndex, eggData in ipairs(historyEggs) do
 end
 
 eggHistoryInput:GetPropertyChangedSignal("Text"):Connect(function()
+    task.delay(0.3, function()
+        if gui.Parent then
+            saveConfig()
+        end
+    end)
+end)
+
+local radarRestockCard = Instance.new("Frame")
+radarRestockCard.Name = "RadarRestockCard"
+radarRestockCard.Size = UDim2.new(1, -10, 0, 145)
+radarRestockCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+radarRestockCard.BorderSizePixel = 0
+radarRestockCard.ClipsDescendants = false
+radarRestockCard.LayoutOrder = 5
+radarRestockCard.ZIndex = 6
+radarRestockCard.Parent = webhookContent
+
+local radarRestockCorner = Instance.new("UICorner")
+radarRestockCorner.CornerRadius = UDim.new(0, 8)
+radarRestockCorner.Parent = radarRestockCard
+
+local radarRestockTitle = Instance.new("TextLabel")
+radarRestockTitle.Name = "Title"
+radarRestockTitle.Size = UDim2.new(1, -20, 0, 25)
+radarRestockTitle.Position = UDim2.new(0, 10, 0, 7)
+radarRestockTitle.BackgroundTransparency = 1
+radarRestockTitle.Text = "Radar Restock"
+radarRestockTitle.TextSize = 11
+radarRestockTitle.Font = Enum.Font.GothamMedium
+radarRestockTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+radarRestockTitle.TextXAlignment = Enum.TextXAlignment.Left
+radarRestockTitle.ZIndex = 7
+radarRestockTitle.Parent = radarRestockCard
+
+local radarRestockInput = Instance.new("TextBox")
+radarRestockInput.Name = "WebhookInput"
+radarRestockInput.Size = UDim2.new(1, -20, 0, 35)
+radarRestockInput.Position = UDim2.new(0, 10, 0, 35)
+radarRestockInput.TextWrapped = true
+radarRestockInput.ClearTextOnFocus = false
+radarRestockInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+radarRestockInput.BorderSizePixel = 0
+radarRestockInput.PlaceholderText = "  Discord Webhook"
+radarRestockInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+radarRestockInput.Text = ""
+radarRestockInput.TextSize = 9
+radarRestockInput.Font = Enum.Font.Gotham
+radarRestockInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+radarRestockInput.TextXAlignment = Enum.TextXAlignment.Left
+radarRestockInput.ZIndex = 7
+radarRestockInput.Parent = radarRestockCard
+
+local radarRestockInputCorner = Instance.new("UICorner")
+radarRestockInputCorner.CornerRadius = UDim.new(0, 6)
+radarRestockInputCorner.Parent = radarRestockInput
+
+radarRestockWebhookInput = radarRestockInput
+
+local radarData = {
+    {
+        name = "Eternal Radar",
+        short = "Eternal Radar"
+    },
+    {
+        name = "Angelic Radar",
+        short = "Angelic Radar"
+    }
+}
+
+for radarIndex, radar in ipairs(radarData) do
+    local y = 78 + ((radarIndex - 1) * 27)
+
+    local toggle = Instance.new("TextButton")
+    toggle.Name = radar.short:gsub(" ", "") .. "Toggle"
+    toggle.Size = UDim2.new(0, 125, 0, 20)
+    toggle.Position = UDim2.new(0, 10, 0, y)
+    toggle.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    toggle.BorderSizePixel = 0
+    toggle.Text = "  □  " .. radar.short
+    toggle.TextSize = 9
+    toggle.Font = Enum.Font.GothamMedium
+    toggle.TextColor3 = Color3.fromRGB(180, 180, 190)
+    toggle.TextXAlignment = Enum.TextXAlignment.Left
+    toggle.ZIndex = 8
+    toggle.Parent = radarRestockCard
+
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 6)
+    toggleCorner.Parent = toggle
+
+    toggle:SetAttribute("Enabled", false)
+
+    radarRestockToggles[radar.name] = toggle
+
+    local roleInput = Instance.new("TextBox")
+    roleInput.Name = radar.short:gsub(" ", "") .. "RoleInput"
+    roleInput.Size = UDim2.new(0, 150, 0, 20)
+    roleInput.Position = UDim2.new(0, 145, 0, y)
+    roleInput.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+    roleInput.BorderSizePixel = 0
+    roleInput.PlaceholderText = " Role ID"
+    roleInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 120)
+    roleInput.Text = ""
+    roleInput.TextSize = 9
+    roleInput.Font = Enum.Font.Gotham
+    roleInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    roleInput.TextXAlignment = Enum.TextXAlignment.Left
+    roleInput.ClearTextOnFocus = false
+    roleInput.ZIndex = 8
+    roleInput.Parent = radarRestockCard
+
+    local roleInputCorner = Instance.new("UICorner")
+    roleInputCorner.CornerRadius = UDim.new(0, 6)
+    roleInputCorner.Parent = roleInput
+
+    radarRestockRoleInputs[radar.name] = roleInput
+
+    toggle.MouseButton1Click:Connect(function()
+        local enabled =
+            toggle:GetAttribute("Enabled") ~= true
+
+        toggle:SetAttribute("Enabled", enabled)
+
+        if enabled then
+            toggle.Text = "  ✓  " .. radar.short
+            toggle.TextColor3 =
+                Color3.fromRGB(100, 220, 130)
+        else
+            toggle.Text = "  □  " .. radar.short
+            toggle.TextColor3 =
+                Color3.fromRGB(180, 180, 190)
+        end
+
+        task.delay(0.1, function()
+            saveConfig()
+        end)
+    end)
+
+    roleInput:GetPropertyChangedSignal("Text"):Connect(function()
+        task.delay(0.3, function()
+            if gui.Parent then
+                saveConfig()
+            end
+        end)
+    end)
+end
+
+radarRestockInput:GetPropertyChangedSignal("Text"):Connect(function()
     task.delay(0.3, function()
         if gui.Parent then
             saveConfig()
@@ -1399,7 +1576,8 @@ local function loadConfig()
                 for _, eggName in ipairs({
                     "Blackhole Egg",
                     "Solaris Egg",
-                    "Cherub Egg"
+                    "Cherub Egg",
+                    "Volcanic Egg"
                 }) do
                     local saved = savedEggs[eggName]
 
@@ -1455,6 +1633,40 @@ local function loadConfig()
                         end
                     end
                 end
+            end
+        end
+    end
+    if config.radarRestock then
+        if radarRestockWebhookInput then
+            radarRestockWebhookInput.Text =
+                config.radarRestock.webhook or ""
+        end
+    
+        for radarName, toggle in pairs(radarRestockToggles) do
+            local enabled =
+                config.radarRestock.radars
+                and config.radarRestock.radars[radarName] == true
+    
+            toggle:SetAttribute("Enabled", enabled)
+    
+            local roleInput =
+                radarRestockRoleInputs[radarName]
+    
+            if roleInput then
+                roleInput.Text =
+                    config.radarRestock.roles
+                    and config.radarRestock.roles[radarName]
+                    or ""
+            end
+    
+            if enabled then
+                toggle.Text = "  ✓  " .. radarName
+                toggle.TextColor3 =
+                    Color3.fromRGB(100, 220, 130)
+            else
+                toggle.Text = "  □  " .. radarName
+                toggle.TextColor3 =
+                    Color3.fromRGB(180, 180, 190)
             end
         end
     end
@@ -1645,11 +1857,11 @@ local weatherEmbedColors = {
 }
 
 local weatherThumbnails = {
-    Thunder = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209096361517096/IMG_20260923_143520.jpg?ex=6ab4c6df&is=6ab3755f&hm=a71168a97d06404c1b4a9a1090eaa1f5caef0ebcb15b5bc5f446bbe9e40d8ab4",
-    Volt = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209092616130580/IMG_20260923_143555.jpg?ex=6ab4c6de&is=6ab3755e&hm=4beed06297e95faaf5e966b434a2e905805aa50a66bf5017d9a33f82cff4abb7",
-    Raging = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209085884272660/IMG_20260923_144257.jpg?ex=6ab4c6dc&is=6ab3755c&hm=8c233d34e6da750999bba2b61566042ecfe3e8a905b51624e42ffff294ede4a2",
-    Dreadful = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209081576595526/IMG_20260923_144323.jpg?ex=6ab4c6db&is=6ab3755b&hm=980dfdff266bc6efe80ae2068017d2db0c8bdd4e3b96e6c3644fe6f505abd107",
-    Eternal = "https://cdn.discordapp.com/attachments/1552177973229125672/1552209077579292683/IMG_20260923_144412.jpg?ex=6ab4c6da&is=6ab3755a&hm=38d7bfe9663d654431d5b086224de6b296d344ad46e77cb15e17f97719f5d409"
+    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
+    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
+    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
+    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
 }
 
 local function sendWeatherNotification(weatherVariant)
@@ -1746,7 +1958,7 @@ local function sendWeatherNotification(weatherVariant)
                         )
 
                     if roleId then
-                        content = "<@&" .. roleId .. ">"
+                        content = "<@&" .. roleId .. "> *" .. weatherVariant .. " Started.*"
                     end
                 end
 
@@ -1834,6 +2046,158 @@ local function sendEggHistoryWebhook(webhook, body, method, messageId)
     return true, responseData
 end
 
+local function sendRadarRestockWebhook(webhook, body)
+    local requestFunction =
+        (syn and syn.request)
+        or (http and http.request)
+        or http_request
+        or request
+
+    if not requestFunction then
+        return false
+    end
+
+    if not webhook
+        or webhook == ""
+        or not string.find(
+            webhook,
+            "^https://discord.com/api/webhooks/"
+        ) then
+        return false
+    end
+
+    local success, response = pcall(function()
+        return requestFunction({
+            Url = webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = game:GetService("HttpService"):JSONEncode(body)
+        })
+    end)
+
+    if not success or not response then
+        return false
+    end
+
+    local statusCode = response.StatusCode
+
+    if statusCode
+        and (statusCode < 200 or statusCode >= 300) then
+        return false
+    end
+
+    return true
+end
+
+local function sendRadarRestockNotification(radarName, stock)
+    local toggle = radarRestockToggles[radarName]
+
+    if not toggle
+        or toggle:GetAttribute("Enabled") ~= true then
+        return
+    end
+
+    if not radarRestockWebhookInput then
+        return
+    end
+
+    local webhook = radarRestockWebhookInput.Text
+
+    if webhook == ""
+        or not string.find(
+            webhook,
+            "^https://discord.com/api/webhooks/"
+        ) then
+        return
+    end
+
+    local roleInput =
+        radarRestockRoleInputs[radarName]
+
+    local roleId =
+        roleInput and roleInput.Text or ""
+
+    local content = ""
+
+    if roleId ~= "" then
+        content =
+            "<@&"
+            .. roleId
+            .. ">\n"
+            .. "-# Radar Restock"
+    else
+        content = "-# Radar Restock"
+    end
+
+    local payload = {
+        content = content,
+
+        embeds = {
+            {
+                title =
+                    "📡 "
+                    .. string.upper(radarName)
+                    .. " RESTOCKED",
+
+                description =
+                    "📦 Stock: "
+                    .. tostring(stock),
+
+                color =
+                    Color3.fromRGB(
+                        100,
+                        180,
+                        255
+                    ).R * 65536
+                    + Color3.fromRGB(
+                        100,
+                        180,
+                        255
+                    ).G * 256
+                    + Color3.fromRGB(
+                        100,
+                        180,
+                        255
+                    ).B
+            }
+        }
+    }
+
+    sendRadarRestockWebhook(
+        webhook,
+        payload
+    )
+end
+
+local Event =
+    game:GetService("ReplicatedStorage")
+    .Remotes.Game.Restock
+
+Event.OnClientEvent:Connect(function(data)
+    if not data
+        or not data.Gears then
+        return
+    end
+
+    for radarName, toggle in pairs(radarRestockToggles) do
+        if toggle:GetAttribute("Enabled") == true then
+            local radar =
+                data.Gears[radarName]
+
+            if radar
+                and radar.InStock == true then
+
+                sendRadarRestockNotification(
+                    radarName,
+                    radar.Amount or 0
+                )
+            end
+        end
+    end
+end)
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
 local GameRemotes = Remotes and Remotes:FindFirstChild("Game")
@@ -1867,19 +2231,22 @@ end
 local eggEmojis = {
     ["Blackhole Egg"] = "🌀",
     ["Solaris Egg"] = "☀️",
-    ["Cherub Egg"] = "🪽"
+    ["Cherub Egg"] = "🪽",
+    ["Volcanic Egg"] = "🌋"
 }
 
 local eggEmbedColors = {
     ["Blackhole Egg"] = 0x8E44AD,
     ["Solaris Egg"] = 0xE53935,
-    ["Cherub Egg"] = 0xF6D77A
+    ["Cherub Egg"] = 0xF6D77A,
+    ["Volcanic Egg"] = 0xE67E22
 }
 
 local eggThumbnails = {
-    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181599439954000/Black_Hole_Egg_RideAPet.webp?ex=6ab4ad43&is=6ab35bc3&hm=fd4d2986dd751d4f3f19ec2827d4fa7cc0b8aa1b6e6ef618f8f69c60ceb9e85e",
-    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181572025847918/Solaris_Egg_RideAPet.webp?ex=6ab4ad3c&is=6ab35bbc&hm=48ac2993a0ebe5893fbe4044eec06a5167b9d593d68dbbd81f8ffb5421595b6c",
-    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1552181588698333284/Cherub_Egg_RideAPet.webp?ex=6ab4ad40&is=6ab35bc0&hm=42810aa6aef22fb43d959dea576d59ed9d3542c515beac49a6da9d00ed5779a6"
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6ab4aca4&is=6ab35b24&hm=c7028814e47869365ae61eb1bbc4929ba2ca8ec859f342dae5866b708928ca57",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7",
+    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1553420646271291462/Volcanic.webp?ex=6ab92f37&is=6ab7ddb7&hm=3d3f043c3dd706476d14348b0f34562dc960d626be01b4ac9c1e268e4ad0fa32"
 }
 
 local function buildEggHistoryPayload(eggName, history)
@@ -1914,7 +2281,7 @@ local function buildEggHistoryPayload(eggName, history)
         "📅 <t:"
         .. tostring(firstTimestamp)
         .. ":D>\n\n"
-        .. table.concat(lines, "\n")
+        .. table.concat(lines, "\n\n")
 
     return {
         embeds = {
@@ -2091,7 +2458,7 @@ local function sendEggNotification(eggName, stock)
                         )
 
                     if roleId then
-                        content = "<@&" .. roleId .. ">"
+                        content = "<@&" .. roleId .. "> *" .. eggName .. " Spawned.*"
                     end
                 end
 
@@ -2154,6 +2521,7 @@ task.spawn(function()
             scanEgg("Blackhole Egg")
             scanEgg("Solaris Egg")
             scanEgg("Cherub Egg")
+            scanEgg("Volcanic Egg")
         end
 
         task.wait(3)
@@ -2180,9 +2548,12 @@ monitoringButton.MouseButton1Click:Connect(function()
             getEggStock("Solaris Egg")
         lastStock["Cherub Egg"] =
             getEggStock("Cherub Egg")
+        lastStock["Volcanic Egg"] =
+            getEggStock("Volcanic Egg")
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
+        lastDetectionTime["Volcanic Egg"] = 0
 
         monitoringStatus.Text = "Running"
 
@@ -2194,10 +2565,12 @@ monitoringButton.MouseButton1Click:Connect(function()
         lastStock["Blackhole Egg"] = 0
         lastStock["Solaris Egg"] = 0
         lastStock["Cherub Egg"] = 0
+        lastStock["Volcanic Egg"] = 0
 
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
+        lastDetectionTime["Volcanic Egg"] = 0
 
         monitoringStatus.Text = "Stopped"
 
