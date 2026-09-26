@@ -738,7 +738,8 @@ local function saveConfig()
         for _, eggName in ipairs({
             "Blackhole Egg",
             "Solaris Egg",
-            "Cherub Egg"
+            "Cherub Egg",
+            "Volcanic Egg"
         }) do
             local toggle =
                 webhookEggToggles[index]
@@ -869,6 +870,10 @@ local function createWebhookCard(index)
         {
             name = "Cherub Egg",
             short = "Cherub"
+        },
+        {
+            name = "Volcanic Egg",
+            short = "Volcanic"
         }
     }
 
@@ -1223,6 +1228,10 @@ local historyEggs = {
     {
         name = "Blackhole Egg",
         short = "Blackhole"
+    },
+    {
+        name = "Volcanic Egg",
+        short = "Volcanic"
     }
 }
 
@@ -1567,7 +1576,8 @@ local function loadConfig()
                 for _, eggName in ipairs({
                     "Blackhole Egg",
                     "Solaris Egg",
-                    "Cherub Egg"
+                    "Cherub Egg",
+                    "Volcanic Egg"
                 }) do
                     local saved = savedEggs[eggName]
 
@@ -2221,19 +2231,22 @@ end
 local eggEmojis = {
     ["Blackhole Egg"] = "🌀",
     ["Solaris Egg"] = "☀️",
-    ["Cherub Egg"] = "🪽"
+    ["Cherub Egg"] = "🪽",
+    ["Volcanic Egg"] = "🌋"
 }
 
 local eggEmbedColors = {
     ["Blackhole Egg"] = 0x8E44AD,
     ["Solaris Egg"] = 0xE53935,
-    ["Cherub Egg"] = 0xF6D77A
+    ["Cherub Egg"] = 0xF6D77A,
+    ["Volcanic Egg"] = 0xE67E22
 }
 
 local eggThumbnails = {
     ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6ab4aca4&is=6ab35b24&hm=c7028814e47869365ae61eb1bbc4929ba2ca8ec859f342dae5866b708928ca57",
     ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
-    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7"
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7",
+    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1553420646271291462/Volcanic.webp?ex=6ab92f37&is=6ab7ddb7&hm=3d3f043c3dd706476d14348b0f34562dc960d626be01b4ac9c1e268e4ad0fa32"
 }
 
 local function buildEggHistoryPayload(eggName, history)
@@ -2508,6 +2521,7 @@ task.spawn(function()
             scanEgg("Blackhole Egg")
             scanEgg("Solaris Egg")
             scanEgg("Cherub Egg")
+            scanEgg("Volcanic Egg")
         end
 
         task.wait(3)
@@ -2534,9 +2548,12 @@ monitoringButton.MouseButton1Click:Connect(function()
             getEggStock("Solaris Egg")
         lastStock["Cherub Egg"] =
             getEggStock("Cherub Egg")
+        lastStock["Volcanic Egg"] =
+            getEggStock("Volcanic Egg")
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
+        lastDetectionTime["Volcanic Egg"] = 0
 
         monitoringStatus.Text = "Running"
 
@@ -2548,10 +2565,12 @@ monitoringButton.MouseButton1Click:Connect(function()
         lastStock["Blackhole Egg"] = 0
         lastStock["Solaris Egg"] = 0
         lastStock["Cherub Egg"] = 0
+        lastStock["Volcanic Egg"] = 0
 
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
+        lastDetectionTime["Volcanic Egg"] = 0
 
         monitoringStatus.Text = "Stopped"
 
