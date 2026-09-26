@@ -1,4 +1,4 @@
-```lua
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
@@ -454,4 +454,187 @@ local function scan()
             .. "• Or both"
 
         task.wait()
-```
+
+        local height = status.TextBounds.Y + 20
+
+        status.Size = UDim2.new(
+            1,
+            0,
+            0,
+            height
+        )
+
+        scroll.CanvasSize = UDim2.new(
+            0,
+            0,
+            0,
+            height + 40
+        )
+
+        scanButton.Text = "Scan"
+        return
+    end
+
+    local root
+    local errorMessage
+
+    if path ~= "" then
+        root, errorMessage = getRoot(path)
+
+        if not root then
+            status.Text =
+                "SCAN FAILED\n\n"
+                .. tostring(errorMessage)
+
+            task.wait()
+
+            local height = status.TextBounds.Y + 20
+
+            status.Size = UDim2.new(
+                1,
+                0,
+                0,
+                height
+            )
+
+            scroll.CanvasSize = UDim2.new(
+                0,
+                0,
+                0,
+                height + 40
+            )
+
+            scanButton.Text = "Scan"
+            return
+        end
+    end
+
+    local lines = {}
+
+    table.insert(
+        lines,
+        "DATA SCANNER"
+    )
+
+    table.insert(
+        lines,
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    )
+
+    if root then
+        table.insert(
+            lines,
+            "Root: " .. root:GetFullName()
+        )
+    else
+        table.insert(
+            lines,
+            "Root: GLOBAL SEARCH"
+        )
+    end
+
+    table.insert(
+        lines,
+        "Search: "
+        .. (
+            search ~= ""
+            and valueBox.Text
+            or "ALL"
+        )
+    )
+
+    table.insert(lines, "")
+
+    local found = 0
+    local scanned = {}
+
+    local function processObject(object)
+        if scanned[object] then
+            return
+        end
+
+        scanned[object] = true
+
+        if objectMatches(object, search) then
+            found += 1
+            addObjectInfo(lines, object)
+        end
+    end
+
+    if root then
+        processObject(root)
+
+        for _, object in ipairs(root:GetDescendants()) do
+            processObject(object)
+        end
+    else
+        for _, searchRoot in ipairs(getSearchRoots()) do
+            processObject(searchRoot)
+
+            for _, object in ipairs(
+                searchRoot:GetDescendants()
+            ) do
+                processObject(object)
+            end
+        end
+    end
+
+    if found == 0 then
+        table.insert(
+            lines,
+            "No matching objects found."
+        )
+    else
+        table.insert(
+            lines,
+            "Results: " .. tostring(found)
+        )
+    end
+
+    table.insert(lines, "")
+
+    table.insert(
+        lines,
+        "Updated: " .. os.date("%H:%M:%S")
+    )
+
+    status.Text = table.concat(
+        lines,
+        "\n"
+    )
+
+    task.wait()
+
+    local height = math.max(
+        status.TextBounds.Y + 20,
+        100
+    )
+
+    status.Size = UDim2.new(
+        1,
+        0,
+        0,
+        height
+    )
+
+    scroll.CanvasSize = UDim2.new(
+        0,
+        0,
+        0,
+        height + 20
+    )
+
+    scroll.CanvasPosition = Vector2.new(0, 0)
+
+    scanButton.Text = "Scan"
+end
+
+scanButton.MouseButton1Click:Connect(function()
+    task.spawn(scan)
+end)
+
+valueBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        task.spawn(scan)
+    end
+end)
