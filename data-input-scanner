@@ -1,4 +1,4 @@
-
+```lua
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
@@ -175,12 +175,13 @@ status.Font = Enum.Font.Code
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextYAlignment = Enum.TextYAlignment.Top
 status.TextWrapped = true
-status.Text = "Enter a path and search value, then press Scan."
+status.Text = "Enter a path and/or search value, then press Scan."
 status.Parent = scroll
 
 local function splitPath(path)
     local parts = {}
 
+    path = tostring(path or "")
     path = string.gsub(path, "^%s+", "")
     path = string.gsub(path, "%s+$", "")
     path = string.gsub(path, "^game%.", "")
@@ -196,7 +197,7 @@ local function getRoot(path)
     local parts = splitPath(path)
 
     if #parts == 0 then
-        return nil, "Path is empty."
+        return nil, nil
     end
 
     local current
@@ -210,27 +211,39 @@ local function getRoot(path)
             current = player
             table.remove(parts, 1)
         end
+
     elseif first == "PlayerGui" then
         current = player:FindFirstChild("PlayerGui")
         table.remove(parts, 1)
+
     elseif first == "CoreGui" then
         current = CoreGui
         table.remove(parts, 1)
+
     elseif first == "ReplicatedStorage" then
         current = game:GetService("ReplicatedStorage")
         table.remove(parts, 1)
+
     elseif first == "Workspace" or first == "workspace" then
         current = workspace
         table.remove(parts, 1)
+
     elseif first == "Lighting" then
         current = game:GetService("Lighting")
         table.remove(parts, 1)
+
     elseif first == "ReplicatedFirst" then
         current = game:GetService("ReplicatedFirst")
         table.remove(parts, 1)
+
     elseif first == "StarterGui" then
         current = game:GetService("StarterGui")
         table.remove(parts, 1)
+
+    elseif first == "StarterPlayer" then
+        current = game:GetService("StarterPlayer")
+        table.remove(parts, 1)
+
     elseif first == "Main" then
         local playerGui = player:FindFirstChild("PlayerGui")
 
@@ -240,14 +253,17 @@ local function getRoot(path)
 
         current = playerGui:FindFirstChild("Main", true)
         table.remove(parts, 1)
+
     else
-        local playerGui = player:FindFirstChild("PlayerGui")
+        current = game:FindFirstChild(first)
 
-        if not playerGui then
-            return nil, "PlayerGui not found."
+        if not current then
+            local playerGui = player:FindFirstChild("PlayerGui")
+
+            if playerGui then
+                current = playerGui:FindFirstChild(first, true)
+            end
         end
-
-        current = playerGui:FindFirstChild(first, true)
 
         if not current then
             return nil, "Could not find root: " .. first
@@ -277,6 +293,19 @@ local function getRoot(path)
     return current
 end
 
+local function getSearchRoots()
+    return {
+        game:GetService("Players"),
+        game:GetService("ReplicatedStorage"),
+        game:GetService("ReplicatedFirst"),
+        game:GetService("Lighting"),
+        game:GetService("StarterGui"),
+        game:GetService("StarterPlayer"),
+        workspace,
+        CoreGui
+    }
+end
+
 local function getObjectValues(object)
     local values = {}
 
@@ -302,7 +331,10 @@ local function getObjectValues(object)
     for name, value in pairs(attributes) do
         table.insert(
             values,
-            "Attribute [" .. tostring(name) .. "] = " .. tostring(value)
+            "Attribute ["
+            .. tostring(name)
+            .. "] = "
+            .. tostring(value)
         )
     end
 
@@ -335,10 +367,25 @@ local function objectMatches(object, search)
 end
 
 local function addObjectInfo(lines, object)
-    table.insert(lines, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    table.insert(lines, "Name: " .. object.Name)
-    table.insert(lines, "Class: " .. object.ClassName)
-    table.insert(lines, "Path: " .. object:GetFullName())
+    table.insert(
+        lines,
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    )
+
+    table.insert(
+        lines,
+        "Name: " .. object.Name
+    )
+
+    table.insert(
+        lines,
+        "Class: " .. object.ClassName
+    )
+
+    table.insert(
+        lines,
+        "Path: " .. object:GetFullName()
+    )
 
     local values = getObjectValues(object)
 
@@ -354,17 +401,22 @@ local function addObjectInfo(lines, object)
 
     if #children > 0 then
         table.insert(lines, "")
-        table.insert(lines, "Children: " .. tostring(#children))
+        table.insert(
+            lines,
+            "Children: " .. tostring(#children)
+        )
 
         for _, child in ipairs(children) do
             local childValues = getObjectValues(child)
             local childValue = ""
 
             if #childValues > 0 then
-                childValue = " | " .. table.concat(
-                    childValues,
+                childValue =
                     " | "
-                )
+                    .. table.concat(
+                        childValues,
+                        " | "
+                    )
             end
 
             table.insert(
@@ -385,111 +437,21 @@ end
 local function scan()
     scanButton.Text = "Scanning..."
 
-    local path = pathBox.Text
-    local search = string.lower(valueBox.Text or "")
+    local path = tostring(pathBox.Text or "")
+    local search = string.lower(
+        tostring(valueBox.Text or "")
+    )
 
-    local root, errorMessage = getRoot(path)
+    path = string.gsub(path, "^%s+", "")
+    path = string.gsub(path, "%s+$", "")
 
-    if not root then
+    if path == "" and search == "" then
         status.Text =
-            "SCAN FAILED\n\n"
-            .. tostring(errorMessage)
+            "DATA SCANNER\n\n"
+            .. "Please enter either:\n\n"
+            .. "• A Path\n"
+            .. "• A Search Value\n"
+            .. "• Or both"
 
         task.wait()
-
-        status.Size = UDim2.new(
-            1,
-            0,
-            0,
-            status.TextBounds.Y + 20
-        )
-
-        scroll.CanvasSize = UDim2.new(
-            0,
-            0,
-            0,
-            status.TextBounds.Y + 40
-        )
-
-        scanButton.Text = "Scan"
-        return
-    end
-
-    local lines = {}
-
-    table.insert(lines, "DATA SCANNER")
-    table.insert(lines, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    table.insert(lines, "Root: " .. root:GetFullName())
-    table.insert(
-        lines,
-        "Search: "
-        .. (search ~= "" and valueBox.Text or "ALL")
-    )
-    table.insert(lines, "")
-
-    local found = 0
-
-    if objectMatches(root, search) then
-        found += 1
-        addObjectInfo(lines, root)
-    end
-
-    for _, object in ipairs(root:GetDescendants()) do
-        if objectMatches(object, search) then
-            found += 1
-            addObjectInfo(lines, object)
-        end
-    end
-
-    if found == 0 then
-        table.insert(lines, "No matching objects found.")
-    else
-        table.insert(
-            lines,
-            "Results: " .. tostring(found)
-        )
-    end
-
-    table.insert(lines, "")
-    table.insert(
-        lines,
-        "Updated: " .. os.date("%H:%M:%S")
-    )
-
-    status.Text = table.concat(lines, "\n")
-
-    task.wait()
-
-    local height = math.max(
-        status.TextBounds.Y + 20,
-        100
-    )
-
-    status.Size = UDim2.new(
-        1,
-        0,
-        0,
-        height
-    )
-
-    scroll.CanvasSize = UDim2.new(
-        0,
-        0,
-        0,
-        height + 20
-    )
-
-    scroll.CanvasPosition = Vector2.new(0, 0)
-
-    scanButton.Text = "Scan"
-end
-
-scanButton.MouseButton1Click:Connect(function()
-    task.spawn(scan)
-end)
-
-valueBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        task.spawn(scan)
-    end
-end)
+```
