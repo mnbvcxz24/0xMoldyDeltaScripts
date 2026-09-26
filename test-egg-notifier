@@ -978,7 +978,7 @@ local function createWebhookCard(index)
         local weatherTitle = Instance.new("TextLabel")
         weatherTitle.Name = "WeatherTitle"
         weatherTitle.Size = UDim2.new(1, -20, 0, 20)
-        weatherTitle.Position = UDim2.new(0, 10, 0, 167)
+        weatherTitle.Position = UDim2.new(0, 10, 0, 162)
         weatherTitle.BackgroundTransparency = 1
         weatherTitle.Text = "Weather Notifications"
         weatherTitle.TextSize = 10
@@ -1812,15 +1812,13 @@ end)
 local lastStock = {
     ["Blackhole Egg"] = 0,
     ["Solaris Egg"] = 0,
-    ["Cherub Egg"] = 0,
-    ["Volcanic Egg"] = 0
+    ["Cherub Egg"] = 0
 }
 
 local lastDetectionTime = {
     ["Blackhole Egg"] = 0,
     ["Solaris Egg"] = 0,
-    ["Cherub Egg"] = 0,
-    ["Volcanic Egg"] = 0
+    ["Cherub Egg"] = 0
 }
 
 local STOCK_RESET_TIME = 420
@@ -2544,14 +2542,10 @@ monitoringButton.MouseButton1Click:Connect(function()
     monitoringEnabled = not monitoringEnabled
 
     if monitoringEnabled then
-        lastStock["Blackhole Egg"] =
-            getEggStock("Blackhole Egg")
-        lastStock["Solaris Egg"] =
-            getEggStock("Solaris Egg")
-        lastStock["Cherub Egg"] =
-            getEggStock("Cherub Egg")
-        lastStock["Volcanic Egg"] =
-            getEggStock("Volcanic Egg")
+        lastStock["Blackhole Egg"] = getEggStock("Blackhole Egg")
+        lastStock["Solaris Egg"] = getEggStock("Solaris Egg")
+        lastStock["Cherub Egg"] = getEggStock("Cherub Egg")
+        lastStock["Volcanic Egg"] = getEggStock("Volcanic Egg")
         lastDetectionTime["Blackhole Egg"] = 0
         lastDetectionTime["Solaris Egg"] = 0
         lastDetectionTime["Cherub Egg"] = 0
