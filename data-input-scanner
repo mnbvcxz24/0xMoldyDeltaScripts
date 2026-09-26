@@ -1,4 +1,4 @@
-```lua
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
@@ -493,4 +493,3 @@ valueBox.FocusLost:Connect(function(enterPressed)
         task.spawn(scan)
     end
 end)
-```
