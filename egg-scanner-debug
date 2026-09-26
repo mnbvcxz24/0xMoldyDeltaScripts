@@ -12,8 +12,8 @@ gui.ResetOnSpawn = false
 gui.Parent = game:GetService("CoreGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 400, 0, 280)
-frame.Position = UDim2.new(0.5, -200, 0.5, -140)
+frame.Size = UDim2.new(0, 500, 0, 500)
+frame.Position = UDim2.new(0.5, -250, 0.5, -250)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 frame.BorderSizePixel = 0
 frame.Parent = gui
@@ -26,156 +26,241 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -20, 0, 35)
 title.Position = UDim2.new(0, 10, 0, 5)
 title.BackgroundTransparency = 1
-title.Text = "🥚 Egg Scanner Debug"
+title.Text = "🥚 EggTracker / EggsHolder Scanner"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.TextSize = 16
 title.Font = Enum.Font.GothamBold
 title.Parent = frame
 
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, -20, 1, -50)
+scroll.Position = UDim2.new(0, 10, 0, 45)
+scroll.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 8
+scroll.ScrollBarImageTransparency = 0.2
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+scroll.Parent = frame
+
+local scrollCorner = Instance.new("UICorner")
+scrollCorner.CornerRadius = UDim.new(0, 8)
+scrollCorner.Parent = scroll
+
 local status = Instance.new("TextLabel")
-status.Size = UDim2.new(1, -20, 1, -50)
-status.Position = UDim2.new(0, 10, 0, 45)
-status.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
+status.Size = UDim2.new(1, -12, 0, 0)
+status.Position = UDim2.new(0, 6, 0, 6)
+status.BackgroundTransparency = 1
 status.TextColor3 = Color3.fromRGB(220, 220, 220)
-status.TextSize = 13
+status.TextSize = 12
 status.Font = Enum.Font.Code
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextYAlignment = Enum.TextYAlignment.Top
+status.TextWrapped = false
+status.AutomaticSize = Enum.AutomaticSize.Y
 status.Text = "Starting..."
-status.Parent = frame
+status.Parent = scroll
 
-local lastStock = {
-    ["Blackhole Egg"] = 0,
-    ["Solaris Egg"] = 0,
-    ["Cherub Egg"] = 0
-}
-
-local lastDetectionTime = {
-    ["Blackhole Egg"] = 0,
-    ["Solaris Egg"] = 0,
-    ["Cherub Egg"] = 0
-}
-
-local STOCK_RESET_TIME = 60
-
-local function getEggStock(eggName)
+local function getEggsHolder()
     local playerGui = player:FindFirstChild("PlayerGui")
     if not playerGui then
-        return 0
+        return nil
     end
 
     local main = playerGui:FindFirstChild("Main", true)
     if not main then
-        return 0
+        return nil
     end
 
     local eggTracker = main:FindFirstChild("EggTracker", true)
     if not eggTracker then
-        return 0
+        return nil
     end
 
     local eggsHolder = eggTracker:FindFirstChild("EggsHolder", true)
     if not eggsHolder then
-        return 0
+        return nil
     end
 
-    local egg = eggsHolder:FindFirstChild(eggName, true)
-    if not egg then
-        return 0
-    end
+    return eggsHolder
+end
+
+local function getEggTexts(egg)
+    local texts = {}
 
     for _, obj in ipairs(egg:GetDescendants()) do
         if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-            local text = obj.Text or ""
-            local number = string.match(text, "%d+")
+            local text = tostring(obj.Text or "")
 
-            if number then
-                return tonumber(number)
+            if text ~= "" then
+                table.insert(texts, {
+                    name = obj.Name,
+                    text = text
+                })
             end
         end
     end
 
-    return 0
+    return texts
 end
 
-local function scanEgg(eggName)
-    local stock = getEggStock(eggName)
-    local now = os.time()
+local function getEggStockFromTexts(texts)
+    for _, data in ipairs(texts) do
+        local number = string.match(data.text, "%d+")
 
-    local oldStock = lastStock[eggName] or 0
-    local detection = lastDetectionTime[eggName] or 0
-
-    local result = "WAITING"
-
-    if stock > 0 then
-        if detection == 0 then
-            if oldStock <= 0 then
-                result = "NEW EGG DETECTED"
-            else
-                result = "IN STOCK"
-            end
-        elseif now - detection >= STOCK_RESET_TIME then
-            result = "RESET READY"
-        else
-            result = "IN STOCK"
+        if number then
+            return tonumber(number), data.name, data.text
         end
-    else
-        result = "NO STOCK"
+    end
+
+    return 0, nil, nil
+end
+
+local lastStock = {}
+
+local function scanEgg(egg)
+    local eggName = egg.Name
+    local texts = getEggTexts(egg)
+    local stock, stockObject, stockText =
+        getEggStockFromTexts(texts)
+
+    local oldStock = lastStock[eggName]
+
+    if oldStock == nil then
+        oldStock = stock
+    end
+
+    local change = "NO CHANGE"
+
+    if stock > oldStock then
+        change = "STOCK INCREASE"
+    elseif stock < oldStock then
+        change = "STOCK DECREASE"
+    end
+
+    if oldStock == 0 and stock > 0 then
+        change = "RESTOCK"
     end
 
     lastStock[eggName] = stock
 
-    return stock, oldStock, detection, result
+    return {
+        name = eggName,
+        stock = stock,
+        oldStock = oldStock,
+        change = change,
+        stockObject = stockObject,
+        stockText = stockText,
+        texts = texts
+    }
+end
+
+local function buildScan()
+    local eggsHolder = getEggsHolder()
+
+    if not eggsHolder then
+        return {
+            "EGG SCANNER",
+            "────────────────────────────────",
+            "EggTracker / EggsHolder not found",
+            "",
+            "Waiting..."
+        }
+    end
+
+    local lines = {}
+
+    table.insert(lines, "EGG TRACKER / EGGS HOLDER")
+    table.insert(lines, "────────────────────────────────")
+
+    local eggs = {}
+
+    for _, child in ipairs(eggsHolder:GetChildren()) do
+        table.insert(eggs, child)
+    end
+
+    table.sort(eggs, function(a, b)
+        return a.Name < b.Name
+    end)
+
+    table.insert(
+        lines,
+        "Eggs Found: " .. tostring(#eggs)
+    )
+
+    table.insert(lines, "")
+
+    for _, egg in ipairs(eggs) do
+        local data = scanEgg(egg)
+
+        table.insert(
+            lines,
+            "🥚 " .. data.name
+        )
+
+        table.insert(
+            lines,
+            "  Stock: " .. tostring(data.stock)
+        )
+
+        table.insert(
+            lines,
+            "  Previous: " .. tostring(data.oldStock)
+        )
+
+        table.insert(
+            lines,
+            "  Change: " .. data.change
+        )
+
+        if data.stockObject then
+            table.insert(
+                lines,
+                "  Stock Object: " ..
+                tostring(data.stockObject)
+            )
+        end
+
+        if data.stockText then
+            table.insert(
+                lines,
+                "  Stock Text: " ..
+                tostring(data.stockText)
+            )
+        end
+
+        table.insert(lines, "  Text Objects:")
+
+        for _, textData in ipairs(data.texts) do
+            table.insert(
+                lines,
+                "    [" ..
+                tostring(textData.name) ..
+                "] = " ..
+                tostring(textData.text)
+            )
+        end
+
+        table.insert(lines, "")
+    end
+
+    table.insert(
+        lines,
+        "────────────────────────────────"
+    )
+
+    table.insert(
+        lines,
+        "Updated: " .. os.date("%H:%M:%S")
+    )
+
+    return lines
 end
 
 task.spawn(function()
     while gui.Parent do
-        local lines = {}
-
-        table.insert(lines, "SCANNER STATUS")
-        table.insert(lines, "────────────────────────")
-
-        for _, eggName in ipairs({
-            "Blackhole Egg",
-            "Solaris Egg",
-            "Cherub Egg"
-        }) do
-            local stock, oldStock, detection, result =
-                scanEgg(eggName)
-
-            table.insert(
-                lines,
-                eggName
-            )
-
-            table.insert(
-                lines,
-                "  Stock: " .. tostring(stock)
-            )
-
-            table.insert(
-                lines,
-                "  Last Stock: " .. tostring(oldStock)
-            )
-
-            table.insert(
-                lines,
-                "  Detection: " .. tostring(detection)
-            )
-
-            table.insert(
-                lines,
-                "  Status: " .. result
-            )
-
-            table.insert(lines, "")
-        end
-
-        table.insert(
-            lines,
-            "Updated: " .. os.date("%H:%M:%S")
-        )
-
+        local lines = buildScan()
         status.Text = table.concat(lines, "\n")
 
         task.wait(2)
