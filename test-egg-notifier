@@ -442,6 +442,12 @@ autoExecuteStatus.TextSize = 10
 autoExecuteStatus.TextColor3 = Color3.fromRGB(150, 150, 160)
 autoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
 
+local function canUseFileStorage()
+    return type(isfile) == "function"
+        and type(readfile) == "function"
+        and type(writefile) == "function"
+end
+
 local function refreshAutoExecuteStatus()
     if canUseFileStorage() and isfile(AUTOEXECUTE_FILE) then
         autoExecuteStatus.Text = "Auto Execute: Installed"
@@ -994,12 +1000,6 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
     end
 
     saveWeatherSpawnHistory()
-end
-
-local function canUseFileStorage()
-    return type(isfile) == "function"
-        and type(readfile) == "function"
-        and type(writefile) == "function"
 end
 
 local function loadEggSpawnHistory()
