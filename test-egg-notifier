@@ -566,29 +566,15 @@ for i, name in ipairs(eggList) do
         config.eggHistory.eggs[name] = data
     end
 
-    local toggle = Instance.new("TextButton", eggHistoryCard)
-    toggle.Size = UDim2.new(0, 130, 0, 28)
-    toggle.Position = UDim2.new(0, 12, 0, 105 + (i - 1) * 32)
-    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-    toggle.BorderSizePixel = 0
-    toggle.TextSize = 10
-    toggle.Font = Enum.Font.GothamMedium
-    toggle.TextColor3 = Color3.new(1, 1, 1)
-    Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
-
-    local function refreshHistoryToggle()
-        toggle.Text = (data.enabled and "✓ " or "○ ") .. eggEmojis[name] .. " " .. name:gsub(" Egg", "")
-    end
-
-    refreshHistoryToggle()
-
-    toggle.MouseButton1Click:Connect(function()
-        data.enabled = not data.enabled
-        refreshHistoryToggle()
-        saveConfig()
-    end)
-
-    eggHistoryRows[name] = toggle
+    eggHistoryRows[name] = {
+        row(
+            eggHistoryCard,
+            105 + (i - 1) * 34,
+            eggEmojis[name] .. " " .. name:gsub(" Egg", ""),
+            data,
+            false
+        )
+    }
 end
 
 local weatherHistoryCard = card(
@@ -631,33 +617,15 @@ for i, name in ipairs(weatherList) do
         config.weatherHistory.weathers[name] = data
     end
 
-    local toggle = Instance.new("TextButton", weatherHistoryCard)
-    toggle.Size = UDim2.new(0, 130, 0, 28)
-    toggle.Position = UDim2.new(0, 12, 0, 105 + (i - 1) * 32)
-    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-    toggle.BorderSizePixel = 0
-    toggle.TextSize = 10
-    toggle.Font = Enum.Font.GothamMedium
-    toggle.TextColor3 = Color3.new(1, 1, 1)
-    Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
-
-    local function refreshWeatherHistoryToggle()
-        toggle.Text =
-            (data.enabled and "✓ " or "○ ")
-            .. weatherMutationInfo[name].emoji
-            .. " "
-            .. name
-    end
-
-    refreshWeatherHistoryToggle()
-
-    toggle.MouseButton1Click:Connect(function()
-        data.enabled = not data.enabled
-        refreshWeatherHistoryToggle()
-        saveConfig()
-    end)
-
-    weatherHistoryRows[name] = toggle
+    weatherHistoryRows[name] = {
+        row(
+            weatherHistoryCard,
+            105 + (i - 1) * 34,
+            weatherMutationInfo[name].emoji .. " " .. name,
+            data,
+            false
+        )
+    }
 end
 
 local function requestPost(url, payload)
