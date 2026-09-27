@@ -50,8 +50,16 @@ local function defaultConfig()
         },
         gearStock = {
             webhook = "",
-            gears = {},
-            roles = {},
+            gears = {
+                ["Eternal Radar"] = {
+                    enabled = false,
+                    role = ""
+                },
+                ["Angelic Radar"] = {
+                    enabled = false,
+                    role = ""
+                }
+            }
         },
     }
 end
@@ -383,7 +391,7 @@ weatherStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
 weatherStatus.TextXAlignment = Enum.TextXAlignment.Left
 weatherStatus.TextYAlignment = Enum.TextYAlignment.Top
 
-local eggsCard = card(statusPage, "EggsInWorldCard", "Eggs in the World", 220)
+local eggsCard = card(statusPage, "EggsInWorldCard", "Eggs in the World", 250)
 local eggsStatus = Instance.new("TextLabel", eggsCard)
 eggsStatus.Size = UDim2.new(1, -20, 1, -40)
 eggsStatus.Position = UDim2.new(0, 10, 0, 35)
@@ -402,12 +410,16 @@ local function inputBox(parent, y, value, placeholder)
     box.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
     box.BorderSizePixel = 0
     box.Font = Enum.Font.Gotham
-    box.TextSize = 11
+    box.TextSize = 10
     box.TextColor3 = Color3.new(1, 1, 1)
     box.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
-    box.Text = value
+    box.Text = value or ""
     box.PlaceholderText = placeholder
+    box.TextWrapped = false
+    box.TextXAlignment = Enum.TextXAlignment.Left
+    box.TextYAlignment = Enum.TextYAlignment.Center
     box.ClearTextOnFocus = false
+    box.ClipsDescendants = true
     return box
 end
 
@@ -515,7 +527,7 @@ discordWeatherTest.Font = Enum.Font.GothamBold
 discordWeatherTest.TextColor3 = Color3.new(1, 1, 1)
 Instance.new("UICorner", discordWeatherTest).CornerRadius = UDim.new(0, 7)
 
-local eggHistoryCard = card(webhookPage, "EggSpawnHistoryCard", "Egg Spawn History", 300)
+local eggHistoryCard = card(webhookPage, "EggSpawnHistoryCard", "Egg Spawn History", 250)
 
 local eggHistoryStatus = Instance.new("TextLabel", eggHistoryCard)
 eggHistoryStatus.Size = UDim2.new(1, -24, 0, 22)
@@ -695,18 +707,6 @@ gearStockInput.FocusLost:Connect(function()
     saveConfig()
 end)
 
-local gearRoleInput = inputBox(
-    gearStockCard,
-    90,
-    config.gearStock.roles["global"] or "",
-    "Role ID(s), separated by comma"
-)
-
-gearRoleInput.FocusLost:Connect(function()
-    config.gearStock.roles["global"] = gearRoleInput.Text
-    saveConfig()
-end)
-
 local gearStockRows = {}
 
 for i, name in ipairs(gearList) do
@@ -722,7 +722,7 @@ for i, name in ipairs(gearList) do
 
     local toggle = Instance.new("TextButton", gearStockCard)
     toggle.Size = UDim2.new(0, 130, 0, 28)
-    toggle.Position = UDim2.new(0, 12, 0, 135  + (i - 1) * 32)
+    toggle.Position = UDim2.new(0, 12, 0, 135 + (i - 1) * 32)
     toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
     toggle.BorderSizePixel = 0
     toggle.TextSize = 10
@@ -742,6 +742,21 @@ for i, name in ipairs(gearList) do
     toggle.MouseButton1Click:Connect(function()
         data.enabled = not data.enabled
         refreshGearToggle()
+        saveConfig()
+    end)
+
+    local roleInput = inputBox(
+        gearStockCard,
+        150 + (i - 1) * 38,
+        data.role,
+        "Role ID(s), separated by comma"
+    )
+
+    roleInput.Size = UDim2.new(0, 220, 0, 28)
+    roleInput.Position = UDim2.new(0, 150, 0, 135 + (i - 1) * 32)
+
+    roleInput.FocusLost:Connect(function()
+        data.role = roleInput.Text
         saveConfig()
     end)
 
@@ -1411,10 +1426,12 @@ local function sendGearStockWebhook(gearName, stock)
     if #webhooks == 0 then
         return
     end
-
-    local roles = getRoleList(
-        config.gearStock.roles["global"] or ""
-    )
+    
+    local webhooks = getWebhookList(config.gearStock.webhook)
+    if #webhooks == 0 then
+        return
+    end
+    local roles = getRoleList(gearConfig.role)
 
     local fields = {
         {
