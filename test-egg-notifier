@@ -22,9 +22,6 @@ local CONFIG_FOLDER = "rap_notifier"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config_test.json"
 local EGG_HISTORY_FILE = CONFIG_FOLDER .. "/egg_spawn_history_test.json"
 local WEATHER_HISTORY_FILE = CONFIG_FOLDER .. "/weather_spawn_history_test.json"
-local AUTOEXECUTE_FILE = "../Autoexecute/rap_notifier_exec_test.txt"
-local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/test-egg-notifier"))()'
-
 
 local function ensureConfigFolder()
     if not isfolder(CONFIG_FOLDER) then
@@ -426,118 +423,6 @@ local function inputBox(parent, y, value, placeholder)
     return box
 end
 
-local autoExecuteCard = card(
-    settingsPage,
-    "AutoExecuteCard",
-    "Auto Execute",
-    190
-)
-
-local autoExecuteStatus = Instance.new("TextLabel", autoExecuteCard)
-autoExecuteStatus.Size = UDim2.new(1, -24, 0, 25)
-autoExecuteStatus.Position = UDim2.new(0, 12, 0, 38)
-autoExecuteStatus.BackgroundTransparency = 1
-autoExecuteStatus.Font = Enum.Font.Gotham
-autoExecuteStatus.TextSize = 10
-autoExecuteStatus.TextColor3 = Color3.fromRGB(150, 150, 160)
-autoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
-
-
-
-local function refreshAutoExecuteStatus()
-    if canUseFileStorage() and isfile(AUTOEXECUTE_FILE) then
-        autoExecuteStatus.Text = "Auto Execute: Installed"
-    else
-        autoExecuteStatus.Text = "Auto Execute: Not Installed"
-    end
-end
-
-local createAutoExecuteButton = Instance.new("TextButton", autoExecuteCard)
-createAutoExecuteButton.Size = UDim2.new(0, 145, 0, 34)
-createAutoExecuteButton.Position = UDim2.new(0, 12, 0, 70)
-createAutoExecuteButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-createAutoExecuteButton.BorderSizePixel = 0
-createAutoExecuteButton.Text = "Create Auto Execute"
-createAutoExecuteButton.Font = Enum.Font.GothamMedium
-createAutoExecuteButton.TextSize = 10
-createAutoExecuteButton.TextColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", createAutoExecuteButton).CornerRadius = UDim.new(0, 7)
-
-createAutoExecuteButton.MouseButton1Click:Connect(function()
-    if not canUseFileStorage() then
-        autoExecuteStatus.Text = "File storage unavailable"
-        return
-    end
-
-    if not isfolder(CONFIG_FOLDER) then
-        makefolder(CONFIG_FOLDER)
-    end
-
-    writefile(
-        AUTOEXECUTE_FILE,
-        AUTOEXECUTE_CONTENT
-    )
-
-    autoExecuteStatus.Text = "Auto Execute: Installed"
-end)
-
-local deleteAutoExecuteButton = Instance.new("TextButton", autoExecuteCard)
-deleteAutoExecuteButton.Size = UDim2.new(0, 145, 0, 34)
-deleteAutoExecuteButton.Position = UDim2.new(0, 165, 0, 70)
-deleteAutoExecuteButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-deleteAutoExecuteButton.BorderSizePixel = 0
-deleteAutoExecuteButton.Text = "Delete Auto Execute"
-deleteAutoExecuteButton.Font = Enum.Font.GothamMedium
-deleteAutoExecuteButton.TextSize = 10
-deleteAutoExecuteButton.TextColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", deleteAutoExecuteButton).CornerRadius = UDim.new(0, 7)
-
-deleteAutoExecuteButton.MouseButton1Click:Connect(function()
-    if not canUseFileStorage() then
-        autoExecuteStatus.Text = "File storage unavailable"
-        return
-    end
-
-    if isfile(AUTOEXECUTE_FILE) then
-        delfile(AUTOEXECUTE_FILE)
-    end
-
-    autoExecuteStatus.Text = "Auto Execute: Removed"
-end)
-
-refreshAutoExecuteStatus()
-
-local scriptControlCard = card(
-    settingsPage,
-    "ScriptControlCard",
-    "Script Controls",
-    120
-)
-
-local unloadButton = Instance.new("TextButton", scriptControlCard)
-unloadButton.Size = UDim2.new(1, -24, 0, 36)
-unloadButton.Position = UDim2.new(0, 12, 0, 40)
-unloadButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-unloadButton.BorderSizePixel = 0
-unloadButton.Text = "Unload Notifier"
-unloadButton.Font = Enum.Font.GothamMedium
-unloadButton.TextSize = 10
-unloadButton.TextColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", unloadButton).CornerRadius = UDim.new(0, 7)
-
-unloadButton.MouseButton1Click:Connect(function()
-    monitoringRunning = false
-    monitoringEnabled = false
-
-    if gui then
-        gui:Destroy()
-    end
-end)
-local function canUseFileStorage()
-    return type(isfile) == "function"
-        and type(readfile) == "function"
-        and type(writefile) == "function"
-end
 local discordEggCard = card(webhookPage, "DiscordEggCard", "Discord Egg", 290)
 local discordEggStatus = Instance.new("TextLabel", discordEggCard)
 discordEggStatus.Size = UDim2.new(1, -24, 0, 22)
@@ -1002,6 +887,12 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
     saveWeatherSpawnHistory()
 end
 
+local function canUseFileStorage()
+    return type(isfile) == "function"
+        and type(readfile) == "function"
+        and type(writefile) == "function"
+end
+
 local function loadEggSpawnHistory()
     if not canUseFileStorage() then
         return
@@ -1312,6 +1203,20 @@ end
 
 local function getRoleList(text)
     return split(text)
+end
+
+local function getEggResetTime()
+    local value = ServerData:FindFirstChild("LastEggResetTime")
+    if value and value:IsA("NumberValue") and value.Value > 0 then
+        return value.Value
+    end
+
+    value = ServerData:FindFirstChild("LastRestockTime")
+    if value and value:IsA("NumberValue") and value.Value > 0 then
+        return value.Value + 420
+    end
+
+    return nil
 end
 
 local function getActiveWeathers()
