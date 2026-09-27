@@ -697,7 +697,7 @@ end)
 
 local gearRoleInput = inputBox(
     gearStockCard,
-    95,
+    90,
     config.gearStock.roles["global"] or "",
     "Role ID(s), separated by comma"
 )
