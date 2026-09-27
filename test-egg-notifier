@@ -563,6 +563,75 @@ for i, name in ipairs(eggList) do
     eggHistoryRows[name] = toggle
 end
 
+local weatherHistoryCard = card(
+    webhookPage,
+    "WeatherSpawnHistoryCard",
+    "Weather Spawn History",
+    255
+)
+
+local weatherHistoryStatus = Instance.new("TextLabel", weatherHistoryCard)
+weatherHistoryStatus.Size = UDim2.new(1, -24, 0, 22)
+weatherHistoryStatus.Position = UDim2.new(0, 12, 0, 35)
+weatherHistoryStatus.BackgroundTransparency = 1
+weatherHistoryStatus.Text = "Disabled"
+weatherHistoryStatus.TextSize = 10
+weatherHistoryStatus.Font = Enum.Font.GothamMedium
+weatherHistoryStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
+
+local weatherHistoryInput = inputBox(
+    weatherHistoryCard,
+    62,
+    config.weatherHistory.webhook,
+    "Discord webhook URL"
+)
+
+weatherHistoryInput.FocusLost:Connect(function()
+    config.weatherHistory.webhook = weatherHistoryInput.Text
+    saveConfig()
+end)
+
+local weatherHistoryRows = {}
+
+for i, name in ipairs(weatherList) do
+    local data = config.weatherHistory.weathers[name]
+
+    if type(data) ~= "table" then
+        data = {
+            enabled = false,
+        }
+        config.weatherHistory.weathers[name] = data
+    end
+
+    local toggle = Instance.new("TextButton", weatherHistoryCard)
+    toggle.Size = UDim2.new(0, 130, 0, 28)
+    toggle.Position = UDim2.new(0, 12, 0, 105 + (i - 1) * 28)
+    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+    toggle.BorderSizePixel = 0
+    toggle.TextSize = 10
+    toggle.Font = Enum.Font.GothamMedium
+    toggle.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
+
+    local function refreshWeatherHistoryToggle()
+        toggle.Text =
+            (data.enabled and "✓ " or "○ ")
+            .. weatherMutationInfo[name].emoji
+            .. " "
+            .. name
+    end
+
+    refreshWeatherHistoryToggle()
+
+    toggle.MouseButton1Click:Connect(function()
+        data.enabled = not data.enabled
+        refreshWeatherHistoryToggle()
+        saveConfig()
+    end)
+
+    weatherHistoryRows[name] = toggle
+end
+
 local function requestPost(url, payload)
     local fn = (syn and syn.request) or (http and http.request) or http_request or request
     if not fn then
@@ -584,6 +653,7 @@ local function requestPost(url, payload)
 end
 
 local eggSpawnHistory = {}
+local weatherSpawnHistory = {}
 
 local weatherHistoryCard = card(webhookPage, "WeatherSpawnHistoryCard", "Weather Spawn History", 255)
 
