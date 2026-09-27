@@ -1314,20 +1314,6 @@ local function getRoleList(text)
     return split(text)
 end
 
-local function getEggResetTime()
-    local value = ServerData:FindFirstChild("LastEggResetTime")
-    if value and value:IsA("NumberValue") and value.Value > 0 then
-        return value.Value
-    end
-
-    value = ServerData:FindFirstChild("LastRestockTime")
-    if value and value:IsA("NumberValue") and value.Value > 0 then
-        return value.Value + 420
-    end
-
-    return nil
-end
-
 local function getActiveWeathers()
     local value = ServerData:GetAttribute("ActiveWeathers")
     if not value or value == "" then
