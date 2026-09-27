@@ -594,7 +594,7 @@ local weatherHistoryInput = inputBox(
     weatherHistoryCard,
     62,
     config.weatherHistory.webhook,
-    "Discord webhook URL"
+    "Discord webhook URL(s), separated by comma"
 )
 
 weatherHistoryInput.FocusLost:Connect(function()
@@ -747,8 +747,6 @@ for i, name in ipairs(gearList) do
     gearStockRows[name] = toggle
 end
 
-local weatherSpawnHistory = {}
-
 local function getWeatherHistoryDate()
     return os.date("!%Y-%m-%d")
 end
@@ -761,9 +759,12 @@ local function getWeatherHistory(weatherName)
 
         weatherSpawnHistory[weatherName] = {
             date = today,
-            messageId = nil,
+            messageIds = {},
             entries = {}
         }
+    end
+    if type(weatherSpawnHistory[weatherName].messageIds) ~= "table" then
+        weatherSpawnHistory[weatherName].messageIds = {}
     end
 
     return weatherSpawnHistory[weatherName]
@@ -813,9 +814,9 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
         return
     end
 
-    local webhook = tostring(config.weatherHistory.webhook or "")
+    local webhooks = getWebhookList(config.weatherHistory.webhook)
 
-    if webhook == "" then
+    if #webhooks == 0 then
         return
     end
 
@@ -825,43 +826,45 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
         spawnTime = os.time(),
         endsAt = tonumber(endsAt)
     })
-    
-    saveWeatherSpawnHistory()
+
+    if type(history.messageIds) ~= "table" then
+        history.messageIds = {}
+    end
+
     local payload = buildWeatherHistoryPayload(weatherName, history)
 
-    if history.messageId then
-        local url = webhook .. "/messages/" .. tostring(history.messageId)
+    for _, webhook in ipairs(webhooks) do
+        local messageId = history.messageIds[webhook]
+        local success
+        local response
 
-        request({
-            Url = url,
-            Method = "PATCH",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(payload)
-        })
-    else
-        local url = webhook .. "?wait=true"
+        if messageId then
+            success = sendEggHistoryWebhook(
+                webhook,
+                payload,
+                "PATCH",
+                messageId
+            )
 
-        local response = request({
-            Url = url,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(payload)
-        })
+            if not success then
+                history.messageIds[webhook] = nil
+            end
+        end
 
-        if response and response.Body then
-            local ok, result = pcall(function()
-                return HttpService:JSONDecode(response.Body)
-            end)
+        if not history.messageIds[webhook] then
+            success, response = sendEggHistoryWebhook(
+                webhook,
+                payload,
+                "POST"
+            )
 
-            if ok and result and result.id then
-                history.messageId = result.id
+            if success and response and response.id then
+                history.messageIds[webhook] = response.id
             end
         end
     end
+
+    saveWeatherSpawnHistory()
 end
 
 local function canUseFileStorage()
@@ -920,6 +923,20 @@ local function loadWeatherSpawnHistory()
         weatherSpawnHistory = data
     else
         weatherSpawnHistory = {}
+    end
+
+    for _, history in pairs(weatherSpawnHistory) do
+        if type(history) == "table" then
+            if type(history.messageIds) ~= "table" then
+                history.messageIds = {}
+            end
+
+            history.messageId = nil
+
+            if type(history.entries) ~= "table" then
+                history.entries = {}
+            end
+        end
     end
 end
 
