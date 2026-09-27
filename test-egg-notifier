@@ -529,7 +529,7 @@ local eggHistoryInput = inputBox(
     eggHistoryCard,
     62,
     config.eggHistory.webhook,
-    "Discord webhook URL"
+    "Discord webhook URL(s), separated by comma"
 )
 
 eggHistoryInput.FocusLost:Connect(function()
@@ -734,7 +734,7 @@ local gearStockCard = card(
     webhookPage,
     "GearStockNotifierCard",
     "Gear Stock Notifier",
-    225
+    235
 )
 
 local gearStockStatus = Instance.new("TextLabel", gearStockCard)
@@ -750,7 +750,7 @@ local gearStockInput = inputBox(
     gearStockCard,
     62,
     config.gearStock.webhook,
-    "Discord webhook URL"
+    "Discord webhook URL(s), separated by comma"
 )
 
 gearStockInput.FocusLost:Connect(function()
@@ -761,17 +761,12 @@ end)
 local gearRoleInput = inputBox(
     gearStockCard,
     95,
-    "",
-    "Role ID (optional)"
+    config.gearStock.roles["global"] or "",
+    "Role ID(s), separated by comma"
 )
 
 gearRoleInput.FocusLost:Connect(function()
     config.gearStock.roles["global"] = gearRoleInput.Text
-    saveConfig()
-end)
-
-gearStockInput.FocusLost:Connect(function()
-    config.gearStock.webhook = gearStockInput.Text
     saveConfig()
 end)
 
@@ -1022,8 +1017,8 @@ local function getEggHistory(eggName)
 
         eggSpawnHistory[eggName] = {
             date = today,
-            messageId = nil,
-            entries = {},
+            messageIds = {},
+            entries = {}
         }
     end
 
@@ -1160,9 +1155,9 @@ local function sendEggHistory(eggName, stock)
         return
     end
 
-    local webhook = eggHistoryInput.Text
+    local webhooks = getWebhookList(config.eggHistory.webhook)
 
-    if webhook == "" then
+    if #webhooks == 0 then
         return
     end
 
@@ -1173,30 +1168,43 @@ local function sendEggHistory(eggName, stock)
         timestamp = os.time(),
     })
 
-    local payload = buildEggHistoryPayload(eggName, history)
-
-    if history.messageId then
-        local success = sendEggHistoryWebhook(
-            webhook,
-            payload,
-            "PATCH",
-            history.messageId
-        )
-
-        if not success then
-            history.messageId = nil
-        end
+    if type(history.messageIds) ~= "table" then
+        history.messageIds = {}
     end
 
-    if not history.messageId then
-        local success, response = sendEggHistoryWebhook(
-            webhook,
-            payload,
-            "POST"
-        )
+    local payload = buildEggHistoryPayload(
+        eggName,
+        history
+    )
 
-        if success and response and response.id then
-            history.messageId = response.id
+    for _, webhook in ipairs(webhooks) do
+        local messageId = history.messageIds[webhook]
+        local success
+        local response
+
+        if messageId then
+            success = sendEggHistoryWebhook(
+                webhook,
+                payload,
+                "PATCH",
+                messageId
+            )
+
+            if not success then
+                history.messageIds[webhook] = nil
+            end
+        end
+
+        if not history.messageIds[webhook] then
+            success, response = sendEggHistoryWebhook(
+                webhook,
+                payload,
+                "POST"
+            )
+
+            if success and response and response.id then
+                history.messageIds[webhook] = response.id
+            end
         end
     end
 
@@ -1428,6 +1436,71 @@ local Restock = ReplicatedStorage
 
 local lastGearStock = {}
 
+local function sendGearStockWebhook(gearName, stock)
+    local gearConfig =
+        config.gearStock
+        and config.gearStock.gears
+        and config.gearStock.gears[gearName]
+
+    if not gearConfig or not gearConfig.enabled then
+        return
+    end
+
+    local webhooks = getWebhookList(config.gearStock.webhook)
+
+    if #webhooks == 0 then
+        return
+    end
+
+    local roles = getRoleList(
+        config.gearStock.roles["global"] or ""
+    )
+
+    local fields = {
+        {
+            name = "📦 Stock",
+            value = tostring(stock),
+            inline = true
+        },
+        {
+            name = "🕐 Stock Time",
+            value = "<t:" .. tostring(os.time()) .. ":t>",
+            inline = true
+        }
+    }
+
+    local embed = {
+        title =
+            "📡 "
+            .. string.upper(gearName)
+            .. " RESTOCKED",
+
+        fields = fields,
+
+        color = 0x64B4FF
+    }
+
+    for i, webhook in ipairs(webhooks) do
+        local roleId = roles[i]
+        local content = "-# Radar Restock"
+
+        if roleId then
+            content =
+                "<@&"
+                .. roleId
+                .. ">\n"
+                .. "-# Radar Restock"
+        end
+
+        requestPost(webhook, {
+            content = content,
+            embeds = {
+                embed
+            }
+        })
+    end
+end
+
 local function checkGearStock(data)
     if type(data) ~= "table" then
         return
@@ -1456,7 +1529,7 @@ local function checkGearStock(data)
                 and config.gearStock.gears[gearName]
                 and config.gearStock.gears[gearName].enabled then
 
-                if inStock and (
+                if monitoringRunning and inStock and (
                     not previous
                     or not previous.inStock
                     or previous.amount ~= amount
@@ -1476,69 +1549,6 @@ Restock.OnClientEvent:Connect(function(data)
     checkGearStock(data)
 end)
 
-local function sendGearStockWebhook(gearName, stock)
-    local gearConfig =
-        config.gearStock
-        and config.gearStock.gears
-        and config.gearStock.gears[gearName]
-
-    if not gearConfig or not gearConfig.enabled then
-        return
-    end
-
-    local webhook = config.gearStock.webhook
-
-    if not webhook
-        or webhook == ""
-        or not string.find(
-            webhook,
-            "^https://discord.com/api/webhooks/"
-        ) then
-        return
-    end
-
-    local content = ""
-
-    local roleId = config.gearStock.roles["global"]
-
-    if roleId and roleId ~= "" then
-        roleId = string.match(
-            roleId,
-            "^%s*(%d+)%s*$"
-        )
-    
-        if roleId then
-            content =
-                "<@&"
-                .. roleId
-                .. ">\n"
-                .. "-# Radar Restock"
-        end
-    end
-
-    if content == "" then
-        content = "-# Radar Restock"
-    end
-
-    local payload = {
-        content = content,
-        embeds = {
-            {
-                title =
-                    "📡 "
-                    .. string.upper(gearName)
-                    .. " RESTOCKED",
-
-                description =
-                    "📦 Stock: "
-                    .. tostring(stock)
-                    .. "\n🕐 Stock Time: <t:"
-                    .. tostring(os.time())
-                    .. ":t>",
-                color = 0x64B4FF
-            }
-        }
-    }
 
     local requestFunction =
         (syn and syn.request)
