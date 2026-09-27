@@ -15,7 +15,7 @@ gui.Parent = CoreGui
 
 local CONFIG_FILE = "rap_notifier/rap_notifier_config_test.json"
 local EGG_HISTORY_FILE = "rap_notifier/egg_spawn_history_test.json"
-local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec_test.lua"
+local AUTOEXECUTE_FILE = "rap_notifier/rap_notifier_exec_test.txt"
 local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/test-egg-notifier"))()'
 
 
@@ -75,7 +75,7 @@ openButton.Size = UDim2.new(0, 45, 0, 45)
 openButton.Position = UDim2.new(0.5, -22, 0.5, -22)
 openButton.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 openButton.BorderSizePixel = 0
-openButton.Text = "🔧"
+openButton.Text = "TEST"
 openButton.TextSize = 18
 openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -450,6 +450,30 @@ cherubStock.TextColor3 = Color3.fromRGB(255, 255, 255)
 cherubStock.TextXAlignment = Enum.TextXAlignment.Right
 cherubStock.Parent = etherealCard
 
+local volcanicLabel = Instance.new("TextLabel")
+volcanicLabel.Name = "VolcanicEgg"
+volcanicLabel.Size = UDim2.new(1, -30, 0, 20)
+volcanicLabel.Position = UDim2.new(0, 15, 0, 110)
+volcanicLabel.BackgroundTransparency = 1
+volcanicLabel.Text = "Volcanic Egg"
+volcanicLabel.TextSize = 10
+volcanicLabel.Font = Enum.Font.Gotham
+volcanicLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+volcanicLabel.TextXAlignment = Enum.TextXAlignment.Left
+volcanicLabel.Parent = etherealCard
+
+local volcanicStock = Instance.new("TextLabel")
+volcanicStock.Name = "Stock"
+volcanicStock.Size = UDim2.new(0, 30, 0, 20)
+volcanicStock.Position = UDim2.new(1, -45, 0, 110)
+volcanicStock.BackgroundTransparency = 1
+volcanicStock.Text = "0"
+volcanicStock.TextSize = 10
+volcanicStock.Font = Enum.Font.GothamBold
+volcanicStock.TextColor3 = Color3.fromRGB(255, 255, 255)
+volcanicStock.TextXAlignment = Enum.TextXAlignment.Right
+volcanicStock.Parent = etherealCard
+
 local webhookPage = Instance.new("ScrollingFrame")
 webhookPage.Name = "WebhookPage"
 webhookPage.Size = UDim2.new(1, -130, 1, -60)
@@ -509,13 +533,13 @@ local weatherMutationInfo = {
     },
     Dreadful = {
         emoji = "🌑",
-        cash = "10x",
-        speed = "10x"
+        cash = "7x",
+        speed = "7x"
     },
     Eternal = {
         emoji = "💜",
-        cash = "100x",
-        speed = "100x"
+        cash = "12.5x",
+        speed = "12.5x"
     }
 }
 
