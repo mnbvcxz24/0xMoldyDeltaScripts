@@ -1,6 +1,7 @@
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerData = ReplicatedStorage:WaitForChild("ServerData")
 local ActiveEggs = ServerData:WaitForChild("ActiveEggs")
@@ -13,12 +14,12 @@ if oldGui then
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "EggSpawnNotifierGUI_Test"
+gui.Name = "Rap_Notifier_Test"
 gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
 local CONFIG_FOLDER = "rap_notifier"
-local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config.json"
+local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config_test.json"
 
 local window = Instance.new("Frame")
 window.Name = "MainWindow"
@@ -419,6 +420,79 @@ discordEggTest.Text = "Test"
 local discordEggTestCorner = Instance.new("UICorner")
 discordEggTestCorner.CornerRadius = UDim.new(0, 7)
 discordEggTestCorner.Parent = discordEggTest
+
+local function sendDiscordEgg(eggName, stock)
+    if not monitoringRunning then
+        return
+    end
+
+    if not config.discordEgg.enabled then
+        return
+    end
+
+    local webhook = config.discordEgg.webhook
+
+    if webhook == "" then
+        return
+    end
+
+    local body = {
+        content =
+            "🥚 **" .. tostring(eggName) .. " spawned!**\n" ..
+            "Stock: " .. tostring(stock)
+    }
+
+    pcall(function()
+        request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(body)
+        })
+    end)
+end
+
+local knownEggs = {}
+
+for _, egg in ipairs(ActiveEggs:GetChildren()) do
+    knownEggs[egg] = true
+end
+
+ActiveEggs.ChildAdded:Connect(function(egg)
+    if knownEggs[egg] then
+        return
+    end
+
+    knownEggs[egg] = true
+
+    task.wait(0.1)
+
+    if not monitoringRunning then
+        return
+    end
+
+    local eggName = egg:GetAttribute("Egg")
+
+    if not eggName then
+        return
+    end
+
+    local stock = 0
+
+    for _, activeEgg in ipairs(ActiveEggs:GetChildren()) do
+        if activeEgg:GetAttribute("Egg") == eggName then
+            stock += 1
+        end
+    end
+
+    sendDiscordEgg(eggName, stock)
+end)
+
+ActiveEggs.ChildRemoved:Connect(function(egg)
+    knownEggs[egg] = nil
+end)
 
 local function loadConfig()
     ensureConfigFolder()
