@@ -807,6 +807,10 @@ local function buildWeatherHistoryPayload(weatherName, history)
     }
 end
 
+local getWebhookList
+local sendEggHistoryWebhook
+local saveWeatherSpawnHistory
+
 local function sendWeatherHistoryWebhook(weatherName, endsAt)
     local data = config.weatherHistory.weathers[weatherName]
 
@@ -942,7 +946,7 @@ end
 
 loadWeatherSpawnHistory()
 
-local function saveWeatherSpawnHistory()
+saveWeatherSpawnHistory = function()
     if not canUseFileStorage() then
         return
     end
@@ -980,7 +984,7 @@ local function getEggHistory(eggName)
     return eggSpawnHistory[eggName]
 end
 
-local function sendEggHistoryWebhook(webhook, payload, method, messageId)
+sendEggHistoryWebhook = function(webhook, payload, method, messageId)
     local fn = (syn and syn.request)
         or (http and http.request)
         or http_request
@@ -1177,7 +1181,7 @@ local function split(value)
     return result
 end
 
-local function getWebhookList(text)
+getWebhookList = function(text)
     return split(text)
 end
 
