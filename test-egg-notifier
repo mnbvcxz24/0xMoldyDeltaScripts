@@ -22,7 +22,7 @@ local CONFIG_FOLDER = "rap_notifier"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config_test.json"
 local EGG_HISTORY_FILE = CONFIG_FOLDER .. "/egg_spawn_history_test.json"
 local WEATHER_HISTORY_FILE = CONFIG_FOLDER .. "/weather_spawn_history_test.json"
-local AUTOEXECUTE_FILE = "../Autoexecute/rap_notifier_exec_test.txt"
+local AUTOEXECUTE_FILE = CONFIG_FOLDER .. "/rap_notifier_exec_test.txt"
 local AUTOEXECUTE_CONTENT = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/test-egg-notifier"))()'
 
 
