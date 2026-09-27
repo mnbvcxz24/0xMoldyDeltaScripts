@@ -70,6 +70,9 @@ local function loadConfig()
     data.discordWeather = type(data.discordWeather) == "table" and data.discordWeather or {}
     data.discordWeather.webhook = tostring(data.discordWeather.webhook or "")
     data.discordWeather.weathers = type(data.discordWeather.weathers) == "table" and data.discordWeather.weathers or {}
+    data.eggHistory = type(data.eggHistory) == "table" and data.eggHistory or {}
+    data.eggHistory.webhook = tostring(data.eggHistory.webhook or "")
+    data.eggHistory.eggs = type(data.eggHistory.eggs) == "table" and data.eggHistory.eggs or {}
 
     return data
 end
@@ -77,10 +80,6 @@ end
 local config = loadConfig()
 local monitoringEnabled = config.monitoring == true
 local monitoringRunning = false
-
-data.eggHistory = type(data.eggHistory) == "table" and data.eggHistory or {}
-data.eggHistory.webhook = tostring(data.eggHistory.webhook or "")
-data.eggHistory.eggs = type(data.eggHistory.eggs) == "table" and data.eggHistory.eggs or {}
 
 local eggList = { "Blackhole Egg", "Solaris Egg", "Cherub Egg", "Volcanic Egg" }
 local weatherList = { "Thunder", "Volt", "Raging", "Dreadful", "Eternal" }
@@ -505,19 +504,17 @@ eggHistoryStatus.TextSize = 10
 eggHistoryStatus.Font = Enum.Font.GothamMedium
 eggHistoryStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
 
-eggHistoryInput.FocusLost:Connect(function()
-    config.eggHistory.webhook = eggHistoryInput.Text
-    saveConfig()
-end)
-
-loadEggSpawnHistory()
-
 local eggHistoryInput = inputBox(
     eggHistoryCard,
     62,
     config.eggHistory.webhook,
     "Discord webhook URL"
 )
+
+eggHistoryInput.FocusLost:Connect(function()
+    config.eggHistory.webhook = eggHistoryInput.Text
+    saveConfig()
+end)
 
 local eggHistoryRows = {}
 
@@ -756,6 +753,56 @@ local function buildEggHistoryPayload(eggName, history)
             embed,
         },
     }
+end
+
+local function sendEggHistory(eggName, stock)
+    local settings = config.eggHistory.eggs[eggName]
+
+    if not settings or not settings.enabled then
+        return
+    end
+
+    local webhook = eggHistoryInput.Text
+
+    if webhook == "" then
+        return
+    end
+
+    local history = getEggHistory(eggName)
+
+    table.insert(history.entries, {
+        stock = stock,
+        timestamp = os.time(),
+    })
+
+    local payload = buildEggHistoryPayload(eggName, history)
+
+    if history.messageId then
+        local success = sendEggHistoryWebhook(
+            webhook,
+            payload,
+            "PATCH",
+            history.messageId
+        )
+
+        if not success then
+            history.messageId = nil
+        end
+    end
+
+    if not history.messageId then
+        local success, response = sendEggHistoryWebhook(
+            webhook,
+            payload,
+            "POST"
+        )
+
+        if success and response and response.id then
+            history.messageId = response.id
+        end
+    end
+
+    saveEggSpawnHistory()
 end
 
 local function split(value)
