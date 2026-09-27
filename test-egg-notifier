@@ -45,8 +45,13 @@ local function defaultConfig()
             eggs = {},
         },
         weatherHistory = {
-        webhook = "",
-        weathers = {},
+            webhook = "",
+            weathers = {},
+        },
+        gearStock = {
+            webhook = "",
+            gears = {},
+            roles = {},
         },
     }
 end
@@ -83,6 +88,11 @@ local function loadConfig()
     data.weatherHistory = type(data.weatherHistory) == "table" and data.weatherHistory or {}
     data.weatherHistory.webhook = tostring(data.weatherHistory.webhook or "")
     data.weatherHistory.weathers = type(data.weatherHistory.weathers) == "table" and data.weatherHistory.weathers or {}
+
+    data.gearStock = type(data.gearStock) == "table" and data.gearStock or {}
+    data.gearStock.webhook = tostring(data.gearStock.webhook or "")
+    data.gearStock.gears = type(data.gearStock.gears) == "table" and data.gearStock.gears or {}
+    data.gearStock.roles = type(data.gearStock.roles) == "table" and data.gearStock.roles or {}
     
     return data
 end
@@ -93,6 +103,7 @@ local monitoringRunning = false
 
 local eggList = { "Blackhole Egg", "Solaris Egg", "Cherub Egg", "Volcanic Egg" }
 local weatherList = { "Thunder", "Volt", "Raging", "Dreadful", "Eternal" }
+local gearList = { "Eternal Radar", "Angelic Radar" }
 
 local eggEmojis = {
     ["Blackhole Egg"] = "🌀",
@@ -719,6 +730,92 @@ for i, name in ipairs(weatherList) do
     weatherHistoryRows[name] = toggle
 end
 
+local gearStockCard = card(
+    webhookPage,
+    "GearStockNotifierCard",
+    "Gear Stock Notifier",
+    225
+)
+
+local gearStockStatus = Instance.new("TextLabel", gearStockCard)
+gearStockStatus.Size = UDim2.new(1, -24, 0, 22)
+gearStockStatus.Position = UDim2.new(0, 12, 0, 35)
+gearStockStatus.BackgroundTransparency = 1
+gearStockStatus.Text = "Disabled"
+gearStockStatus.TextSize = 10
+gearStockStatus.Font = Enum.Font.GothamMedium
+gearStockStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
+
+local gearStockInput = inputBox(
+    gearStockCard,
+    62,
+    config.gearStock.webhook,
+    "Discord webhook URL"
+)
+
+gearStockInput.FocusLost:Connect(function()
+    config.gearStock.webhook = gearStockInput.Text
+    saveConfig()
+end)
+
+local gearRoleInput = inputBox(
+    gearStockCard,
+    95,
+    "",
+    "Role ID (optional)"
+)
+
+gearRoleInput.FocusLost:Connect(function()
+    config.gearStock.roles["global"] = gearRoleInput.Text
+    saveConfig()
+end)
+
+gearStockInput.FocusLost:Connect(function()
+    config.gearStock.webhook = gearStockInput.Text
+    saveConfig()
+end)
+
+local gearStockRows = {}
+
+for i, name in ipairs(gearList) do
+    local data = config.gearStock.gears[name]
+
+    if type(data) ~= "table" then
+        data = {
+            enabled = false,
+            role = "",
+        }
+        config.gearStock.gears[name] = data
+    end
+
+    local toggle = Instance.new("TextButton", gearStockCard)
+    toggle.Size = UDim2.new(0, 130, 0, 28)
+    toggle.Position = UDim2.new(0, 12, 0, 135  + (i - 1) * 32)
+    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+    toggle.BorderSizePixel = 0
+    toggle.TextSize = 10
+    toggle.Font = Enum.Font.GothamMedium
+    toggle.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
+
+    local function refreshGearToggle()
+        toggle.Text =
+            (data.enabled and "✓ " or "○ ")
+            .. "📡 "
+            .. name
+    end
+
+    refreshGearToggle()
+
+    toggle.MouseButton1Click:Connect(function()
+        data.enabled = not data.enabled
+        refreshGearToggle()
+        saveConfig()
+    end)
+
+    gearStockRows[name] = toggle
+end
+
 local weatherSpawnHistory = {}
 
 local function getWeatherHistoryDate()
@@ -1322,6 +1419,147 @@ for _, w in ipairs(getActiveWeathers()) do
     if info and weatherMutationInfo[info.name] then
         knownWeather[weatherKey(info)] = true
     end
+end
+
+local Restock = ReplicatedStorage
+    :WaitForChild("Remotes")
+    :WaitForChild("Game")
+    :WaitForChild("Restock")
+
+local lastGearStock = {}
+
+local function checkGearStock(data)
+    if type(data) ~= "table" then
+        return
+    end
+
+    if type(data.Gears) ~= "table" then
+        return
+    end
+
+    for _, gearName in ipairs(gearList) do
+        local gear = data.Gears[gearName]
+
+        if type(gear) == "table" then
+            local inStock = gear.InStock == true
+            local amount = tonumber(gear.Amount) or 0
+
+            local previous = lastGearStock[gearName]
+
+            lastGearStock[gearName] = {
+                inStock = inStock,
+                amount = amount,
+            }
+
+            if config.gearStock
+                and config.gearStock.gears
+                and config.gearStock.gears[gearName]
+                and config.gearStock.gears[gearName].enabled then
+
+                if inStock and (
+                    not previous
+                    or not previous.inStock
+                    or previous.amount ~= amount
+                ) then
+
+                    sendGearStockWebhook(
+                        gearName,
+                        amount
+                    )
+                end
+            end
+        end
+    end
+end
+
+Restock.OnClientEvent:Connect(function(data)
+    checkGearStock(data)
+end)
+
+local function sendGearStockWebhook(gearName, stock)
+    local gearConfig =
+        config.gearStock
+        and config.gearStock.gears
+        and config.gearStock.gears[gearName]
+
+    if not gearConfig or not gearConfig.enabled then
+        return
+    end
+
+    local webhook = config.gearStock.webhook
+
+    if not webhook
+        or webhook == ""
+        or not string.find(
+            webhook,
+            "^https://discord.com/api/webhooks/"
+        ) then
+        return
+    end
+
+    local content = ""
+
+    local roleId = config.gearStock.roles["global"]
+
+    if roleId and roleId ~= "" then
+        roleId = string.match(
+            roleId,
+            "^%s*(%d+)%s*$"
+        )
+    
+        if roleId then
+            content =
+                "<@&"
+                .. roleId
+                .. ">\n"
+                .. "-# Radar Restock"
+        end
+    end
+
+    if content == "" then
+        content = "-# Radar Restock"
+    end
+
+    local payload = {
+        content = content,
+        embeds = {
+            {
+                title =
+                    "📡 "
+                    .. string.upper(gearName)
+                    .. " RESTOCKED",
+
+                description =
+                    "📦 Stock: "
+                    .. tostring(stock)
+                    .. "\n🕐 Stock Time: <t:"
+                    .. tostring(os.time())
+                    .. ":t>",
+                color = 0x64B4FF
+            }
+        }
+    }
+
+    local requestFunction =
+        (syn and syn.request)
+        or (http and http.request)
+        or http_request
+        or request
+
+    if not requestFunction then
+        return
+    end
+
+    pcall(function()
+        requestFunction({
+            Url = webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(payload)
+        })
+    end)
 end
 
 local function updateWeather()
