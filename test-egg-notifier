@@ -442,12 +442,6 @@ autoExecuteStatus.TextSize = 10
 autoExecuteStatus.TextColor3 = Color3.fromRGB(150, 150, 160)
 autoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
 
-local function canUseFileStorage()
-    return type(isfile) == "function"
-        and type(readfile) == "function"
-        and type(writefile) == "function"
-end
-
 local function refreshAutoExecuteStatus()
     if canUseFileStorage() and isfile(AUTOEXECUTE_FILE) then
         autoExecuteStatus.Text = "Auto Execute: Installed"
@@ -528,6 +522,15 @@ unloadButton.Font = Enum.Font.GothamMedium
 unloadButton.TextSize = 10
 unloadButton.TextColor3 = Color3.new(1, 1, 1)
 Instance.new("UICorner", unloadButton).CornerRadius = UDim.new(0, 7)
+
+unloadButton.MouseButton1Click:Connect(function()
+    monitoringRunning = false
+    monitoringEnabled = false
+
+    if gui then
+        gui:Destroy()
+    end
+end)
 
 local discordEggCard = card(webhookPage, "DiscordEggCard", "Discord Egg", 290)
 local discordEggStatus = Instance.new("TextLabel", discordEggCard)
@@ -993,6 +996,12 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
     saveWeatherSpawnHistory()
 end
 
+local function canUseFileStorage()
+    return type(isfile) == "function"
+        and type(readfile) == "function"
+        and type(writefile) == "function"
+end
+
 local function loadEggSpawnHistory()
     if not canUseFileStorage() then
         return
@@ -1303,6 +1312,20 @@ end
 
 local function getRoleList(text)
     return split(text)
+end
+
+local function getEggResetTime()
+    local value = ServerData:FindFirstChild("LastEggResetTime")
+    if value and value:IsA("NumberValue") and value.Value > 0 then
+        return value.Value
+    end
+
+    value = ServerData:FindFirstChild("LastRestockTime")
+    if value and value:IsA("NumberValue") and value.Value > 0 then
+        return value.Value + 420
+    end
+
+    return nil
 end
 
 local function getActiveWeathers()
