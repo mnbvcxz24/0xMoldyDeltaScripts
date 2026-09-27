@@ -20,6 +20,7 @@ gui.Parent = CoreGui
 
 local CONFIG_FOLDER = "rap_notifier"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config_test.json"
+local EGG_HISTORY_FILE = CONFIG_FOLDER .. "/egg_spawn_history_test.json"
 
 local function ensureConfigFolder()
     if not isfolder(CONFIG_FOLDER) then
@@ -37,6 +38,10 @@ local function defaultConfig()
         discordWeather = {
             webhook = "",
             weathers = {},
+        },
+        eggHistory = {
+            webhook = "",
+            eggs = {},
         },
     }
 end
@@ -72,6 +77,10 @@ end
 local config = loadConfig()
 local monitoringEnabled = config.monitoring == true
 local monitoringRunning = false
+
+data.eggHistory = type(data.eggHistory) == "table" and data.eggHistory or {}
+data.eggHistory.webhook = tostring(data.eggHistory.webhook or "")
+data.eggHistory.eggs = type(data.eggHistory.eggs) == "table" and data.eggHistory.eggs or {}
 
 local eggList = { "Blackhole Egg", "Solaris Egg", "Cherub Egg", "Volcanic Egg" }
 local weatherList = { "Thunder", "Volt", "Raging", "Dreadful", "Eternal" }
@@ -485,6 +494,68 @@ discordWeatherTest.Font = Enum.Font.GothamBold
 discordWeatherTest.TextColor3 = Color3.new(1, 1, 1)
 Instance.new("UICorner", discordWeatherTest).CornerRadius = UDim.new(0, 7)
 
+local eggHistoryCard = card(webhookPage, "EggSpawnHistoryCard", "Egg Spawn History", 220)
+
+local eggHistoryStatus = Instance.new("TextLabel", eggHistoryCard)
+eggHistoryStatus.Size = UDim2.new(1, -24, 0, 22)
+eggHistoryStatus.Position = UDim2.new(0, 12, 0, 35)
+eggHistoryStatus.BackgroundTransparency = 1
+eggHistoryStatus.Text = "Disabled"
+eggHistoryStatus.TextSize = 10
+eggHistoryStatus.Font = Enum.Font.GothamMedium
+eggHistoryStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
+
+eggHistoryInput.FocusLost:Connect(function()
+    config.eggHistory.webhook = eggHistoryInput.Text
+    saveConfig()
+end)
+
+loadEggSpawnHistory()
+
+local eggHistoryInput = inputBox(
+    eggHistoryCard,
+    62,
+    config.eggHistory.webhook,
+    "Discord webhook URL"
+)
+
+local eggHistoryRows = {}
+
+for i, name in ipairs(eggList) do
+    local data = config.eggHistory.eggs[name]
+
+    if type(data) ~= "table" then
+        data = {
+            enabled = false,
+        }
+        config.eggHistory.eggs[name] = data
+    end
+
+    local toggle = Instance.new("TextButton", eggHistoryCard)
+    toggle.Size = UDim2.new(0, 130, 0, 28)
+    toggle.Position = UDim2.new(0, 12, 0, 105 + (i - 1) * 34)
+    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+    toggle.BorderSizePixel = 0
+    toggle.TextSize = 10
+    toggle.Font = Enum.Font.GothamMedium
+    toggle.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
+
+    local function refreshHistoryToggle()
+        toggle.Text = (data.enabled and "✓ " or "○ ") .. eggEmojis[name] .. " " .. name:gsub(" Egg", "")
+    end
+
+    refreshHistoryToggle()
+
+    toggle.MouseButton1Click:Connect(function()
+        data.enabled = not data.enabled
+        refreshHistoryToggle()
+        saveConfig()
+    end)
+
+    eggHistoryRows[name] = toggle
+end
+
 local function requestPost(url, payload)
     local fn = (syn and syn.request) or (http and http.request) or http_request or request
     if not fn then
@@ -503,6 +574,188 @@ local function requestPost(url, payload)
     end)
 
     return ok
+end
+
+local eggSpawnHistory = {}
+
+local function canUseFileStorage()
+    return type(isfile) == "function"
+        and type(readfile) == "function"
+        and type(writefile) == "function"
+end
+
+local function loadEggSpawnHistory()
+    if not canUseFileStorage() then
+        return
+    end
+
+    if not isfile(EGG_HISTORY_FILE) then
+        return
+    end
+
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(readfile(EGG_HISTORY_FILE))
+    end)
+
+    if ok and type(data) == "table" then
+        eggSpawnHistory = data
+    end
+end
+
+local function saveEggSpawnHistory()
+    if not canUseFileStorage() then
+        return
+    end
+
+    pcall(function()
+        writefile(
+            EGG_HISTORY_FILE,
+            HttpService:JSONEncode(eggSpawnHistory)
+        )
+    end)
+end
+
+local function getHistoryDate()
+    return os.date("%Y-%m-%d")
+end
+
+local function getEggHistory(eggName)
+    local today = getHistoryDate()
+
+    if not eggSpawnHistory[eggName]
+        or eggSpawnHistory[eggName].date ~= today then
+
+        eggSpawnHistory[eggName] = {
+            date = today,
+            messageId = nil,
+            entries = {},
+        }
+    end
+
+    return eggSpawnHistory[eggName]
+end
+
+local function sendEggHistoryWebhook(webhook, payload, method, messageId)
+    local fn = (syn and syn.request)
+        or (http and http.request)
+        or http_request
+        or request
+
+    if not fn then
+        return false, nil
+    end
+
+    local url = webhook
+
+    if method == "PATCH" then
+        local webhookId, webhookToken = string.match(
+            webhook,
+            "^https://discord%.com/api/webhooks/(%d+)/([^%?]+)"
+        )
+
+        if not webhookId or not webhookToken or not messageId then
+            return false, nil
+        end
+
+        url =
+            "https://discord.com/api/webhooks/"
+            .. webhookId
+            .. "/"
+            .. webhookToken
+            .. "/messages/"
+            .. tostring(messageId)
+    else
+        url = webhook .. "?wait=true"
+    end
+
+    local ok, response = pcall(function()
+        return fn({
+            Url = url,
+            Method = method or "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+            },
+            Body = HttpService:JSONEncode(payload),
+        })
+    end)
+
+    if not ok or not response then
+        return false, nil
+    end
+
+    if response.StatusCode
+        and (response.StatusCode < 200 or response.StatusCode >= 300) then
+        return false, response
+    end
+
+    local responseData
+
+    if response.Body then
+        pcall(function()
+            responseData = HttpService:JSONDecode(response.Body)
+        end)
+    end
+
+    return true, responseData
+end
+
+local function buildEggHistoryPayload(eggName, history)
+    local lines = {}
+
+    for _, entry in ipairs(history.entries) do
+        table.insert(
+            lines,
+            "📦 Stock " .. tostring(entry.stock)
+            .. "\n"
+            .. "🕐 Stock time <t:"
+            .. tostring(entry.timestamp)
+            .. ":t> • <t:"
+            .. tostring(entry.timestamp)
+            .. ":R>"
+        )
+    end
+
+    local firstTimestamp
+
+    if history.entries[1] then
+        firstTimestamp = history.entries[1].timestamp
+    else
+        firstTimestamp = os.time()
+    end
+
+    local description =
+        "📅 <t:"
+        .. tostring(firstTimestamp)
+        .. ":D>\n\n"
+        .. table.concat(lines, "\n\n")
+
+    local embed = {
+        title =
+            (eggEmojis[eggName] or "🥚")
+            .. " "
+            .. string.upper(eggName)
+            .. " — SPAWN HISTORY",
+
+        description = description,
+
+        color = eggEmbedColors[eggName] or 0x5865F2,
+
+        footer = {
+            text = "Ride a Pet • Egg Spawn History",
+        },
+    }
+
+    if eggThumbnails[eggName] then
+        embed.thumbnail = {
+            url = eggThumbnails[eggName],
+        }
+    end
+
+    return {
+        embeds = {
+            embed,
+        },
+    }
 end
 
 local function split(value)
@@ -699,7 +952,10 @@ ActiveEggs.ChildAdded:Connect(function(egg)
         end
     end
 
-    sendDiscordEgg(name, stock, os.time())
+    local spawnTime = os.time()
+
+    sendDiscordEgg(name, stock, spawnTime)
+    sendEggHistory(name, stock)
 end)
 
 ActiveEggs.ChildRemoved:Connect(function(egg)
