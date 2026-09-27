@@ -436,7 +436,7 @@ discordEggStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
 local discordEggInput = inputBox(discordEggCard, 62, config.discordEgg.webhook, "Discord webhook URL")
 local discordEggRows = {}
 
-local function row(parent, y, label, data)
+local function row(parent, y, label, data, showRole)
     local toggle = Instance.new("TextButton", parent)
     toggle.Size = UDim2.new(0, 105, 0, 28)
     toggle.Position = UDim2.new(0, 12, 0, y)
@@ -448,17 +448,26 @@ local function row(parent, y, label, data)
     toggle.TextColor3 = Color3.new(1, 1, 1)
     Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
 
-    local role = Instance.new("TextBox", parent)
-    role.Size = UDim2.new(1, -135, 0, 28)
-    role.Position = UDim2.new(0, 125, 0, y)
-    role.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-    role.BorderSizePixel = 0
-    role.Font = Enum.Font.Gotham
-    role.TextSize = 10
-    role.TextColor3 = Color3.new(1, 1, 1)
-    role.Text = data.roles or ""
-    role.PlaceholderText = "role IDs"
-    role.ClearTextOnFocus = false
+    local role
+
+    if showRole ~= false then
+        role = Instance.new("TextBox", parent)
+        role.Size = UDim2.new(1, -135, 0, 28)
+        role.Position = UDim2.new(0, 125, 0, y)
+        role.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+        role.BorderSizePixel = 0
+        role.Font = Enum.Font.Gotham
+        role.TextSize = 10
+        role.TextColor3 = Color3.new(1, 1, 1)
+        role.Text = data.roles or ""
+        role.PlaceholderText = "role IDs"
+        role.ClearTextOnFocus = false
+
+        role.FocusLost:Connect(function()
+            data.roles = role.Text
+            saveConfig()
+        end)
+    end
 
     local function refresh()
         toggle.Text = (data.enabled and "✓ " or "○ ") .. label
@@ -472,14 +481,9 @@ local function row(parent, y, label, data)
         saveConfig()
     end)
 
-    role.FocusLost:Connect(function()
-        data.roles = role.Text
-        saveConfig()
-    end)
-
     return toggle, role
 end
-
+    
 for i, name in ipairs(eggList) do
     discordEggRows[name] = {
         row(discordEggCard, 105 + (i - 1) * 34, eggEmojis[name] .. " " .. name:gsub(" Egg", ""), config.discordEgg.eggs[name])
