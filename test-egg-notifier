@@ -3,15 +3,13 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local ServerData = ReplicatedStorage:WaitForChild("ServerData")
 local ActiveEggs = ServerData:WaitForChild("ActiveEggs")
-
 local player = Players.LocalPlayer
 
 local oldGui = CoreGui:FindFirstChild("Rap_Notifier_Test")
-if oldGui then
-    oldGui:Destroy()
-end
+if oldGui then oldGui:Destroy() end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "Rap_Notifier_Test"
@@ -21,405 +19,39 @@ gui.Parent = CoreGui
 local CONFIG_FOLDER = "rap_notifier"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config_test.json"
 
-local window = Instance.new("Frame")
-window.Name = "MainWindow"
-window.Size = UDim2.new(0, 400, 0, 380)
-window.Position = UDim2.new(0.5, -200, 0.5, -190)
-window.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-window.BorderSizePixel = 0
-window.Parent = gui
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 12)
-windowCorner.Parent = window
-
-local windowStroke = Instance.new("UIStroke")
-windowStroke.Color = Color3.fromRGB(55, 55, 65)
-windowStroke.Thickness = 1
-windowStroke.Parent = window
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -55, 0, 30)
-title.Position = UDim2.new(0, 10, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = "Ride A Pet"
-title.TextSize = 14
-title.Font = Enum.Font.GothamBold
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = window
-
-local subtitle = Instance.new("TextLabel")
-subtitle.Size = UDim2.new(1, -55, 0, 25)
-subtitle.Position = UDim2.new(0, 10, 0, 30)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier"
-subtitle.TextSize = 10
-subtitle.Font = Enum.Font.Gotham
-subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
-subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = window
-
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 35, 0, 35)
-closeButton.Position = UDim2.new(1, -35, 0, 0)
-closeButton.BackgroundTransparency = 1
-closeButton.Text = "×"
-closeButton.TextSize = 20
-closeButton.Font = Enum.Font.GothamBold
-closeButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-closeButton.Parent = window
-
-local openButton = Instance.new("TextButton")
-openButton.Size = UDim2.new(0, 45, 0, 45)
-openButton.Position = UDim2.new(0.5, -22, 0.5, -22)
-openButton.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-openButton.BorderSizePixel = 0
-openButton.Text = "TEST"
-openButton.TextSize = 18
-openButton.Font = Enum.Font.GothamBold
-openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-openButton.Visible = false
-openButton.Parent = gui
-
-local openCorner = Instance.new("UICorner")
-openCorner.CornerRadius = UDim.new(1, 0)
-openCorner.Parent = openButton
-
-local openStroke = Instance.new("UIStroke")
-openStroke.Color = Color3.fromRGB(55, 55, 65)
-openStroke.Thickness = 1
-openStroke.Parent = openButton
-
-closeButton.MouseButton1Click:Connect(function()
-    window.Visible = false
-    openButton.Visible = true
-end)
-
-openButton.MouseButton1Click:Connect(function()
-    window.Visible = true
-    openButton.Visible = false
-end)
-
-local function makeDraggable(object, dragArea)
-    local dragging = false
-    local dragStart
-    local startPosition
-
-    dragArea.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-
-            dragging = true
-            dragStart = input.Position
-            startPosition = object.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if not dragging then
-            return
-        end
-
-        if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
-
-            local delta = input.Position - dragStart
-
-            object.Position = UDim2.new(
-                startPosition.X.Scale,
-                startPosition.X.Offset + delta.X,
-                startPosition.Y.Scale,
-                startPosition.Y.Offset + delta.Y
-            )
-        end
-    end)
-end
-
-makeDraggable(openButton, openButton)
-
-local dragArea = Instance.new("Frame")
-dragArea.Size = UDim2.new(1, -40, 0, 60)
-dragArea.Position = UDim2.new(0, 0, 0, 0)
-dragArea.BackgroundTransparency = 1
-dragArea.Active = true
-dragArea.Parent = window
-
-makeDraggable(window, dragArea)
-
-local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0, 120, 1, -60)
-sidebar.Position = UDim2.new(0, 0, 0, 60)
-sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-sidebar.BorderSizePixel = 0
-sidebar.Parent = window
-
-local sidebarCorner = Instance.new("UICorner")
-sidebarCorner.CornerRadius = UDim.new(0, 8)
-sidebarCorner.Parent = sidebar
-
-local function createSidebarButton(name, text, y)
-    local button = Instance.new("TextButton")
-
-    button.Name = name
-    button.Size = UDim2.new(1, -20, 0, 25)
-    button.Position = UDim2.new(0, 10, 0, y)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    button.BorderSizePixel = 0
-    button.Text = text
-    button.TextSize = 10
-    button.Font = Enum.Font.GothamMedium
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.Parent = sidebar
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 7)
-    corner.Parent = button
-
-    return button
-end
-
-local statusButton = createSidebarButton(
-    "StatusButton",
-    "   ◉   Status",
-    15
-)
-
-local webhookButton = createSidebarButton(
-    "WebhookButton",
-    "   🔔   Webhook",
-    50
-)
-
-local settingsButton = createSidebarButton(
-    "SettingsButton",
-    "   ⚙   Settings",
-    85
-)
-
-local function createPage(name)
-    local page = Instance.new("ScrollingFrame")
-
-    page.Name = name
-    page.Size = UDim2.new(1, -130, 1, -60)
-    page.Position = UDim2.new(0, 130, 0, 60)
-    page.BackgroundTransparency = 1
-    page.BorderSizePixel = 0
-    page.ScrollBarThickness = 5
-    page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    page.Visible = false
-    page.Parent = window
-
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 10)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Parent = page
-
-    return page
-end
-
-local statusPage = createPage("StatusPage")
-local webhookPage = createPage("WebhookPage")
-local settingsPage = createPage("SettingsPage")
-
-statusPage.Visible = true
-
-local function createCard(parent, name, titleText, height)
-    local card = Instance.new("Frame")
-
-    card.Name = name
-    card.Size = UDim2.new(1, -20, 0, height)
-    card.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-    card.BorderSizePixel = 0
-    card.Parent = parent
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 8)
-    corner.Parent = card
-
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Name = "Title"
-    titleLabel.Size = UDim2.new(1, -20, 0, 25)
-    titleLabel.Position = UDim2.new(0, 10, 0, 7)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = titleText
-    titleLabel.TextSize = 11
-    titleLabel.Font = Enum.Font.GothamMedium
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.Parent = card
-
-    return card
-end
-
-local monitoringCard = createCard(
-    statusPage,
-    "MonitoringCard",
-    "●  Monitoring",
-    65
-)
-
-local monitoringStatus = Instance.new("TextLabel")
-monitoringStatus.Size = UDim2.new(1, -130, 0, 20)
-monitoringStatus.Position = UDim2.new(0, 10, 0, 35)
-monitoringStatus.BackgroundTransparency = 1
-monitoringStatus.Text = "Stopped"
-monitoringStatus.TextSize = 10
-monitoringStatus.Font = Enum.Font.Gotham
-monitoringStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
-monitoringStatus.TextXAlignment = Enum.TextXAlignment.Left
-monitoringStatus.Parent = monitoringCard
-
-local monitoringButton = Instance.new("TextButton")
-monitoringButton.Size = UDim2.new(0, 100, 0, 25)
-monitoringButton.Position = UDim2.new(1, -110, 0, 20)
-monitoringButton.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-monitoringButton.BorderSizePixel = 0
-monitoringButton.Text = "Start"
-monitoringButton.TextSize = 9
-monitoringButton.Font = Enum.Font.GothamMedium
-monitoringButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-monitoringButton.Parent = monitoringCard
-
-local monitoringCorner = Instance.new("UICorner")
-monitoringCorner.CornerRadius = UDim.new(0, 6)
-monitoringCorner.Parent = monitoringButton
-
-local webhookStatusCard = createCard(
-    statusPage,
-    "WebhookStatusCard",
-    "●  Webhook",
-    65
-)
-
-local webhookStatus = Instance.new("TextLabel")
-webhookStatus.Size = UDim2.new(1, -20, 0, 20)
-webhookStatus.Position = UDim2.new(0, 10, 0, 35)
-webhookStatus.BackgroundTransparency = 1
-webhookStatus.Text = "Not Connected"
-webhookStatus.TextSize = 10
-webhookStatus.Font = Enum.Font.Gotham
-webhookStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
-webhookStatus.TextXAlignment = Enum.TextXAlignment.Left
-webhookStatus.Parent = webhookStatusCard
-
-local weatherCard = createCard(
-    statusPage,
-    "WeatherCard",
-    "Current Weather",
-    70
-)
-
-local weatherStatus = Instance.new("TextLabel")
-weatherStatus.Size = UDim2.new(1, -20, 0, 35)
-weatherStatus.Position = UDim2.new(0, 10, 0, 32)
-weatherStatus.BackgroundTransparency = 1
-weatherStatus.Text = "No weather detected"
-weatherStatus.TextSize = 10
-weatherStatus.Font = Enum.Font.Gotham
-weatherStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
-weatherStatus.TextXAlignment = Enum.TextXAlignment.Left
-weatherStatus.TextYAlignment = Enum.TextYAlignment.Top
-weatherStatus.Parent = weatherCard
-
-local eggsCard = createCard(
-    statusPage,
-    "EggsInWorldCard",
-    "Eggs in the World",
-    220
-)
-
-local eggsStatus = Instance.new("TextLabel")
-eggsStatus.Size = UDim2.new(1, -20, 1, -40)
-eggsStatus.Position = UDim2.new(0, 10, 0, 35)
-eggsStatus.BackgroundTransparency = 1
-eggsStatus.Text = "Loading..."
-eggsStatus.TextSize = 10
-eggsStatus.Font = Enum.Font.Gotham
-eggsStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
-eggsStatus.TextXAlignment = Enum.TextXAlignment.Left
-eggsStatus.TextYAlignment = Enum.TextYAlignment.Top
-eggsStatus.Parent = eggsCard
-
 local function ensureConfigFolder()
-    if not isfolder(CONFIG_FOLDER) then
-        makefolder(CONFIG_FOLDER)
-    end
+    if not isfolder(CONFIG_FOLDER) then makefolder(CONFIG_FOLDER) end
 end
 
-local discordEggCard = createCard(
-    webhookPage,
-    "DiscordEggCard",
-    "Discord Egg",
-    155
-)
+local function defaultConfig()
+    return {
+        monitoring = false,
+        discordEgg = { webhook = "", eggs = {} },
+        discordWeather = { webhook = "", weathers = {} }
+    }
+end
 
-local discordEggStatus = Instance.new("TextLabel")
-discordEggStatus.Parent = discordEggCard
-discordEggStatus.BackgroundTransparency = 1
-discordEggStatus.Position = UDim2.new(0, 12, 0, 38)
-discordEggStatus.Size = UDim2.new(1, -24, 0, 22)
-discordEggStatus.Font = Enum.Font.Gotham
-discordEggStatus.TextSize = 12
-discordEggStatus.TextColor3 = Color3.fromRGB(170, 170, 175)
-discordEggStatus.TextXAlignment = Enum.TextXAlignment.Left
-discordEggStatus.Text = "Disabled"
+local function loadConfig()
+    ensureConfigFolder()
+    if not isfile(CONFIG_FILE) then return defaultConfig() end
+    local ok, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
+    if not ok or type(data) ~= "table" then return defaultConfig() end
+    data.monitoring = data.monitoring == true
+    data.discordEgg = type(data.discordEgg) == "table" and data.discordEgg or {}
+    data.discordEgg.webhook = tostring(data.discordEgg.webhook or "")
+    data.discordEgg.eggs = type(data.discordEgg.eggs) == "table" and data.discordEgg.eggs or {}
+    data.discordWeather = type(data.discordWeather) == "table" and data.discordWeather or {}
+    data.discordWeather.webhook = tostring(data.discordWeather.webhook or "")
+    data.discordWeather.weathers = type(data.discordWeather.weathers) == "table" and data.discordWeather.weathers or {}
+    return data
+end
 
-local discordEggInput = Instance.new("TextBox")
-discordEggInput.Parent = discordEggCard
-discordEggInput.Position = UDim2.new(0, 12, 0, 65)
-discordEggInput.Size = UDim2.new(1, -24, 0, 34)
-discordEggInput.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-discordEggInput.BorderSizePixel = 0
-discordEggInput.Font = Enum.Font.Gotham
-discordEggInput.TextSize = 12
-discordEggInput.TextColor3 = Color3.fromRGB(230, 230, 235)
-discordEggInput.PlaceholderColor3 = Color3.fromRGB(110, 110, 115)
-discordEggInput.PlaceholderText = "Discord webhook URL"
-discordEggInput.Text = ""
-discordEggInput.ClearTextOnFocus = false
+local config = loadConfig()
+local monitoringEnabled = config.monitoring == true
+local monitoringRunning = false
 
-local discordEggInputCorner = Instance.new("UICorner")
-discordEggInputCorner.CornerRadius = UDim.new(0, 8)
-discordEggInputCorner.Parent = discordEggInput
-
-local discordEggToggle = Instance.new("TextButton")
-discordEggToggle.Parent = discordEggCard
-discordEggToggle.Position = UDim2.new(0, 12, 0, 108)
-discordEggToggle.Size = UDim2.new(0, 85, 0, 30)
-discordEggToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-discordEggToggle.BorderSizePixel = 0
-discordEggToggle.Font = Enum.Font.GothamSemibold
-discordEggToggle.TextSize = 12
-discordEggToggle.TextColor3 = Color3.fromRGB(235, 235, 240)
-discordEggToggle.Text = "Disabled"
-
-local discordEggToggleCorner = Instance.new("UICorner")
-discordEggToggleCorner.CornerRadius = UDim.new(0, 7)
-discordEggToggleCorner.Parent = discordEggToggle
-
-local discordEggTest = Instance.new("TextButton")
-discordEggTest.Parent = discordEggCard
-discordEggTest.Position = UDim2.new(0, 107, 0, 108)
-discordEggTest.Size = UDim2.new(0, 85, 0, 30)
-discordEggTest.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-discordEggTest.BorderSizePixel = 0
-discordEggTest.Font = Enum.Font.GothamSemibold
-discordEggTest.TextSize = 12
-discordEggTest.TextColor3 = Color3.fromRGB(235, 235, 240)
-discordEggTest.Text = "Test"
-
-local discordEggTestCorner = Instance.new("UICorner")
-discordEggTestCorner.CornerRadius = UDim.new(0, 7)
-discordEggTestCorner.Parent = discordEggTest
+local eggList = {"Blackhole Egg", "Solaris Egg", "Cherub Egg", "Volcanic Egg"}
+local weatherList = {"Thunder", "Volt", "Raging", "Dreadful", "Eternal"}
 
 local eggEmojis = {
     ["Blackhole Egg"] = "🌀",
@@ -442,658 +74,321 @@ local eggThumbnails = {
     ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1553420646271291462/Volcanic.webp?ex=6ab92f37&is=6ab7ddb7&hm=3d3f043c3dd706476d14348b0f34562dc960d626be01b4ac9c1e268e4ad0fa32"
 }
 
-local function getResetTime()
-    local resetTime = ServerData:FindFirstChild("LastEggResetTime")
-
-    if resetTime and resetTime:IsA("NumberValue") and resetTime.Value > 0 then
-        return resetTime.Value
-    end
-
-    local restockTime = ServerData:FindFirstChild("LastRestockTime")
-
-    if restockTime and restockTime:IsA("NumberValue") and restockTime.Value > 0 then
-        return restockTime.Value + 420
-    end
-
-    return nil
-end
-
-local function sendDiscordEgg(eggName, stock, spawnTime)
-    if not monitoringRunning then
-        return
-    end
-
-    if not config.discordEgg.enabled then
-        return
-    end
-
-    local webhook = config.discordEgg.webhook
-
-    if webhook == "" then
-        return
-    end
-
-    local emoji = eggEmojis[eggName] or "🥚"
-    local embedColor = eggEmbedColors[eggName] or 0x5865F2
-    local thumbnailUrl = eggThumbnails[eggName]
-
-    local resetTime = getResetTime()
-
-    local fields = {
-        {
-            name = "📦 Stock",
-            value = tostring(stock),
-            inline = true
-        },
-        {
-            name = "🕐 Stock Time",
-            value = "<t:" .. tostring(math.floor(spawnTime)) .. ":t>",
-            inline = true
-        }
-    }
-
-    if resetTime then
-        table.insert(fields, {
-            name = "🔄 Reset Time",
-            value = "<t:" .. tostring(math.floor(resetTime)) .. ":t>",
-            inline = true
-        })
-
-        table.insert(fields, {
-            name = "⏳ Resets",
-            value = "<t:" .. tostring(math.floor(resetTime)) .. ":R>",
-            inline = true
-        })
-    end
-
-    local embed = {
-        title = emoji .. " " .. tostring(eggName) .. " spawned!",
-        color = embedColor,
-        fields = fields,
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-    }
-
-    if thumbnailUrl then
-        embed.thumbnail = {
-            url = thumbnailUrl
-        }
-    end
-
-    local body = {
-        embeds = {
-            embed
-        }
-    }
-
-    pcall(function()
-        request({
-            Url = webhook,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(body)
-        })
-    end)
-end
-
-local knownEggs = {}
-
-for _, egg in ipairs(ActiveEggs:GetChildren()) do
-    knownEggs[egg] = true
-end
-
-ActiveEggs.ChildAdded:Connect(function(egg)
-    if knownEggs[egg] then
-        return
-    end
-
-    knownEggs[egg] = true
-
-    task.wait(0.1)
-
-    if not monitoringRunning then
-        return
-    end
-
-    local eggName = egg:GetAttribute("Egg")
-
-    if not eggName then
-        return
-    end
-
-    local stock = 0
-
-    for _, activeEgg in ipairs(ActiveEggs:GetChildren()) do
-        if activeEgg:GetAttribute("Egg") == eggName then
-            stock += 1
-        end
-    end
-
-    sendDiscordEgg(eggName, stock)
-end)
-
-ActiveEggs.ChildRemoved:Connect(function(egg)
-    knownEggs[egg] = nil
-end)
-
-local function loadConfig()
-    ensureConfigFolder()
-
-    if not isfile(CONFIG_FILE) then
-        return {
-            monitoring = false,
-            discordEgg = {
-                enabled = false,
-                webhook = ""
-            }
-        }
-    end
-
-    local success, data = pcall(function()
-        return HttpService:JSONDecode(readfile(CONFIG_FILE))
-    end)
-
-    if success and type(data) == "table" then
-        if data.monitoring == nil then
-            data.monitoring = false
-        end
-
-        if type(data.discordEgg) ~= "table" then
-            data.discordEgg = {
-                enabled = false,
-                webhook = ""
-            }
-        end
-
-        return data
-    end
-
-    return {
-        monitoring = false,
-        discordEgg = {
-            enabled = false,
-            webhook = ""
-        }
-    }
-end
-
-local config = loadConfig()
-
-local monitoringEnabled = config.monitoring == true
-local monitoringRunning = false
-local monitoringLoops = {}
-
-local function saveConfig()
-    ensureConfigFolder()
-
-    config.monitoring = monitoringEnabled
-
-    local success, encoded = pcall(function()
-        return HttpService:JSONEncode(config)
-    end)
-
-    if success then
-        writefile(CONFIG_FILE, encoded)
-    end
-end
-
-config.discordEgg = config.discordEgg or {
-    enabled = false,
-    webhook = "",
-    eggs = {}
-}
-
-for _, eggName in ipairs({
-    "Blackhole Egg",
-    "Solaris Egg",
-    "Cherub Egg",
-    "Volcanic Egg"
-}) do
-    config.discordEgg.eggs[eggName] =
-        config.discordEgg.eggs[eggName]
-        or {
-            enabled = false,
-            roles = ""
-        }
-end
-
-discordEggInput.Text = config.discordEgg.webhook
-
-if config.discordEgg.enabled then
-    discordEggToggle.Text = "Enabled"
-    discordEggStatus.Text = "Enabled"
-else
-    discordEggToggle.Text = "Disabled"
-    discordEggStatus.Text = "Disabled"
-end
-
-config.discordWeather = config.discordWeather or {
-    enabled = false,
-    webhook = ""
-}
-
 local weatherMutationInfo = {
-    Thunder = {
-        emoji = "🌩️",
-        cash = "2x",
-        speed = "2x"
-    },
-
-    Volt = {
-        emoji = "⚡",
-        cash = "3x",
-        speed = "3x"
-    },
-
-    Raging = {
-        emoji = "🔥",
-        cash = "4x",
-        speed = "4x"
-    },
-
-    Dreadful = {
-        emoji = "🌑",
-        cash = "10x",
-        speed = "10x"
-    },
-
-    Eternal = {
-        emoji = "💜",
-        cash = "100x",
-        speed = "100x"
-    }
+    Thunder = {emoji="🌩️", cash="2x", speed="2x"},
+    Volt = {emoji="⚡", cash="3x", speed="3x"},
+    Raging = {emoji="🔥", cash="4x", speed="4x"},
+    Dreadful = {emoji="🌑", cash="10x", speed="10x"},
+    Eternal = {emoji="💜", cash="100x", speed="100x"}
 }
 
 local weatherEmbedColors = {
-    Thunder = 0x3498DB,
-    Volt = 0xF1C40F,
-    Raging = 0x8B0000,
-    Dreadful = 0x301934,
-    Eternal = 0xE056FD
+    Thunder=0x3498DB, Volt=0xF1C40F, Raging=0x8B0000, Dreadful=0x301934, Eternal=0xE056FD
 }
 
 local weatherThumbnails = {
-    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
-    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
-    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
-    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
-    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
+    Thunder="https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
+    Volt="https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
+    Raging="https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
+    Dreadful="https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
+    Eternal="https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
 }
 
-discordEggInput.FocusLost:Connect(function()
-    config.discordEgg.webhook = discordEggInput.Text
-    saveConfig()
+for _, name in ipairs(eggList) do
+    local d=config.discordEgg.eggs[name]
+    if type(d)~="table" then config.discordEgg.eggs[name]={enabled=false,roles=""}
+    else d.enabled=d.enabled==true; d.roles=tostring(d.roles or "") end
+end
+for _, name in ipairs(weatherList) do
+    local d=config.discordWeather.weathers[name]
+    if type(d)~="table" then config.discordWeather.weathers[name]={enabled=false,roles=""}
+    else d.enabled=d.enabled==true; d.roles=tostring(d.roles or "") end
+end
+
+local function saveConfig()
+    ensureConfigFolder()
+    config.monitoring=monitoringEnabled
+    pcall(function() writefile(CONFIG_FILE,HttpService:JSONEncode(config)) end)
+end
+
+local window=Instance.new("Frame")
+window.Size=UDim2.new(0,400,0,380)
+window.Position=UDim2.new(.5,-200,.5,-190)
+window.BackgroundColor3=Color3.fromRGB(22,22,27)
+window.BorderSizePixel=0
+window.Parent=gui
+Instance.new("UICorner",window).CornerRadius=UDim.new(0,12)
+
+local title=Instance.new("TextLabel",window)
+title.Size=UDim2.new(1,-55,0,30)
+title.Position=UDim2.new(0,10,0,0)
+title.BackgroundTransparency=1
+title.Text="Ride A Pet"
+title.TextSize=14
+title.Font=Enum.Font.GothamBold
+title.TextColor3=Color3.new(1,1,1)
+title.TextXAlignment=Enum.TextXAlignment.Left
+
+local subtitle=Instance.new("TextLabel",window)
+subtitle.Size=UDim2.new(1,-55,0,25)
+subtitle.Position=UDim2.new(0,10,0,30)
+subtitle.BackgroundTransparency=1
+subtitle.Text="Ride a Pet • Notifier"
+subtitle.TextSize=10
+subtitle.Font=Enum.Font.Gotham
+subtitle.TextColor3=Color3.fromRGB(145,145,155)
+subtitle.TextXAlignment=Enum.TextXAlignment.Left
+
+local close=Instance.new("TextButton",window)
+close.Size=UDim2.new(0,35,0,35)
+close.Position=UDim2.new(1,-35,0,0)
+close.BackgroundTransparency=1
+close.Text="×"
+close.TextSize=20
+close.Font=Enum.Font.GothamBold
+close.TextColor3=Color3.fromRGB(255,100,100)
+
+local open=Instance.new("TextButton",gui)
+open.Size=UDim2.new(0,45,0,45)
+open.Position=UDim2.new(.5,-22,.5,-22)
+open.BackgroundColor3=Color3.fromRGB(30,30,36)
+open.BorderSizePixel=0
+open.Text="TEST"
+open.TextSize=18
+open.Font=Enum.Font.GothamBold
+open.TextColor3=Color3.new(1,1,1)
+open.Visible=false
+Instance.new("UICorner",open).CornerRadius=UDim.new(1,0)
+close.MouseButton1Click:Connect(function() window.Visible=false open.Visible=true end)
+open.MouseButton1Click:Connect(function() window.Visible=true open.Visible=false end)
+
+local function drag(object,area)
+    local dragging=false; local start; local pos
+    area.InputBegan:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+            dragging=true; start=i.Position; pos=object.Position
+            i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then dragging=false end end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if dragging and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then
+            local d=i.Position-start
+            object.Position=UDim2.new(pos.X.Scale,pos.X.Offset+d.X,pos.Y.Scale,pos.Y.Offset+d.Y)
+        end
+    end)
+end
+local dragArea=Instance.new("Frame",window)
+dragArea.Size=UDim2.new(1,-40,0,60)
+dragArea.BackgroundTransparency=1
+dragArea.Active=true
+drag(window,dragArea)
+
+auto=function() end
+local sidebar=Instance.new("Frame",window)
+sidebar.Size=UDim2.new(0,120,1,-60)
+sidebar.Position=UDim2.new(0,0,0,60)
+sidebar.BackgroundColor3=Color3.fromRGB(25,25,30)
+sidebar.BorderSizePixel=0
+Instance.new("UICorner",sidebar).CornerRadius=UDim.new(0,8)
+
+local function sideButton(text,y)
+    local b=Instance.new("TextButton",sidebar)
+    b.Size=UDim2.new(1,-20,0,25); b.Position=UDim2.new(0,10,0,y)
+    b.BackgroundColor3=Color3.fromRGB(45,45,55); b.BorderSizePixel=0
+    b.Text=text; b.TextSize=10; b.Font=Enum.Font.GothamMedium
+    b.TextColor3=Color3.new(1,1,1); b.TextXAlignment=Enum.TextXAlignment.Left
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,7)
+    return b
+end
+local statusButton=sideButton("   ◉   Status",15)
+local webhookButton=sideButton("   🔔   Webhook",50)
+local settingsButton=sideButton("   ⚙   Settings",85)
+
+local function page(name)
+    local p=Instance.new("ScrollingFrame",window)
+    p.Name=name; p.Size=UDim2.new(1,-130,1,-60); p.Position=UDim2.new(0,130,0,60)
+    p.BackgroundTransparency=1; p.BorderSizePixel=0; p.ScrollBarThickness=5; p.AutomaticCanvasSize=Enum.AutomaticSize.Y
+    local l=Instance.new("UIListLayout",p); l.Padding=UDim.new(0,10); l.SortOrder=Enum.SortOrder.LayoutOrder
+    return p
+end
+local statusPage=page("StatusPage"); local webhookPage=page("WebhookPage"); local settingsPage=page("SettingsPage")
+statusPage.Visible=true
+
+local function card(parent,name,text,height)
+    local f=Instance.new("Frame",parent); f.Name=name; f.Size=UDim2.new(1,-20,0,height); f.BackgroundColor3=Color3.fromRGB(30,30,36); f.BorderSizePixel=0
+    Instance.new("UICorner",f).CornerRadius=UDim.new(0,8)
+    local t=Instance.new("TextLabel",f); t.Size=UDim2.new(1,-20,0,25); t.Position=UDim2.new(0,10,0,7); t.BackgroundTransparency=1; t.Text=text; t.TextSize=11; t.Font=Enum.Font.GothamMedium; t.TextColor3=Color3.new(1,1,1); t.TextXAlignment=Enum.TextXAlignment.Left
+    return f
+end
+
+local monitoringCard=card(statusPage,"MonitoringCard","●  Monitoring",65)
+local monitoringStatus=Instance.new("TextLabel",monitoringCard); monitoringStatus.Size=UDim2.new(1,-130,0,20); monitoringStatus.Position=UDim2.new(0,10,0,35); monitoringStatus.BackgroundTransparency=1; monitoringStatus.TextSize=10; monitoringStatus.Font=Enum.Font.Gotham; monitoringStatus.TextColor3=Color3.fromRGB(180,180,190); monitoringStatus.TextXAlignment=Enum.TextXAlignment.Left
+local monitoringButton=Instance.new("TextButton",monitoringCard); monitoringButton.Size=UDim2.new(0,100,0,25); monitoringButton.Position=UDim2.new(1,-110,0,20); monitoringButton.BackgroundColor3=Color3.fromRGB(45,45,55); monitoringButton.BorderSizePixel=0; monitoringButton.TextSize=9; monitoringButton.Font=Enum.Font.GothamMedium; monitoringButton.TextColor3=Color3.new(1,1,1); Instance.new("UICorner",monitoringButton).CornerRadius=UDim.new(0,6)
+
+local webhookStatusCard=card(statusPage,"WebhookStatusCard","●  Webhook",65)
+local webhookStatus=Instance.new("TextLabel",webhookStatusCard); webhookStatus.Size=UDim2.new(1,-20,0,20); webhookStatus.Position=UDim2.new(0,10,0,35); webhookStatus.BackgroundTransparency=1; webhookStatus.TextSize=10; webhookStatus.Font=Enum.Font.Gotham; webhookStatus.TextColor3=Color3.fromRGB(180,180,190); webhookStatus.TextXAlignment=Enum.TextXAlignment.Left
+local weatherCard=card(statusPage,"WeatherCard","Current Weather",90)
+local weatherStatus=Instance.new("TextLabel",weatherCard); weatherStatus.Size=UDim2.new(1,-20,0,55); weatherStatus.Position=UDim2.new(0,10,0,32); weatherStatus.BackgroundTransparency=1; weatherStatus.TextSize=10; weatherStatus.Font=Enum.Font.Gotham; weatherStatus.TextColor3=Color3.fromRGB(180,180,190); weatherStatus.TextXAlignment=Enum.TextXAlignment.Left; weatherStatus.TextYAlignment=Enum.TextYAlignment.Top
+local eggsCard=card(statusPage,"EggsInWorldCard","Eggs in the World",220)
+local eggsStatus=Instance.new("TextLabel",eggsCard); eggsStatus.Size=UDim2.new(1,-20,1,-40); eggsStatus.Position=UDim2.new(0,10,0,35); eggsStatus.BackgroundTransparency=1; eggsStatus.TextSize=10; eggsStatus.Font=Enum.Font.Gotham; eggsStatus.TextColor3=Color3.fromRGB(180,180,190); eggsStatus.TextXAlignment=Enum.TextXAlignment.Left; eggsStatus.TextYAlignment=Enum.TextYAlignment.Top
+
+local function inputBox(parent,y,value,placeholder)
+    local b=Instance.new("TextBox",parent); b.Position=UDim2.new(0,12,0,y); b.Size=UDim2.new(1,-24,0,34); b.BackgroundColor3=Color3.fromRGB(22,22,27); b.BorderSizePixel=0; b.Font=Enum.Font.Gotham; b.TextSize=11; b.TextColor3=Color3.fromRGB(230,230,235); b.PlaceholderColor3=Color3.fromRGB(110,110,115); b.PlaceholderText=placeholder; b.Text=value or ""; b.ClearTextOnFocus=false; Instance.new("UICorner",b).CornerRadius=UDim.new(0,8); return b
+end
+
+local discordEggCard=card(webhookPage,"DiscordEggCard","Discord Egg",290)
+local discordEggStatus=Instance.new("TextLabel",discordEggCard); discordEggStatus.Size=UDim2.new(1,-24,0,22); discordEggStatus.Position=UDim2.new(0,12,0,35); discordEggStatus.BackgroundTransparency=1; discordEggStatus.TextSize=11; discordEggStatus.Font=Enum.Font.Gotham; discordEggStatus.TextColor3=Color3.fromRGB(170,170,175); discordEggStatus.TextXAlignment=Enum.TextXAlignment.Left
+auto=function() end
+local discordEggInput=inputBox(discordEggCard,62,config.discordEgg.webhook,"Discord webhook URL")
+local discordEggRows={}
+local function row(parent,y,label,data)
+    local toggle=Instance.new("TextButton",parent); toggle.Size=UDim2.new(0,105,0,28); toggle.Position=UDim2.new(0,12,0,y); toggle.BackgroundColor3=Color3.fromRGB(45,45,52); toggle.BorderSizePixel=0; toggle.Font=Enum.Font.GothamSemibold; toggle.TextSize=10; toggle.TextColor3=Color3.fromRGB(235,235,240); Instance.new("UICorner",toggle).CornerRadius=UDim.new(0,7)
+    local role=Instance.new("TextBox",parent); role.Size=UDim2.new(1,-135,0,28); role.Position=UDim2.new(0,125,0,y); role.BackgroundColor3=Color3.fromRGB(22,22,27); role.BorderSizePixel=0; role.ClearTextOnFocus=false; role.Font=Enum.Font.Gotham; role.TextSize=10; role.TextColor3=Color3.fromRGB(230,230,235); role.PlaceholderColor3=Color3.fromRGB(110,110,120); role.PlaceholderText="Role IDs..."; role.Text=data.roles; Instance.new("UICorner",role).CornerRadius=UDim.new(0,7)
+    local function refresh() toggle.Text=(data.enabled and "✓ " or "○ ")..label end
+    refresh()
+    toggle.MouseButton1Click:Connect(function() data.enabled=not data.enabled; refresh(); saveConfig() end)
+    role.FocusLost:Connect(function() data.roles=role.Text; saveConfig() end)
+    return toggle,role
+end
+for i,name in ipairs(eggList) do discordEggRows[name]={row(discordEggCard,105+(i-1)*34,eggEmojis[name].." "..name:gsub(" Egg",""),config.discordEgg.eggs[name])} end
+local discordEggTest=Instance.new("TextButton",discordEggCard); discordEggTest.Position=UDim2.new(0,12,0,250); discordEggTest.Size=UDim2.new(0,85,0,30); discordEggTest.BackgroundColor3=Color3.fromRGB(45,45,52); discordEggTest.BorderSizePixel=0; discordEggTest.Text="Test"; discordEggTest.TextSize=11; discordEggTest.Font=Enum.Font.GothamSemibold; discordEggTest.TextColor3=Color3.new(1,1,1); Instance.new("UICorner",discordEggTest).CornerRadius=UDim.new(0,7)
+
+local discordWeatherCard=card(webhookPage,"DiscordWeatherCard","Discord Weather",325)
+local discordWeatherStatus=Instance.new("TextLabel",discordWeatherCard); discordWeatherStatus.Size=UDim2.new(1,-24,0,22); discordWeatherStatus.Position=UDim2.new(0,12,0,35); discordWeatherStatus.BackgroundTransparency=1; discordWeatherStatus.TextSize=11; discordWeatherStatus.Font=Enum.Font.Gotham; discordWeatherStatus.TextColor3=Color3.fromRGB(170,170,175); discordWeatherStatus.TextXAlignment=Enum.TextXAlignment.Left
+local discordWeatherInput=inputBox(discordWeatherCard,62,config.discordWeather.webhook,"Discord webhook URL")
+local discordWeatherRows={}
+for i,name in ipairs(weatherList) do discordWeatherRows[name]={row(discordWeatherCard,105+(i-1)*34,weatherMutationInfo[name].emoji.." "..name,config.discordWeather.weathers[name])} end
+local discordWeatherTest=Instance.new("TextButton",discordWeatherCard); discordWeatherTest.Position=UDim2.new(0,12,0,285); discordWeatherTest.Size=UDim2.new(0,85,0,30); discordWeatherTest.BackgroundColor3=Color3.fromRGB(45,45,52); discordWeatherTest.BorderSizePixel=0; discordWeatherTest.Text="Test"; discordWeatherTest.TextSize=11; discordWeatherTest.Font=Enum.Font.GothamSemibold; discordWeatherTest.TextColor3=Color3.new(1,1,1); Instance.new("UICorner",discordWeatherTest).CornerRadius=UDim.new(0,7)
+
+local function requestPost(url,payload)
+    local fn=(syn and syn.request) or (http and http.request) or http_request or request
+    if not fn then return false end
+    return pcall(function() fn({Url=url,Method="POST",Headers={['Content-Type']='application/json'},Body=HttpService:JSONEncode(payload)}) end)
+end
+local function split(value)
+    local t={}; for part in string.gmatch(tostring(value or ""),"[^,]+") do local s=string.match(part,"^%s*(.-)%s*$"); if s~="" then table.insert(t,s) end end; return t
+end
+local function getWebhookList(text) return split(text) end
+local function getRoleList(text) return split(text) end
+
+local function getEggResetTime()
+    local v=ServerData:FindFirstChild("LastEggResetTime")
+    if v and v:IsA("NumberValue") and v.Value>0 then return v.Value end
+    v=ServerData:FindFirstChild("LastRestockTime")
+    if v and v:IsA("NumberValue") and v.Value>0 then return v.Value+420 end
+    return nil
+end
+
+local function getActiveWeathers()
+    local value=ServerData:GetAttribute("ActiveWeathers")
+    if not value or value=="" then return {} end
+    if type(value)=="string" then local ok,data=pcall(function() return HttpService:JSONDecode(value) end); if ok and type(data)=="table" then return data end end
+    return {}
+end
+local function weatherInfo(w)
+    if type(w)=="string" then return {name=w} end
+    if type(w)~="table" then return nil end
+    local name=w.Name or w.Weather or w.Variant or w.Type or w.Id
+    local endsAt=tonumber(w.EndsAt) or tonumber(w.EndTime) or tonumber(w.ExpiresAt)
+    if not name then return nil end
+    return {name=tostring(name),endsAt=endsAt}
+end
+
+local function sendDiscordEgg(eggName,stock,spawnTime)
+    local ec=config.discordEgg.eggs[eggName]
+    if not ec or not ec.enabled then return end
+    local webhooks=getWebhookList(discordEggInput.Text); if #webhooks==0 then return end
+    local roles=getRoleList(ec.roles)
+    local reset=getEggResetTime()
+    local fields={{name="📦 Stock",value=tostring(stock),inline=false},{name="🕐 Stock Time",value="<t:"..math.floor(spawnTime)..":t>",inline=true}}
+    if reset then table.insert(fields,{name="🔄 Reset Time",value="<t:"..math.floor(reset)..":t>",inline=true}); table.insert(fields,{name="⏳ Resets",value="<t:"..math.floor(reset)..":R>",inline=false}) end
+    local embed={title=(eggEmojis[eggName] or "🥚").." "..string.upper(eggName).." SPAWNED!",color=eggEmbedColors[eggName] or 0x5865F2,fields=fields,footer={text="Ride a Pet • Egg Stock Notifier"}}
+    if eggThumbnails[eggName] then embed.thumbnail={url=eggThumbnails[eggName]} end
+    for i,url in ipairs(webhooks) do requestPost(url,{content=roles[i] and ("<@&"..roles[i].."> *"..eggName.." Spawned.*") or "",embeds={embed}}) end
+end
+
+local function sendDiscordWeather(info)
+    local name=info.name; local wc=config.discordWeather.weathers[name]; local m=weatherMutationInfo[name]
+    if not wc or not wc.enabled or not m then return end
+    local webhooks=getWebhookList(discordWeatherInput.Text); if #webhooks==0 then return end
+    local roles=getRoleList(wc.roles); local start=os.time(); local ends=info.endsAt or (start+300)
+    local embed={title=m.emoji.." "..string.upper(name).." WEATHER!",color=weatherEmbedColors[name] or 0x5865F2,fields={{name="💰 Cash",value=m.cash,inline=true},{name="⚡ Speed",value=m.speed,inline=true},{name="🕐 Start Time",value="<t:"..start..":t>",inline=true},{name="🔄 End Time",value="<t:"..math.floor(ends)..":t>",inline=true},{name="⏳ Ends",value="<t:"..math.floor(ends)..":R>",inline=false}},footer={text="Ride a Pet • Weather Notifier"}}
+    if weatherThumbnails[name] then embed.thumbnail={url=weatherThumbnails[name]} end
+    for i,url in ipairs(webhooks) do requestPost(url,{content=roles[i] and ("<@&"..roles[i].."> *"..name.." Started.*") or "",embeds={embed}}) end
+end
+
+local knownEggs={}
+for _,egg in ipairs(ActiveEggs:GetChildren()) do knownEggs[egg]=true end
+ActiveEggs.ChildAdded:Connect(function(egg)
+    if knownEggs[egg] then return end
+    knownEggs[egg]=true; task.wait(.1); if not monitoringRunning then return end
+    local name=egg:GetAttribute("Egg"); if not name then return end
+    local stock=0; for _,e in ipairs(ActiveEggs:GetChildren()) do if e:GetAttribute("Egg")==name then stock+=1 end end
+    sendDiscordEgg(name,stock,os.time())
 end)
+ActiveEggs.ChildRemoved:Connect(function(egg) knownEggs[egg]=nil end)
 
-discordEggToggle.MouseButton1Click:Connect(function()
-    config.discordEgg.enabled = not config.discordEgg.enabled
+local knownWeather={}
+local function weatherKey(info) return info.name..":"..tostring(info.endsAt or 0) end
+for _,w in ipairs(getActiveWeathers()) do local info=weatherInfo(w); if info and weatherMutationInfo[info.name] then knownWeather[weatherKey(info)]=true end end
+local function updateWeather()
+    local names={}; local current={}
+    for _,w in ipairs(getActiveWeathers()) do local info=weatherInfo(w); if info and weatherMutationInfo[info.name] then current[info.name]=info; table.insert(names,weatherMutationInfo[info.name].emoji.." "..info.name) end end
+    weatherStatus.Text=#names>0 and table.concat(names,"\n") or "No weather detected"
+    local nextKnown={}
+    for _,info in pairs(current) do local key=weatherKey(info); nextKnown[key]=true; if monitoringRunning and not knownWeather[key] then sendDiscordWeather(info) end end
+    knownWeather=nextKnown
+end
+ServerData:GetAttributeChangedSignal("ActiveWeathers"):Connect(updateWeather)
 
-    if config.discordEgg.enabled then
-        discordEggToggle.Text = "Enabled"
-        discordEggStatus.Text = "Enabled"
-    else
-        discordEggToggle.Text = "Disabled"
-        discordEggStatus.Text = "Disabled"
-    end
+local function updateEggs()
+    local counts={}; local total=0
+    for _,egg in ipairs(ActiveEggs:GetChildren()) do local n=egg:GetAttribute("Egg"); if n then counts[n]=(counts[n] or 0)+1; total+=1 end end
+    local names={}; for n in pairs(counts) do table.insert(names,n) end; table.sort(names)
+    local lines={"Total Eggs: "..total,""}; for _,n in ipairs(names) do table.insert(lines,n.." - "..counts[n]) end
+    eggsStatus.Text=total==0 and "No eggs found" or table.concat(lines,"\n")
+end
+ActiveEggs.ChildAdded:Connect(updateEggs); ActiveEggs.ChildRemoved:Connect(updateEggs)
 
-    saveConfig()
-end)
+local function updateStatus()
+    local egg=discordEggInput.Text~=""; local weather=discordWeatherInput.Text~=""
+    webhookStatus.Text=(egg or weather) and "Configured" or "Not Connected"
+    local e=false; for _,n in ipairs(eggList) do if config.discordEgg.eggs[n].enabled then e=true break end end
+    local w=false; for _,n in ipairs(weatherList) do if config.discordWeather.weathers[n].enabled then w=true break end end
+    discordEggStatus.Text=e and "Enabled" or "Disabled"; discordWeatherStatus.Text=w and "Enabled" or "Disabled"
+end
+
+discordEggInput.FocusLost:Connect(function() config.discordEgg.webhook=discordEggInput.Text; saveConfig(); updateStatus() end)
+discordWeatherInput.FocusLost:Connect(function() config.discordWeather.webhook=discordWeatherInput.Text; saveConfig(); updateStatus() end)
 
 discordEggTest.MouseButton1Click:Connect(function()
-    local webhook = discordEggInput.Text
+    local url=discordEggInput.Text; if url=="" then discordEggStatus.Text="Webhook URL is empty"; return end
+    local now=os.time(); local reset=now+420
+    local ok=requestPost(url,{embeds={{title="🥚 TEST EGG SPAWNED!",color=0x5865F2,fields={{name="📦 Stock",value="5",inline=false},{name="🕐 Stock Time",value="<t:"..now..":t>",inline=true},{name="🔄 Reset Time",value="<t:"..reset..":t>",inline=true},{name="⏳ Resets",value="<t:"..reset..":R>",inline=false}},footer={text="Ride a Pet • Egg Stock Notifier • Test"}}}})
+    discordEggStatus.Text=ok and "Test sent successfully" or "Test failed"
+end)
 
-    if webhook == "" then
-        discordEggStatus.Text = "Webhook URL is empty"
-        return
-    end
-
-    discordEggStatus.Text = "Sending test..."
-
-    local testEgg = "Test Egg"
-    local testStock = 0
-    local testSpawnTime = os.time()
-    local testResetTime = testSpawnTime + 420
-
-    local emoji = "🥚"
-    local embedColor = 0x5865F2
-    local thumbnailUrl = nil
-
-    local fields = {
-        {
-            name = "📦 Stock",
-            value = tostring(testStock),
-            inline = true
-        },
-        {
-            name = "🕐 Stock Time",
-            value = "<t:" .. tostring(testSpawnTime) .. ":t>",
-            inline = true
-        },
-        {
-            name = "🔄 Reset Time",
-            value = "<t:" .. tostring(testResetTime) .. ":t>",
-            inline = true
-        },
-        {
-            name = "⏳ Resets",
-            value = "<t:" .. tostring(testResetTime) .. ":R>",
-            inline = true
-        }
-    }
-
-    local embed = {
-        title = emoji .. " " .. testEgg .. " spawned!",
-        color = embedColor,
-        fields = fields,
-        thumbnail = {
-            url = thumbnailUrl
-        },
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-    }
-
-    local success = pcall(function()
-        request({
-            Url = webhook,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode({
-                embeds = {
-                    embed
-                }
-            })
-        })
-    end)
-
-    if success then
-        discordEggStatus.Text = "Test sent successfully"
-    else
-        discordEggStatus.Text = "Test failed"
-    end
+discordWeatherTest.MouseButton1Click:Connect(function()
+    local url=discordWeatherInput.Text; if url=="" then discordWeatherStatus.Text="Webhook URL is empty"; return end
+    local now=os.time(); local ends=now+300; local m=weatherMutationInfo.Thunder
+    local ok=requestPost(url,{embeds={{title=m.emoji.." TEST THUNDER WEATHER!",color=weatherEmbedColors.Thunder,fields={{name="💰 Cash",value=m.cash,inline=true},{name="⚡ Speed",value=m.speed,inline=true},{name="🕐 Start Time",value="<t:"..now..":t>",inline=true},{name="🔄 End Time",value="<t:"..ends..":t>",inline=true},{name="⏳ Ends",value="<t:"..ends..":R>",inline=false}},thumbnail={url=weatherThumbnails.Thunder},footer={text="Ride a Pet • Weather Notifier • Test"}}}})
+    discordWeatherStatus.Text=ok and "Test sent successfully" or "Test failed"
 end)
 
 local function startMonitoring()
-    if monitoringRunning then
-        return
-    end
-
-    monitoringRunning = true
-
-    monitoringStatus.Text = "Monitoring"
-    monitoringButton.Text = "Stop"
+    if monitoringRunning then return end
+    monitoringRunning=true; monitoringEnabled=true; monitoringStatus.Text="Monitoring"; monitoringButton.Text="Stop"; saveConfig()
 end
-
 local function stopMonitoring()
-    if not monitoringRunning then
-        return
-    end
-
-    monitoringRunning = false
-
-    monitoringStatus.Text = "Stopped"
-    monitoringButton.Text = "Start"
+    if not monitoringRunning then return end
+    monitoringRunning=false; monitoringEnabled=false; monitoringStatus.Text="Stopped"; monitoringButton.Text="Start"; saveConfig()
 end
+monitoringButton.MouseButton1Click:Connect(function() if monitoringRunning then stopMonitoring() else startMonitoring() end end)
 
-if monitoringEnabled then
-    startMonitoring()
-else
-    stopMonitoring()
-end
+local function showPage(p) statusPage.Visible=false; webhookPage.Visible=false; settingsPage.Visible=false; p.Visible=true end
+statusButton.MouseButton1Click:Connect(function() showPage(statusPage) end)
+webhookButton.MouseButton1Click:Connect(function() showPage(webhookPage) end)
+settingsButton.MouseButton1Click:Connect(function() showPage(settingsPage) end)
 
-monitoringButton.MouseButton1Click:Connect(function()
-    if monitoringRunning then
-        stopMonitoring()
-    else
-        startMonitoring()
-    end
-
-    monitoringEnabled = monitoringRunning
-    saveConfig()
-end)
-
-local function updateEggsInWorld()
-    local eggCounts = {}
-    local totalEggs = 0
-
-    for _, egg in ipairs(ActiveEggs:GetChildren()) do
-        local eggName = egg:GetAttribute("Egg")
-
-        if eggName then
-            eggCounts[eggName] = (eggCounts[eggName] or 0) + 1
-            totalEggs += 1
-        end
-    end
-
-    local eggNames = {}
-
-    for eggName in pairs(eggCounts) do
-        table.insert(eggNames, eggName)
-    end
-
-    table.sort(eggNames)
-
-    local lines = {
-        "Total Eggs: " .. totalEggs,
-        ""
-    }
-
-    for _, eggName in ipairs(eggNames) do
-        table.insert(lines, eggName .. " - " .. eggCounts[eggName])
-    end
-
-    if totalEggs == 0 then
-        eggsStatus.Text = "No eggs found"
-    else
-        eggsStatus.Text = table.concat(lines, "\n")
-    end
-end
-
-updateEggsInWorld()
-
-ActiveEggs.ChildAdded:Connect(function()
-    updateEggsInWorld()
-end)
-
-ActiveEggs.ChildRemoved:Connect(function()
-    updateEggsInWorld()
-end)
-
-local function getActiveWeathers()
-    local activeWeathers = ServerData:GetAttribute("ActiveWeathers")
-
-    if not activeWeathers or activeWeathers == "" then
-        return {}
-    end
-
-    if type(activeWeathers) == "string" then
-        local success, decoded = pcall(function()
-            return HttpService:JSONDecode(activeWeathers)
-        end)
-
-        if success and type(decoded) == "table" then
-            return decoded
-        end
-    end
-
-    return {}
-end
-
-local function getWeatherInfo(weather)
-    if type(weather) ~= "table" then
-        return nil
-    end
-
-    local name =
-        weather.Name
-        or weather.Weather
-        or weather.Variant
-        or weather.Type
-        or weather.Id
-
-    local endsAt =
-        tonumber(weather.EndsAt)
-        or tonumber(weather.EndTime)
-        or tonumber(weather.ExpiresAt)
-
-    if not name then
-        return nil
-    end
-
-    return {
-        name = tostring(name),
-        endsAt = endsAt
-    }
-end
-
-local knownWeathers = {}
-
-local function getWeatherKey(weather)
-    local info = getWeatherInfo(weather)
-
-    if not info then
-        return nil
-    end
-
-    return info.name .. ":" .. tostring(info.endsAt or 0)
-end
-
-local function initializeKnownWeathers()
-    knownWeathers = {}
-
-    for _, weather in ipairs(getActiveWeathers()) do
-        local key = getWeatherKey(weather)
-
-        if key then
-            knownWeathers[key] = true
-        end
-    end
-end
-
-initializeKnownWeathers()
-
-local function sendDiscordWeather(weather)
-    if not monitoringRunning then
-        return
-    end
-
-    if not config.discordWeather.enabled then
-        return
-    end
-
-    local webhook = config.discordWeather.webhook
-
-    if webhook == "" then
-        return
-    end
-
-    local info = getWeatherInfo(weather)
-
-    if not info then
-        return
-    end
-
-    local emoji = weatherEmojis[info.name] or "🌩️"
-    local embedColor = weatherColors[info.name] or 0x5865F2
-
-    local fields = {}
-
-    if info.endsAt then
-        table.insert(fields, {
-            name = "⏳ Ends",
-            value = "<t:" .. tostring(math.floor(info.endsAt)) .. ":R>",
-            inline = true
-        })
-
-        table.insert(fields, {
-            name = "🕐 End Time",
-            value = "<t:" .. tostring(math.floor(info.endsAt)) .. ":t>",
-            inline = true
-        })
-    end
-
-    local embed = {
-        title = emoji .. " " .. info.name .. " Weather Detected",
-        color = embedColor,
-        fields = fields,
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-    }
-
-    local body = {
-        embeds = {
-            embed
-        }
-    }
-
-    pcall(function()
-        request({
-            Url = webhook,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(body)
-        })
-    end)
-end
-
-local function getWeatherName(weather)
-    if type(weather) == "string" then
-        return weather
-    end
-
-    if type(weather) == "table" then
-        return weather.Name
-            or weather.Weather
-            or weather.Variant
-            or weather.Type
-            or weather.Id
-            or "Unknown Weather"
-    end
-
-    return "Unknown Weather"
-end
-
-local function updateCurrentWeather()
-    local activeWeathers = getActiveWeathers()
-
-    if #activeWeathers == 0 then
-        weatherStatus.Text = "No weather detected"
-        return
-    end
-
-    local weatherNames = {}
-
-    for _, weather in ipairs(activeWeathers) do
-        table.insert(weatherNames, getWeatherName(weather))
-    end
-
-    weatherStatus.Text = table.concat(weatherNames, "\n")
-end
-
-updateCurrentWeather()
-
-ServerData:GetAttributeChangedSignal("ActiveWeathers"):Connect(function()
-    updateCurrentWeather()
-end)
-
-local function showPage(page)
-    statusPage.Visible = false
-    webhookPage.Visible = false
-    settingsPage.Visible = false
-
-    page.Visible = true
-end
-
-statusButton.MouseButton1Click:Connect(function()
-    showPage(statusPage)
-end)
-
-webhookButton.MouseButton1Click:Connect(function()
-    showPage(webhookPage)
-end)
-
-settingsButton.MouseButton1Click:Connect(function()
-    showPage(settingsPage)
-end)
+updateEggs(); updateWeather(); updateStatus()
+if monitoringEnabled then startMonitoring() else monitoringStatus.Text="Stopped"; monitoringButton.Text="Start" end
