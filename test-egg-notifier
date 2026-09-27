@@ -355,6 +355,146 @@ weatherStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
 weatherStatus.TextXAlignment = Enum.TextXAlignment.Left
 weatherStatus.Parent = weatherCard
 
+local serverDataCard = Instance.new("Frame")
+serverDataCard.Name = "ServerDataCard"
+serverDataCard.Size = UDim2.new(1, -20, 0, 260)
+serverDataCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+serverDataCard.BorderSizePixel = 0
+serverDataCard.Parent = statusPage
+
+local serverDataCorner = Instance.new("UICorner")
+serverDataCorner.CornerRadius = UDim.new(0, 8)
+serverDataCorner.Parent = serverDataCard
+
+local serverDataTitle = Instance.new("TextLabel")
+serverDataTitle.Name = "Title"
+serverDataTitle.Size = UDim2.new(1, -20, 0, 25)
+serverDataTitle.Position = UDim2.new(0, 10, 0, 7)
+serverDataTitle.BackgroundTransparency = 1
+serverDataTitle.Text = "ServerData Scanner"
+serverDataTitle.TextSize = 11
+serverDataTitle.Font = Enum.Font.GothamBold
+serverDataTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+serverDataTitle.TextXAlignment = Enum.TextXAlignment.Left
+serverDataTitle.Parent = serverDataCard
+
+local serverDataStatus = Instance.new("TextLabel")
+serverDataStatus.Name = "Status"
+serverDataStatus.Size = UDim2.new(1, -20, 1, -40)
+serverDataStatus.Position = UDim2.new(0, 10, 0, 35)
+serverDataStatus.BackgroundTransparency = 1
+serverDataStatus.Text = "Waiting for ServerData..."
+serverDataStatus.TextSize = 9
+serverDataStatus.Font = Enum.Font.Code
+serverDataStatus.TextColor3 = Color3.fromRGB(180, 180, 190)
+serverDataStatus.TextXAlignment = Enum.TextXAlignment.Left
+serverDataStatus.TextYAlignment = Enum.TextYAlignment.Top
+serverDataStatus.TextWrapped = true
+serverDataStatus.Parent = serverDataCard
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
+
+local function formatServerDataValue(value)
+    if value == nil then
+        return "nil"
+    end
+
+    if typeof(value) == "string" then
+        if #value > 500 then
+            return string.sub(value, 1, 500) .. "..."
+        end
+
+        return value
+    end
+
+    return tostring(value)
+end
+
+local function updateServerDataScanner()
+    if not ServerData then
+        serverDataStatus.Text = "ServerData not found"
+        return
+    end
+
+    local activeEggs = ServerData:FindFirstChild("ActiveEggs")
+    local activeEggCount = activeEggs and #activeEggs:GetChildren() or 0
+
+    local activeWeathers =
+        ServerData:GetAttribute("ActiveWeathers")
+
+    local snapshot =
+        ServerData:GetAttribute("WeatherSnapshotV2")
+
+    local evaluatedAt =
+        ServerData:GetAttribute("WeatherEvaluatedAt")
+
+    local scheduleVersion =
+        ServerData:GetAttribute("WeatherScheduleVersion")
+
+    local scheduleSignature =
+        ServerData:GetAttribute("WeatherScheduleSignature")
+
+    local clockDelta =
+        ServerData:GetAttribute("WeatherClockDelta")
+
+    local volcanoRevealed =
+        ServerData:GetAttribute("VolcanoRevealed")
+
+    serverDataStatus.Text =
+        "ServerData: FOUND\n"
+        .. "ActiveEggs: "
+        .. tostring(activeEggCount)
+        .. "\n\n"
+        .. "ActiveWeathers:\n"
+        .. formatServerDataValue(activeWeathers)
+        .. "\n\n"
+        .. "WeatherSnapshotV2:\n"
+        .. formatServerDataValue(snapshot)
+        .. "\n\n"
+        .. "WeatherEvaluatedAt: "
+        .. formatServerDataValue(evaluatedAt)
+        .. "\n"
+        .. "WeatherClockDelta: "
+        .. formatServerDataValue(clockDelta)
+        .. "\n"
+        .. "WeatherScheduleVersion: "
+        .. formatServerDataValue(scheduleVersion)
+        .. "\n"
+        .. "VolcanoRevealed: "
+        .. formatServerDataValue(volcanoRevealed)
+        .. "\n\n"
+        .. "WeatherScheduleSignature:\n"
+        .. formatServerDataValue(scheduleSignature)
+end
+
+updateServerDataScanner()
+
+if ServerData then
+    ServerData.AttributeChanged:Connect(function()
+        updateServerDataScanner()
+    end)
+
+    local activeEggs = ServerData:FindFirstChild("ActiveEggs")
+
+    if activeEggs then
+        activeEggs.ChildAdded:Connect(function()
+            updateServerDataScanner()
+        end)
+
+        activeEggs.ChildRemoved:Connect(function()
+            updateServerDataScanner()
+        end)
+    end
+end
+
+task.spawn(function()
+    while gui.Parent do
+        updateServerDataScanner()
+        task.wait(1)
+    end
+end)
+
 local etherealCard = Instance.new("Frame")
 etherealCard.Name = "EtherealCard"
 etherealCard.Size = UDim2.new(1, -20, 0, 125)
