@@ -799,7 +799,7 @@ local function buildWeatherHistoryPayload(weatherName, history)
                 .. "\n**Speed:** " .. tostring(info.speed)
                 .. "\n\n"
                 .. (#lines > 0 and table.concat(lines, "\n") or "No spawns recorded."),
-            color = weatherEmbedColors[weatherName] or 0x5865F2,,
+            color = weatherEmbedColors[weatherName] or 0x5865F2,
             footer = {
                 text = "Ride a Pet • Weather Spawn History"
             }
