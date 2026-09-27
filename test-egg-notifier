@@ -418,7 +418,29 @@ local function updateServerDataScanner()
     end
 
     local activeEggs = ServerData:FindFirstChild("ActiveEggs")
-    local activeEggCount = activeEggs and #activeEggs:GetChildren() or 0
+    local eggCounts = {}
+    local activeEggCount = 0
+    
+    if activeEggs then
+        for _, eggConfig in ipairs(activeEggs:GetChildren()) do
+            local eggName = eggConfig:GetAttribute("Egg")
+    
+            if eggName then
+                activeEggCount += 1
+                eggCounts[eggName] = (eggCounts[eggName] or 0) + 1
+            end
+        end
+    end
+    
+    local eggLines = {}
+    
+    for eggName, count in pairs(eggCounts) do
+        table.insert(eggLines, eggName .. " - " .. tostring(count))
+    end
+    
+    table.sort(eggLines)
+    
+    local eggSummary = table.concat(eggLines, "\n")
 
     local activeWeathers =
         ServerData:GetAttribute("ActiveWeathers")
@@ -445,6 +467,8 @@ local function updateServerDataScanner()
         "ServerData: FOUND\n"
         .. "ActiveEggs: "
         .. tostring(activeEggCount)
+        .. "\n"
+        .. eggSummary
         .. "\n\n"
         .. "ActiveWeathers:\n"
         .. formatServerDataValue(activeWeathers)
