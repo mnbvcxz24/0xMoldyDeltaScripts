@@ -1272,7 +1272,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     end
 
     local roles = getRoleList(ec.roles)
-    local reset = getEggResetTime()
+    local reset = os.time() + 420
 
     local fields = {
         { name = "📦 Stock", value = tostring(stock), inline = false },
@@ -1672,7 +1672,9 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                 fields = {
                     { name = "💰 Cash", value = m.cash, inline = true },
                     { name = "⚡ Speed", value = m.speed, inline = true },
-                    { name = "⏰ Ends", value = "<t:" .. ends .. ":R>", inline = false },
+                    { name = "🕐 Stock Time", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
+                    { name = "🔄 End Time", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
+                    { name = "⏳ Ends", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
