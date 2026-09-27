@@ -421,7 +421,44 @@ local discordEggTestCorner = Instance.new("UICorner")
 discordEggTestCorner.CornerRadius = UDim.new(0, 7)
 discordEggTestCorner.Parent = discordEggTest
 
-local function sendDiscordEgg(eggName, stock)
+local eggEmojis = {
+    ["Blackhole Egg"] = "🌀",
+    ["Solaris Egg"] = "☀️",
+    ["Cherub Egg"] = "🪽",
+    ["Volcanic Egg"] = "🌋"
+}
+
+local eggEmbedColors = {
+    ["Blackhole Egg"] = 0x8E44AD,
+    ["Solaris Egg"] = 0xE53935,
+    ["Cherub Egg"] = 0xF6D77A,
+    ["Volcanic Egg"] = 0xE67E22
+}
+
+local eggThumbnails = {
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6ab4aca4&is=6ab35b24&hm=c7028814e47869365ae61eb1bbc4929ba2ca8ec859f342dae5866b708928ca57",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7",
+    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1553420646271291462/Volcanic.webp?ex=6ab92f37&is=6ab7ddb7&hm=3d3f043c3dd706476d14348b0f34562dc960d626be01b4ac9c1e268e4ad0fa32"
+}
+
+local function getResetTime()
+    local resetTime = ServerData:FindFirstChild("LastEggResetTime")
+
+    if resetTime and resetTime:IsA("NumberValue") and resetTime.Value > 0 then
+        return resetTime.Value
+    end
+
+    local restockTime = ServerData:FindFirstChild("LastRestockTime")
+
+    if restockTime and restockTime:IsA("NumberValue") and restockTime.Value > 0 then
+        return restockTime.Value + 420
+    end
+
+    return nil
+end
+
+local function sendDiscordEgg(eggName, stock, spawnTime)
     if not monitoringRunning then
         return
     end
@@ -436,10 +473,56 @@ local function sendDiscordEgg(eggName, stock)
         return
     end
 
+    local emoji = eggEmojis[eggName] or "🥚"
+    local embedColor = eggEmbedColors[eggName] or 0x5865F2
+    local thumbnailUrl = eggThumbnails[eggName]
+
+    local resetTime = getResetTime()
+
+    local fields = {
+        {
+            name = "📦 Stock",
+            value = tostring(stock),
+            inline = true
+        },
+        {
+            name = "🕐 Stock Time",
+            value = "<t:" .. tostring(math.floor(spawnTime)) .. ":t>",
+            inline = true
+        }
+    }
+
+    if resetTime then
+        table.insert(fields, {
+            name = "🔄 Reset Time",
+            value = "<t:" .. tostring(math.floor(resetTime)) .. ":t>",
+            inline = true
+        })
+
+        table.insert(fields, {
+            name = "⏳ Resets",
+            value = "<t:" .. tostring(math.floor(resetTime)) .. ":R>",
+            inline = true
+        })
+    end
+
+    local embed = {
+        title = emoji .. " " .. tostring(eggName) .. " spawned!",
+        color = embedColor,
+        fields = fields,
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+    }
+
+    if thumbnailUrl then
+        embed.thumbnail = {
+            url = thumbnailUrl
+        }
+    end
+
     local body = {
-        content =
-            "🥚 **" .. tostring(eggName) .. " spawned!**\n" ..
-            "Stock: " .. tostring(stock)
+        embeds = {
+            embed
+        }
     }
 
     pcall(function()
@@ -557,8 +640,23 @@ end
 
 config.discordEgg = config.discordEgg or {
     enabled = false,
-    webhook = ""
+    webhook = "",
+    eggs = {}
 }
+
+for _, eggName in ipairs({
+    "Blackhole Egg",
+    "Solaris Egg",
+    "Cherub Egg",
+    "Volcanic Egg"
+}) do
+    config.discordEgg.eggs[eggName] =
+        config.discordEgg.eggs[eggName]
+        or {
+            enabled = false,
+            roles = ""
+        }
+end
 
 discordEggInput.Text = config.discordEgg.webhook
 
@@ -569,6 +667,59 @@ else
     discordEggToggle.Text = "Disabled"
     discordEggStatus.Text = "Disabled"
 end
+
+config.discordWeather = config.discordWeather or {
+    enabled = false,
+    webhook = ""
+}
+
+local weatherMutationInfo = {
+    Thunder = {
+        emoji = "🌩️",
+        cash = "2x",
+        speed = "2x"
+    },
+
+    Volt = {
+        emoji = "⚡",
+        cash = "3x",
+        speed = "3x"
+    },
+
+    Raging = {
+        emoji = "🔥",
+        cash = "4x",
+        speed = "4x"
+    },
+
+    Dreadful = {
+        emoji = "🌑",
+        cash = "10x",
+        speed = "10x"
+    },
+
+    Eternal = {
+        emoji = "💜",
+        cash = "100x",
+        speed = "100x"
+    }
+}
+
+local weatherEmbedColors = {
+    Thunder = 0x3498DB,
+    Volt = 0xF1C40F,
+    Raging = 0x8B0000,
+    Dreadful = 0x301934,
+    Eternal = 0xE056FD
+}
+
+local weatherThumbnails = {
+    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
+    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
+    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
+    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
+}
 
 discordEggInput.FocusLost:Connect(function()
     config.discordEgg.webhook = discordEggInput.Text
@@ -599,6 +750,48 @@ discordEggTest.MouseButton1Click:Connect(function()
 
     discordEggStatus.Text = "Sending test..."
 
+    local testEgg = "Test Egg"
+    local testStock = 0
+    local testSpawnTime = os.time()
+    local testResetTime = testSpawnTime + 420
+
+    local emoji = "🥚"
+    local embedColor = 0x5865F2
+    local thumbnailUrl = nil
+
+    local fields = {
+        {
+            name = "📦 Stock",
+            value = tostring(testStock),
+            inline = true
+        },
+        {
+            name = "🕐 Stock Time",
+            value = "<t:" .. tostring(testSpawnTime) .. ":t>",
+            inline = true
+        },
+        {
+            name = "🔄 Reset Time",
+            value = "<t:" .. tostring(testResetTime) .. ":t>",
+            inline = true
+        },
+        {
+            name = "⏳ Resets",
+            value = "<t:" .. tostring(testResetTime) .. ":R>",
+            inline = true
+        }
+    }
+
+    local embed = {
+        title = emoji .. " " .. testEgg .. " spawned!",
+        color = embedColor,
+        fields = fields,
+        thumbnail = {
+            url = thumbnailUrl
+        },
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+    }
+
     local success = pcall(function()
         request({
             Url = webhook,
@@ -607,7 +800,9 @@ discordEggTest.MouseButton1Click:Connect(function()
                 ["Content-Type"] = "application/json"
             },
             Body = HttpService:JSONEncode({
-                content = "🥚 **RAP - Notifier** test webhook\nDiscord Egg notifications are working."
+                embeds = {
+                    embed
+                }
             })
         })
     end)
@@ -723,6 +918,124 @@ local function getActiveWeathers()
     end
 
     return {}
+end
+
+local function getWeatherInfo(weather)
+    if type(weather) ~= "table" then
+        return nil
+    end
+
+    local name =
+        weather.Name
+        or weather.Weather
+        or weather.Variant
+        or weather.Type
+        or weather.Id
+
+    local endsAt =
+        tonumber(weather.EndsAt)
+        or tonumber(weather.EndTime)
+        or tonumber(weather.ExpiresAt)
+
+    if not name then
+        return nil
+    end
+
+    return {
+        name = tostring(name),
+        endsAt = endsAt
+    }
+end
+
+local knownWeathers = {}
+
+local function getWeatherKey(weather)
+    local info = getWeatherInfo(weather)
+
+    if not info then
+        return nil
+    end
+
+    return info.name .. ":" .. tostring(info.endsAt or 0)
+end
+
+local function initializeKnownWeathers()
+    knownWeathers = {}
+
+    for _, weather in ipairs(getActiveWeathers()) do
+        local key = getWeatherKey(weather)
+
+        if key then
+            knownWeathers[key] = true
+        end
+    end
+end
+
+initializeKnownWeathers()
+
+local function sendDiscordWeather(weather)
+    if not monitoringRunning then
+        return
+    end
+
+    if not config.discordWeather.enabled then
+        return
+    end
+
+    local webhook = config.discordWeather.webhook
+
+    if webhook == "" then
+        return
+    end
+
+    local info = getWeatherInfo(weather)
+
+    if not info then
+        return
+    end
+
+    local emoji = weatherEmojis[info.name] or "🌩️"
+    local embedColor = weatherColors[info.name] or 0x5865F2
+
+    local fields = {}
+
+    if info.endsAt then
+        table.insert(fields, {
+            name = "⏳ Ends",
+            value = "<t:" .. tostring(math.floor(info.endsAt)) .. ":R>",
+            inline = true
+        })
+
+        table.insert(fields, {
+            name = "🕐 End Time",
+            value = "<t:" .. tostring(math.floor(info.endsAt)) .. ":t>",
+            inline = true
+        })
+    end
+
+    local embed = {
+        title = emoji .. " " .. info.name .. " Weather Detected",
+        color = embedColor,
+        fields = fields,
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+    }
+
+    local body = {
+        embeds = {
+            embed
+        }
+    }
+
+    pcall(function()
+        request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(body)
+        })
+    end)
 end
 
 local function getWeatherName(weather)
