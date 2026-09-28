@@ -1348,7 +1348,7 @@ local function sendDiscordWeather(info)
         fields = {
             { name = "💰 Cash", value = m.cash, inline = true },
             { name = "⚡ Speed", value = m.speed, inline = true },
-            { name = "🕐 Start", value = "<t:" .. math.floor(startTime) .. ":t>", inline = true },
+            { name = "🕐 Start", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
             { name = "🔚 Ends", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
             { name = "⏳ Remaining", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
         },
@@ -1539,7 +1539,26 @@ local function checkGearStock(data)
 end
 
 Restock.OnClientEvent:Connect(function(data)
-    checkGearStock(data)
+    if not data or not data.Gears then
+        return
+    end
+
+    for _, gearName in ipairs(gearList) do
+        local gear = data.Gears[gearName]
+
+        if gear
+            and gear.InStock == true
+            and config.gearStock
+            and config.gearStock.gears
+            and config.gearStock.gears[gearName]
+            and config.gearStock.gears[gearName].enabled then
+
+            sendGearStockWebhook(
+                gearName,
+                gear.Amount or 0
+            )
+        end
+    end
 end)
 
 local function updateWeather()
