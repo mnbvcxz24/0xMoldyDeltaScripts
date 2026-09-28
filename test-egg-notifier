@@ -32,6 +32,7 @@ end
 local function defaultConfig()
     return {
         monitoring = false,
+        antiAfk = false,
         discordEgg = {
             webhook = "",
             eggs = {},
@@ -80,7 +81,7 @@ local function loadConfig()
     end
 
     data.monitoring = data.monitoring == true
-
+    data.antiAfk = data.antiAfk == true
     data.discordEgg = type(data.discordEgg) == "table" and data.discordEgg or {}
     data.discordEgg.webhook = tostring(data.discordEgg.webhook or "")
     data.discordEgg.eggs = type(data.discordEgg.eggs) == "table" and data.discordEgg.eggs or {}
@@ -347,6 +348,52 @@ local function card(parent, name, text, height)
 
     return frame
 end
+
+local antiAfkCard = card(
+    settingsPage,
+    "AntiAfkCard",
+    "Anti-AFK",
+    100
+)
+
+local antiAfkButton = Instance.new("TextButton", antiAfkCard)
+antiAfkButton.Size = UDim2.new(1, -24, 0, 34)
+antiAfkButton.Position = UDim2.new(0, 12, 0, 50)
+antiAfkButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+antiAfkButton.BorderSizePixel = 0
+antiAfkButton.TextSize = 10
+antiAfkButton.Font = Enum.Font.GothamMedium
+antiAfkButton.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", antiAfkButton).CornerRadius = UDim.new(0, 7)
+
+local function updateAntiAfkButton()
+    antiAfkButton.Text = config.antiAfk and "✓ Anti-AFK" or "○ Anti-AFK"
+end
+
+updateAntiAfkButton()
+
+antiAfkButton.MouseButton1Click:Connect(function()
+    config.antiAfk = not config.antiAfk
+    updateAntiAfkButton()
+    saveConfig()
+end)
+
+local VirtualUser = game:GetService("VirtualUser")
+
+local function antiAfk()
+    if not config.antiAfk then
+        return
+    end
+
+    player.Idled:Connect(function()
+        if config.antiAfk then
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end
+    end)
+end
+
+antiAfk()
 
 local autoexecuteCard = card(
     settingsPage,
