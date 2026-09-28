@@ -1655,7 +1655,7 @@ discordEggTest.MouseButton1Click:Connect(function()
                 fields = {
                     { name = "📦 Stock", value = "", inline = false },
                     { name = "🕐 Stock Time", value = "", inline = true },
-                    { name = "🔄 Reset Time", value = ">", inline = true },
+                    { name = "🔄 Reset Time", value = "", inline = true },
                     { name = "⏳ Resets", value = "", inline = true },
                 },
                 footer = {
@@ -1688,7 +1688,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                     { name = "💰 Cash", value = "", inline = true },
                     { name = "⚡ Speed", value = "", inline = true },
                     { name = "🕐 Stock Time", value = "", inline = true },
-                    { name = "🔄 End Time", value = ">", inline = true },
+                    { name = "🔄 End Time", value = "", inline = true },
                     { name = "⏳ Ends", value = "", inline = false },
                 },
                 footer = {
