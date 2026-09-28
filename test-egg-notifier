@@ -943,6 +943,8 @@ local function saveEggSpawnHistory()
     end)
 end
 
+loadEggSpawnHistory()
+
 local function loadWeatherSpawnHistory()
     if not canUseFileStorage() then
         weatherSpawnHistory = {}
@@ -1623,6 +1625,14 @@ local function updateStatus()
 
     discordEggStatus.Text = eggEnabled and "Enabled" or "Disabled"
     discordWeatherStatus.Text = weatherEnabled and "Enabled" or "Disabled"
+    local gearEnabled = false
+        for _, name in ipairs(gearList) do
+            if config.gearStock.gears[name].enabled then
+                gearEnabled = true
+                break
+            end
+        end
+    gearStockStatus.Text = gearEnabled and "Enabled" or "Disabled"
 end
 
 discordEggInput.FocusLost:Connect(function()
