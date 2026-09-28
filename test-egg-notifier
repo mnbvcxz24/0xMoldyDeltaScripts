@@ -208,7 +208,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • V2.2"
+subtitle.Text = "Ride a Pet • Notifier • V2.3"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -1331,10 +1331,15 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     local reset = spawnTime + 420
     
     local fields = {
-        { name = "📦 Stock " .. tostring(stock), value = "\u{200B}", inline = false },
-        { name = "🕐 Stock Time", value = "<t:" .. math.floor(spawnTime) .. ":t>", inline = true },
-        { name = "🔄 Reset Time", value = "<t:" .. math.floor(reset) .. ":t>", inline = true },
-        { name = "⏳ Resets", value = "<t:" .. math.floor(reset) .. ":R>", inline = true },
+        {
+            name = "\u{200B}",
+            value =
+                "📦 Stock " .. tostring(stock) .. "\n" ..
+                "🕐 Stock Time <t:" .. math.floor(spawnTime) .. ":t>\n" ..
+                "🔄 Reset Time <t:" .. math.floor(reset) .. ":t>\n" ..
+                "⏳ Resets <t:" .. math.floor(reset) .. ":R>",
+            inline = false
+        }
     }
 
     local embed = {
@@ -1379,13 +1384,15 @@ local function sendDiscordWeather(info)
 
     local embed = {
         title = m.emoji .. " " .. string.upper(name) .. " WEATHER!",
-        color = weatherEmbedColors[name] or 0x5865F2,
         fields = {
-            { name = "💰 Cash", value = m.cash, inline = true },
-            { name = "⚡ Speed", value = m.speed, inline = true },
-            { name = "🕐 Start Time", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
-            { name = "⏰ End Time", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
-            { name = "⏳ Remaining", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
+            name = "\u{200B}",
+            value =
+                "💰 Cash " .. tostring(m.cash) .. "\n" ..
+                "⚡ Speed " .. tostring(m.speed) .. "\n" ..
+                "🕐 Start Time <t:" .. math.floor(start) .. ":t>\n" ..
+                "⏰ End Time <t:" .. math.floor(ends) .. ":t>\n" ..
+                "⏳ Remaining <t:" .. math.floor(ends) .. ":R>",
+            inline = false
         },
         footer = {
             text = "Ride a Pet • Weather Notifier",
@@ -1464,8 +1471,6 @@ local Restock = ReplicatedStorage
     :WaitForChild("Game")
     :WaitForChild("Restock")
 
-local lastGearStock = {}
-
 local function sendGearStockWebhook(gearName, stock)
     local gearConfig =
         config.gearStock
@@ -1521,50 +1526,6 @@ local function sendGearStockWebhook(gearName, stock)
                 embed
             }
         })
-    end
-end
-
-local function checkGearStock(data)
-    if type(data) ~= "table" then
-        return
-    end
-
-    if type(data.Gears) ~= "table" then
-        return
-    end
-
-    for _, gearName in ipairs(gearList) do
-        local gear = data.Gears[gearName]
-
-        if type(gear) == "table" then
-            local inStock = gear.InStock == true
-            local amount = tonumber(gear.Amount) or 0
-
-            local previous = lastGearStock[gearName]
-
-            lastGearStock[gearName] = {
-                inStock = inStock,
-                amount = amount,
-            }
-
-            if config.gearStock
-                and config.gearStock.gears
-                and config.gearStock.gears[gearName]
-                and config.gearStock.gears[gearName].enabled then
-
-                if monitoringRunning and inStock and (
-                    not previous
-                    or not previous.inStock
-                    or previous.amount ~= amount
-                ) then
-
-                    sendGearStockWebhook(
-                        gearName,
-                        amount
-                    )
-                end
-            end
-        end
     end
 end
 
