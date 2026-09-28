@@ -276,6 +276,7 @@ dragArea.Size = UDim2.new(1, -40, 0, 60)
 dragArea.BackgroundTransparency = 1
 dragArea.Active = true
 drag(window, dragArea)
+drag(open, open)
 
 local sidebar = Instance.new("Frame", window)
 sidebar.Size = UDim2.new(0, 120, 1, -60)
@@ -1243,8 +1244,6 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     end
 
     local roles = getRoleList(ec.roles)
-    local reset = os.time() + 420
-
     local reset = spawnTime + 420
     
     local fields = {
