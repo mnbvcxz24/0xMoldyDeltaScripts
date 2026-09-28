@@ -1532,18 +1532,42 @@ local function sendGearStockWebhook(gearName, stock)
 end
 
 Restock.OnClientEvent:Connect(function(data)
-    if not data
-        or not data.Gears then
+    if not data then
+        gearStockStatus.Text = "Restock: No data"
         return
     end
+
+    if type(data) ~= "table" then
+        gearStockStatus.Text = "Restock: " .. typeof(data)
+        return
+    end
+
+    if type(data.Gears) ~= "table" then
+        gearStockStatus.Text = "Restock: No Gears"
+        return
+    end
+
+    local found = {}
+
+    for radarName, radar in pairs(data.Gears) do
+        if type(radar) == "table" then
+            table.insert(
+                found,
+                radarName .. "=" .. tostring(radar.Amount or 0)
+            )
+        end
+    end
+
+    gearStockStatus.Text =
+        #found > 0
+        and "Gears: " .. table.concat(found, ", ")
+        or "Gears: Empty"
 
     for radarName, gearConfig in pairs(config.gearStock.gears) do
         if gearConfig.enabled then
             local radar = data.Gears[radarName]
 
-            if radar
-                and radar.InStock == true then
-
+            if radar and radar.InStock == true then
                 sendGearStockWebhook(
                     radarName,
                     radar.Amount or 0
