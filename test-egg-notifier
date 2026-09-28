@@ -1332,7 +1332,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     
     local fields = {
         {
-            name = "\u{200B}",
+            name = "",
             value =
                 "📦 Stock " .. tostring(stock) .. "\n" ..
                 "🕐 Stock Time <t:" .. math.floor(spawnTime) .. ":t>\n" ..
@@ -1385,7 +1385,7 @@ local function sendDiscordWeather(info)
     local embed = {
         title = m.emoji .. " " .. string.upper(name) .. " WEATHER!",
         fields = {
-            name = "\u{200B}",
+            name = "",
             value =
                 "💰 Cash " .. tostring(m.cash) .. "\n" ..
                 "⚡ Speed " .. tostring(m.speed) .. "\n" ..
