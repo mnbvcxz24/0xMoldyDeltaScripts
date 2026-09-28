@@ -208,7 +208,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier"
+subtitle.Text = "Ride a Pet • Notifier • V2"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -1349,7 +1349,7 @@ local function sendDiscordWeather(info)
             { name = "💰 Cash", value = m.cash, inline = true },
             { name = "⚡ Speed", value = m.speed, inline = true },
             { name = "🕐 Start", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
-            { name = "🔚 Ends", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
+            { name = "⏰ Ends", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
             { name = "⏳ Remaining", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
         },
         footer = {
@@ -1463,13 +1463,8 @@ local function sendGearStockWebhook(gearName, stock)
     }
 
     local embed = {
-        title =
-            "📡 "
-            .. string.upper(gearName)
-            .. " RESTOCKED",
-
+        title = "📡 " .. string.upper(gearName) .. " RESTOCKED",
         fields = fields,
-
         color = 0x64B4FF
     }
 
@@ -1543,20 +1538,16 @@ Restock.OnClientEvent:Connect(function(data)
         return
     end
 
-    for _, gearName in ipairs(gearList) do
-        local gear = data.Gears[gearName]
+    for radarName, gearConfig in pairs(config.gearStock.gears) do
+        if gearConfig.enabled then
+            local radar = data.Gears[radarName]
 
-        if gear
-            and gear.InStock == true
-            and config.gearStock
-            and config.gearStock.gears
-            and config.gearStock.gears[gearName]
-            and config.gearStock.gears[gearName].enabled then
-
-            sendGearStockWebhook(
-                gearName,
-                gear.Amount or 0
-            )
+            if radar and radar.InStock == true then
+                sendGearStockWebhook(
+                    radarName,
+                    radar.Amount or 0
+                )
+            end
         end
     end
 end)
@@ -1684,7 +1675,7 @@ discordEggTest.MouseButton1Click:Connect(function()
                 fields = {
                     { name = "📦 Stock", value = "", inline = false },
                     { name = "🕐 Stock Time", value = "", inline = true },
-                    { name = "🔄 Reset Time", value = "", inline = true },
+                    { name = "⏰ Reset Time", value = "", inline = true },
                     { name = "⏳ Resets", value = "", inline = true },
                 },
                 footer = {
@@ -1717,7 +1708,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                     { name = "💰 Cash", value = "", inline = true },
                     { name = "⚡ Speed", value = "", inline = true },
                     { name = "🕐 Start Time", value = "", inline = true },
-                    { name = "🔄 End Time", value = "", inline = true },
+                    { name = "⏰ End Time", value = "", inline = true },
                     { name = "⏳ Ends", value = "", inline = false },
                 },
                 footer = {
