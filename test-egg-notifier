@@ -829,9 +829,9 @@ local function buildWeatherHistoryPayload(weatherName, history)
         embeds = {{
             title = info.emoji .. " " .. string.upper(weatherName) .. " — SPAWN HISTORY",
             description =
-                "**Date:** " .. history.date
-                .. "\n**Cash:** " .. tostring(info.cash)
-                .. "\n**Speed:** " .. tostring(info.speed)
+                "📅 **" .. history.date .. "**"
+                .. "\n💰 **Cash:** " .. tostring(info.cash)
+                .. "\n⚡ **Speed:** " .. tostring(info.speed)
                 .. "\n\n"
                 .. (#lines > 0 and table.concat(lines, "\n") or "No spawns recorded."),
             color = weatherEmbedColors[weatherName] or 0x5865F2,
@@ -1346,7 +1346,9 @@ local function sendDiscordWeather(info)
         fields = {
             { name = "💰 Cash", value = m.cash, inline = true },
             { name = "⚡ Speed", value = m.speed, inline = true },
-            { name = "⏰ Ends", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
+            { name = "🕐 Start", value = "<t:" .. math.floor(startTime) .. ":t>", inline = true },
+            { name = "🔚 Ends", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
+            { name = "⏳ Remaining", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
         },
         footer = {
             text = "Ride a Pet • Weather Notifier",
@@ -1651,9 +1653,10 @@ discordEggTest.MouseButton1Click:Connect(function()
                 title = "🥚 TEST EGG SPAWNED!",
                 color = 0x5865F2,
                 fields = {
-                    { name = "📦 Stock", value = "5", inline = false },
-                    { name = "🕐 Stock Time", value = "<t:" .. now .. ":t>", inline = true },
-                    { name = "🔄 Reset Time", value = "<t:" .. reset .. ":t>", inline = true },
+                    { name = "📦 Stock", value = "", inline = false },
+                    { name = "🕐 Stock Time", value = "", inline = true },
+                    { name = "🔄 Reset Time", value = ">", inline = true },
+                    { name = "⏳ Resets", value = "", inline = true },
                 },
                 footer = {
                     text = "Ride a Pet • Egg Stock Notifier",
@@ -1679,14 +1682,14 @@ discordWeatherTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = m.emoji .. " TEST THUNDER WEATHER!",
+                title = m.emoji .. " TEST WEATHER STARTED!",
                 color = weatherEmbedColors.Thunder,
                 fields = {
-                    { name = "💰 Cash", value = m.cash, inline = true },
-                    { name = "⚡ Speed", value = m.speed, inline = true },
-                    { name = "🕐 Stock Time", value = "<t:" .. math.floor(now) .. ":t>", inline = true },
-                    { name = "🔄 End Time", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
-                    { name = "⏳ Ends", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
+                    { name = "💰 Cash", value = "", inline = true },
+                    { name = "⚡ Speed", value = "", inline = true },
+                    { name = "🕐 Stock Time", value = "", inline = true },
+                    { name = "🔄 End Time", value = ">", inline = true },
+                    { name = "⏳ Ends", value = "", inline = false },
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
