@@ -1385,14 +1385,16 @@ local function sendDiscordWeather(info)
     local embed = {
         title = m.emoji .. " " .. string.upper(name) .. " WEATHER!",
         fields = {
-            name = "",
-            value =
-                "💰 Cash " .. tostring(m.cash) .. "\n" ..
-                "⚡ Speed " .. tostring(m.speed) .. "\n" ..
-                "🕐 Start Time <t:" .. math.floor(start) .. ":t>\n" ..
-                "⏰ End Time <t:" .. math.floor(ends) .. ":t>\n" ..
-                "⏳ Remaining <t:" .. math.floor(ends) .. ":R>",
-            inline = false
+            {
+                name = "",
+                value =
+                    "💰 Cash " .. tostring(m.cash) .. "\n" ..
+                    "⚡ Speed " .. tostring(m.speed) .. "\n" ..
+                    "🕐 Start Time <t:" .. math.floor(start) .. ":t>\n" ..
+                    "⏰ End Time <t:" .. math.floor(ends) .. ":t>\n" ..
+                    "⏳ Remaining <t:" .. math.floor(ends) .. ":R>",
+                inline = false
+            }
         },
         footer = {
             text = "Ride a Pet • Weather Notifier",
