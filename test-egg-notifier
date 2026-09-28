@@ -347,6 +347,33 @@ local function card(parent, name, text, height)
     return frame
 end
 
+local autoexecuteCard = card(
+    settingsPage,
+    "AutoexecuteCard",
+    "Autoexecute",
+    100
+)
+
+local createAutoexecute = Instance.new("TextButton", autoexecuteCard)
+createAutoexecute.Size = UDim2.new(1, -24, 0, 34)
+createAutoexecute.Position = UDim2.new(0, 12, 0, 50)
+createAutoexecute.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+createAutoexecute.BorderSizePixel = 0
+createAutoexecute.Text = "Create File"
+createAutoexecute.TextSize = 10
+createAutoexecute.Font = Enum.Font.GothamMedium
+createAutoexecute.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", createAutoexecute).CornerRadius = UDim.new(0, 7)
+
+createAutoexecute.MouseButton1Click:Connect(function()
+    ensureConfigFolder()
+
+    local path = CONFIG_FOLDER .. "/rap_notifier_autoexecute.txt"
+    local loadstringCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/test-egg-notifier"))()'
+
+    writefile(path, loadstringCode)
+end)
+
 local monitoringCard = card(statusPage, "MonitoringCard", "●  Monitoring", 65)
 local monitoringStatus = Instance.new("TextLabel", monitoringCard)
 monitoringStatus.Size = UDim2.new(1, -130, 0, 20)
