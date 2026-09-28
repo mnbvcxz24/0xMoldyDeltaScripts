@@ -1560,8 +1560,8 @@ Restock.OnClientEvent:Connect(function(data)
 
     gearStockStatus.Text =
         #found > 0
-        and "Gears: " .. table.concat(found, ", ")
-        or "Gears: Empty"
+        and "Detected: " .. table.concat(found, " | ")
+        or "Detected: None"
 
     for radarName, gearConfig in pairs(config.gearStock.gears) do
         if gearConfig.enabled then
