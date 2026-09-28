@@ -1218,15 +1218,14 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     local roles = getRoleList(ec.roles)
     local reset = os.time() + 420
 
+    local reset = spawnTime + 420
+    
     local fields = {
         { name = "📦 Stock", value = tostring(stock), inline = false },
         { name = "🕐 Stock Time", value = "<t:" .. math.floor(spawnTime) .. ":t>", inline = true },
+        { name = "🔄 Reset Time", value = "<t:" .. math.floor(reset) .. ":t>", inline = true },
+        { name = "⏳ Resets", value = "<t:" .. math.floor(reset) .. ":R>", inline = true },
     }
-
-    if reset then
-        table.insert(fields, { name = "🔄 Reset Time", value = "<t:" .. math.floor(reset) .. ":t>", inline = true })
-        table.insert(fields, { name = "⏳ Resets", value = "<t:" .. math.floor(reset) .. ":R>", inline = true })
-    end
 
     local embed = {
         title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName) .. " SPAWNED!",
