@@ -1697,7 +1697,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                 fields = {
                     { name = "💰 Cash", value = "", inline = true },
                     { name = "⚡ Speed", value = "", inline = true },
-                    { name = "🕐 Stock Time", value = "", inline = true },
+                    { name = "🕐 Start Time", value = "", inline = true },
                     { name = "🔄 End Time", value = "", inline = true },
                     { name = "⏳ Ends", value = "", inline = false },
                 },
