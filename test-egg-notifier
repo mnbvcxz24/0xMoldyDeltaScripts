@@ -137,8 +137,8 @@ local weatherMutationInfo = {
     Thunder = { emoji = "🌩️", cash = "2x", speed = "2x" },
     Volt = { emoji = "⚡", cash = "3x", speed = "3x" },
     Raging = { emoji = "🔥", cash = "4x", speed = "4x" },
-    Dreadful = { emoji = "🌑", cash = "10x", speed = "10x" },
-    Eternal = { emoji = "💜", cash = "100x", speed = "100x" },
+    Dreadful = { emoji = "🌑", cash = "7x", speed = "7x" },
+    Eternal = { emoji = "💜", cash = "12.5x", speed = "12.5x" },
 }
 
 local weatherEmbedColors = {
