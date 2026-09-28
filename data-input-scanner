@@ -15,8 +15,8 @@ gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 600, 0, 400)
-frame.Position = UDim2.new(0.5, -280, 0.5, -250)
+frame.Size = UDim2.new(0, 420, 0, 300)
+frame.Position = UDim2.new(0.5, -210, 0.5, -150)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 frame.BorderSizePixel = 0
 frame.ClipsDescendants = true
@@ -37,18 +37,13 @@ title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
-local dragArea = Instance.new("Frame")
-dragArea.Size = UDim2.new(1, 0, 0, 40)
-dragArea.Position = UDim2.new(0, 0, 0, 0)
-dragArea.BackgroundTransparency = 1
-dragArea.Active = true
-dragArea.Parent = frame
-
 local dragging = false
 local dragStart
 local startPosition
 
-dragArea.InputBegan:Connect(function(input)
+frame.Active = true
+
+frame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
 
