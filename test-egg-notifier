@@ -100,7 +100,6 @@ local function loadConfig()
     data.gearStock = type(data.gearStock) == "table" and data.gearStock or {}
     data.gearStock.webhook = tostring(data.gearStock.webhook or "")
     data.gearStock.gears = type(data.gearStock.gears) == "table" and data.gearStock.gears or {}
-    data.gearStock.roles = type(data.gearStock.roles) == "table" and data.gearStock.roles or {}
     
     return data
 end
@@ -436,7 +435,8 @@ discordEggStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
 local discordEggInput = inputBox(discordEggCard, 62, config.discordEgg.webhook, "Discord webhook URL")
 local discordEggRows = {}
 
-local function row(parent, y, label, data, showRole)
+local function row(parent, y, label, data, showRole, roleKey)
+    roleKey = roleKey or "roles"
     local toggle = Instance.new("TextButton", parent)
     toggle.Size = UDim2.new(0, 105, 0, 28)
     toggle.Position = UDim2.new(0, 12, 0, y)
@@ -459,12 +459,12 @@ local function row(parent, y, label, data, showRole)
         role.Font = Enum.Font.Gotham
         role.TextSize = 10
         role.TextColor3 = Color3.new(1, 1, 1)
-        role.Text = data.roles or ""
+        role.Text = data[roleKey] or ""
         role.PlaceholderText = "role IDs"
         role.ClearTextOnFocus = false
 
         role.FocusLost:Connect(function()
-            data.roles = role.Text
+            data[roleKey] = role.Text
             saveConfig()
         end)
     end
@@ -655,7 +655,7 @@ local gearStockCard = card(
     webhookPage,
     "GearStockNotifierCard",
     "Gear Stock Notifier",
-    235
+    220
 )
 
 local gearStockStatus = Instance.new("TextLabel", gearStockCard)
@@ -690,49 +690,21 @@ for i, name in ipairs(gearList) do
             role = "",
         }
         config.gearStock.gears[name] = data
+    else
+        data.enabled = data.enabled == true
+        data.role = tostring(data.role or "")
     end
 
-    local toggle = Instance.new("TextButton", gearStockCard)
-    toggle.Size = UDim2.new(0, 130, 0, 28)
-    toggle.Position = UDim2.new(0, 12, 0, 135 + (i - 1) * 32)
-    toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-    toggle.BorderSizePixel = 0
-    toggle.TextSize = 10
-    toggle.Font = Enum.Font.GothamMedium
-    toggle.TextColor3 = Color3.new(1, 1, 1)
-    Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 7)
-
-    local function refreshGearToggle()
-        toggle.Text =
-            (data.enabled and "✓ " or "○ ")
-            .. "📡 "
-            .. name
-    end
-
-    refreshGearToggle()
-
-    toggle.MouseButton1Click:Connect(function()
-        data.enabled = not data.enabled
-        refreshGearToggle()
-        saveConfig()
-    end)
-
-    local roleInput = inputBox(
-        gearStockCard,
-        150 + (i - 1) * 38,
-        data.role,
-        "Role ID(s), separated by comma"
-    )
-
-    roleInput.Size = UDim2.new(0, 220, 0, 28)
-    roleInput.Position = UDim2.new(0, 150, 0, 135 + (i - 1) * 32)
-
-    roleInput.FocusLost:Connect(function()
-        data.role = roleInput.Text
-        saveConfig()
-    end)
-
-    gearStockRows[name] = toggle
+    gearStockRows[name] = {
+        row(
+            gearStockCard,
+            105 + (i - 1) * 34,
+            "📡 " .. name,
+            data,
+            true,
+            "role"
+        )
+    }
 end
 
 local function getWeatherHistoryDate()
@@ -796,7 +768,7 @@ local function buildWeatherHistoryPayload(weatherName, history)
 end
 
 local getWebhookList
-local sendEggHistoryWebhook
+local sendHistoryWebhook
 local saveWeatherSpawnHistory
 
 local function sendWeatherHistoryWebhook(weatherName, endsAt)
@@ -831,7 +803,7 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
         local response
 
         if messageId then
-            success = sendEggHistoryWebhook(
+            success = sendHistoryWebhook(
                 webhook,
                 payload,
                 "PATCH",
@@ -844,7 +816,7 @@ local function sendWeatherHistoryWebhook(weatherName, endsAt)
         end
 
         if not history.messageIds[webhook] then
-            success, response = sendEggHistoryWebhook(
+            success, response = sendHistoryWebhook(
                 webhook,
                 payload,
                 "POST"
@@ -972,7 +944,7 @@ local function getEggHistory(eggName)
     return eggSpawnHistory[eggName]
 end
 
-sendEggHistoryWebhook = function(webhook, payload, method, messageId)
+sendHistoryWebhook = function(webhook, payload, method, messageId)
     local fn = (syn and syn.request)
         or (http and http.request)
         or http_request
@@ -1130,7 +1102,7 @@ local function sendEggHistory(eggName, stock)
         local response
 
         if messageId then
-            success = sendEggHistoryWebhook(
+            success = sendHistoryWebhook(
                 webhook,
                 payload,
                 "PATCH",
@@ -1143,7 +1115,7 @@ local function sendEggHistory(eggName, stock)
         end
 
         if not history.messageIds[webhook] then
-            success, response = sendEggHistoryWebhook(
+            success, response = sendHistoryWebhook(
                 webhook,
                 payload,
                 "POST"
@@ -1398,11 +1370,7 @@ local function sendGearStockWebhook(gearName, stock)
     if #webhooks == 0 then
         return
     end
-    
-    local webhooks = getWebhookList(config.gearStock.webhook)
-    if #webhooks == 0 then
-        return
-    end
+
     local roles = getRoleList(gearConfig.role)
 
     local fields = {
@@ -1644,7 +1612,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                 fields = {
                     { name = "💰 Cash", value = m.cash, inline = true },
                     { name = "⚡ Speed", value = m.speed, inline = true },
-                    { name = "🕐 Stock Time", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
+                    { name = "🕐 Stock Time", value = "<t:" .. math.floor(now) .. ":t>", inline = true },
                     { name = "🔄 End Time", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
                     { name = "⏳ Ends", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
                 },
