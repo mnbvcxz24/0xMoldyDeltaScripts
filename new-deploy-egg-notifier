@@ -21,7 +21,7 @@ gui.Parent = CoreGui
 local CONFIG_FOLDER = "rap_notifier"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_notifier_config.json"
 local EGG_HISTORY_FILE = CONFIG_FOLDER .. "/egg_spawn_history.json"
-local WEATHER_HISTORY_FILE = CONFIG_FOLDER .. "/weather_spawn_history.json
+local WEATHER_HISTORY_FILE = CONFIG_FOLDER .. "/weather_spawn_history.json"
 
 local function ensureConfigFolder()
     if not isfolder(CONFIG_FOLDER) then
