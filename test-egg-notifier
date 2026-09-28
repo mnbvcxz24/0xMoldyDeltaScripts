@@ -208,7 +208,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • V2"
+subtitle.Text = "Ride a Pet • Notifier • V2.1"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -827,9 +827,13 @@ local function buildWeatherHistoryPayload(weatherName, history)
 
     return {
         embeds = {{
-            title = info.emoji .. " " .. string.upper(weatherName) .. " — SPAWN HISTORY",
+            title = info.emoji .. " " .. string.upper(weatherName) .. " WEATHER — SPAWN HISTORY",
             description =
-                "📅 **" .. history.date .. "**"
+                "📅 **" .. os.date("%B %d, %Y", os.time({
+                    year = tonumber(string.sub(history.date, 1, 4)),
+                    month = tonumber(string.sub(history.date, 6, 7)),
+                    day = tonumber(string.sub(history.date, 9, 10))
+                })) .. "**"
                 .. "\n💰 **Cash:** " .. tostring(info.cash)
                 .. "\n⚡ **Speed:** " .. tostring(info.speed)
                 .. "\n\n"
@@ -1348,8 +1352,8 @@ local function sendDiscordWeather(info)
         fields = {
             { name = "💰 Cash", value = m.cash, inline = true },
             { name = "⚡ Speed", value = m.speed, inline = true },
-            { name = "🕐 Start", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
-            { name = "⏰ Ends", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
+            { name = "🕐 Start Time", value = "<t:" .. math.floor(start) .. ":t>", inline = true },
+            { name = "⏰ End Time", value = "<t:" .. math.floor(ends) .. ":t>", inline = true },
             { name = "⏳ Remaining", value = "<t:" .. math.floor(ends) .. ":R>", inline = false },
         },
         footer = {
