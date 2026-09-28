@@ -1334,10 +1334,10 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
         {
             name = "",
             value =
-                "📦 Stock " .. tostring(stock) .. "\n" ..
-                "🕐 Stock Time <t:" .. math.floor(spawnTime) .. ":t>\n" ..
-                "🔄 Reset Time <t:" .. math.floor(reset) .. ":t>\n" ..
-                "⏳ Resets <t:" .. math.floor(reset) .. ":R>",
+                "**📦 Stock: **" .. tostring(stock) .. "\n" ..
+                "**🕐 Stock Time: **<t:" .. math.floor(spawnTime) .. ":t>\n" ..
+                "**🔄 Reset Time: **<t:" .. math.floor(reset) .. ":t>\n" ..
+                "**⏳ Resets: **<t:" .. math.floor(reset) .. ":R>",
             inline = false
         }
     }
@@ -1388,11 +1388,11 @@ local function sendDiscordWeather(info)
             {
                 name = "",
                 value =
-                    "💰 Cash " .. tostring(m.cash) .. "\n" ..
-                    "⚡ Speed " .. tostring(m.speed) .. "\n" ..
-                    "🕐 Start Time <t:" .. math.floor(start) .. ":t>\n" ..
-                    "⏰ End Time <t:" .. math.floor(ends) .. ":t>\n" ..
-                    "⏳ Remaining <t:" .. math.floor(ends) .. ":R>",
+                    "**💰 Cash: **" .. tostring(m.cash) .. "\n" ..
+                    "**⚡ Speed: **" .. tostring(m.speed) .. "\n\n" ..
+                    "**🕐 Start Time: **<t:" .. math.floor(start) .. ":t>\n" ..
+                    "**⏰ End Time: **<t:" .. math.floor(ends) .. ":t>\n" ..
+                    "**⏳ Ends: ** <t:" .. math.floor(ends) .. ":R>",
                 inline = false
             }
         },
@@ -1671,13 +1671,10 @@ discordEggTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = "🥚 TEST EGG SPAWNED!",
-                color = 0x5865F2,
-                fields = {
-                    { name = "📦 Stock", value = "", inline = false },
-                    { name = "🕐 Stock Time", value = "", inline = true },
-                    { name = "⏰ Reset Time", value = "", inline = true },
-                    { name = "⏳ Resets", value = "", inline = true },
+                title = "🪽 CHERUB EGG SPAWNED!",
+                color = 0xF6D77A,
+                image = {
+                    url = "https://klipy.com/gifs/dance-vibing-7"
                 },
                 footer = {
                     text = "Ride a Pet • Egg Stock Notifier",
@@ -1703,14 +1700,10 @@ discordWeatherTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = m.emoji .. " TEST WEATHER STARTED!",
+                title = "💜 ETERNAL WEATHER STARTED!",
                 color = weatherEmbedColors.Thunder,
-                fields = {
-                    { name = "💰 Cash", value = "", inline = true },
-                    { name = "⚡ Speed", value = "", inline = true },
-                    { name = "🕐 Start Time", value = "", inline = true },
-                    { name = "⏰ End Time", value = "", inline = true },
-                    { name = "⏳ Ends", value = "", inline = false },
+                image = {
+                    url = "https://klipy.com/gifs/dance-vibing-7"
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
