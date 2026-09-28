@@ -208,7 +208,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • V2.1"
+subtitle.Text = "Ride a Pet • Notifier • V2.2"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -348,6 +348,23 @@ local function card(parent, name, text, height)
 
     return frame
 end
+
+local clearHistoryButton = Instance.new("TextButton", settingsPage)
+clearHistoryButton.Size = UDim2.new(1, -20, 0, 40)
+clearHistoryButton.Position = UDim2.new(0, 10, 0, 250)
+clearHistoryButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+clearHistoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+clearHistoryButton.Text = "🗑️ Clear Spawn History"
+clearHistoryButton.Font = Enum.Font.Gotham
+clearHistoryButton.TextSize = 14
+clearHistoryButton.AutoButtonColor = true
+
+local clearHistoryCorner = Instance.new("UICorner", clearHistoryButton)
+clearHistoryCorner.CornerRadius = UDim.new(0, 8)
+
+clearHistoryButton.MouseButton1Click:Connect(function()
+    clearSpawnHistory()
+end)
 
 local antiAfkCard = card(
     settingsPage,
@@ -1004,6 +1021,20 @@ saveWeatherSpawnHistory = function()
     end)
 end
 
+local function clearSpawnHistory()
+    eggSpawnHistory = {}
+    weatherSpawnHistory = {}
+
+    if canUseFileStorage() then
+        if isfile(EGG_HISTORY_FILE) then
+            delfile(EGG_HISTORY_FILE)
+        end
+
+        if isfile(WEATHER_HISTORY_FILE) then
+            delfile(WEATHER_HISTORY_FILE)
+        end
+    end
+end
 
 local function getHistoryDate()
     return os.date("%Y-%m-%d")
