@@ -1331,7 +1331,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     local reset = spawnTime + 420
     
     local fields = {
-        { name = "📦 Stock", value = tostring(stock), inline = false },
+        { name = "📦 Stock " .. tostring(stock), value = "\u{200B}", inline = false },
         { name = "🕐 Stock Time", value = "<t:" .. math.floor(spawnTime) .. ":t>", inline = true },
         { name = "🔄 Reset Time", value = "<t:" .. math.floor(reset) .. ":t>", inline = true },
         { name = "⏳ Resets", value = "<t:" .. math.floor(reset) .. ":R>", inline = true },
