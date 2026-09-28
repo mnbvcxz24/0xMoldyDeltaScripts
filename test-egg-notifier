@@ -1698,7 +1698,7 @@ discordEggTest.MouseButton1Click:Connect(function()
                 title = "🪽 CHERUB EGG SPAWNED!",
                 color = 0xF6D77A,
                 image = {
-                    url = "https://klipy.com/gifs/rickroll-never-gonna-give-you-up-9"
+                    url = "https://static2.klipy.com/ii/d6b0ce929193df3c242ac34b5654d2ce/f3/d4/zlLmOunU.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Egg Stock Notifier",
