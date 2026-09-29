@@ -1,6 +1,27 @@
 local env = getgenv()
+
+if env.RapNotifierCleanup then
+    pcall(env.RapNotifierCleanup)
+end
+
 if env.RapNotifierTest then
     env.RapNotifierTest.running = false
+end
+
+local connections = {}
+
+local function trackConnection(connection)
+    table.insert(connections, connection)
+    return connection
+end
+
+env.RapNotifierCleanup = function()
+    for _, connection in ipairs(connections) do
+        pcall(function()
+            connection:Disconnect()
+        end)
+    end
+    table.clear(connections)
 end
 
 local instance = {
@@ -8,12 +29,6 @@ local instance = {
 }
 
 env.RapNotifierTest = instance
-
-local CoreGui = game:GetService("CoreGui")
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
@@ -225,7 +240,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • TEST V2.1"
+subtitle.Text = "Ride a Pet • Notifier • TEST V2.2"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -419,12 +434,12 @@ local function antiAfk()
         return
     end
 
-    player.Idled:Connect(function()
+    trackConnection(player.Idled:Connect(function()
         if config.antiAfk then
             VirtualUser:CaptureController()
             VirtualUser:ClickButton2(Vector2.new())
         end
-    end)
+    end))
 end
 
 antiAfk()
@@ -1442,7 +1457,7 @@ for _, egg in ipairs(ActiveEggs:GetChildren()) do
     knownEggs[egg] = true
 end
 
-ActiveEggs.ChildAdded:Connect(function(egg)
+trackConnection(ActiveEggs.ChildAdded:Connect(function(egg)
     if knownEggs[egg] then
         return
     end
@@ -1470,7 +1485,7 @@ ActiveEggs.ChildAdded:Connect(function(egg)
 
     sendDiscordEgg(name, stock, spawnTime)
     sendEggHistory(name, stock)
-end)
+end))
 
 ActiveEggs.ChildRemoved:Connect(function(egg)
     knownEggs[egg] = nil
@@ -1552,7 +1567,7 @@ local function sendGearStockWebhook(gearName, stock)
     end
 end
 
-Restock.OnClientEvent:Connect(function(data)
+trackConnection(Restock.OnClientEvent:Connect(function(data)
     if not data then
         gearStockStatus.Text = "Restock: No data"
         return
@@ -1596,7 +1611,7 @@ Restock.OnClientEvent:Connect(function(data)
             end
         end
     end
-end)
+end))
 
 local function updateWeather()
     local names = {}
@@ -1626,7 +1641,7 @@ local function updateWeather()
     knownWeather = nextKnown
 end
 
-ServerData:GetAttributeChangedSignal("ActiveWeathers"):Connect(updateWeather)
+trackConnection(ServerData:GetAttributeChangedSignal("ActiveWeathers"):Connect(updateWeather))
 
 local function updateEggs()
     local counts = {}
