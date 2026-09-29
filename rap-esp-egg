@@ -30,7 +30,7 @@ Gui.Parent = CoreGui
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(350, 300)
+Main.Size = UDim2.fromOffset(350, 400)
 Main.Position = UDim2.new(0.5, -175, 0.5, -150)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
@@ -686,19 +686,26 @@ SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 SettingsTitle.Parent = SettingsPage
 
 local Minimized = Instance.new("TextButton")
-Minimized.Size = UDim2.fromOffset(60, 30)
+Minimized.Size = UDim2.fromOffset(60, 60)
 Minimized.AnchorPoint = Vector2.new(0.5, 0.5)
 Minimized.Position = UDim2.fromScale(0.5, 0.5)
 Minimized.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 Minimized.Text = "ESP"
-Minimized.TextSize = 12
+Minimized.TextSize = textSize(12)
 Minimized.TextColor3 = Color3.fromRGB(220, 220, 225)
 Minimized.Font = Enum.Font.GothamBold
+Minimized.AutoButtonColor = false
+Minimized.Visible = false
 Minimized.Parent = Gui
 
 local MinCorner = Instance.new("UICorner")
 MinCorner.CornerRadius = UDim.new(1, 0)
 MinCorner.Parent = Minimized
+
+local MinimizedStroke = Instance.new("UIStroke")
+MinimizedStroke.Color = Color3.fromRGB(55, 55, 65)
+MinimizedStroke.Thickness = 1
+MinimizedStroke.Parent = Minimized
 
 local dragging = false
 local dragStart
@@ -717,6 +724,43 @@ Header.InputBegan:Connect(function(input)
                 dragging = false
             end
         end)
+    end
+end)
+
+local minimizedDragging = false
+local minimizedDragStart
+local minimizedStartPos
+
+Minimized.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        minimizedDragging = true
+        minimizedDragStart = input.Position
+        minimizedStartPos = Minimized.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                minimizedDragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if minimizedDragging and (
+        input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+    ) then
+
+        local delta = input.Position - minimizedDragStart
+
+        Minimized.Position = UDim2.new(
+            minimizedStartPos.X.Scale,
+            minimizedStartPos.X.Offset + delta.X,
+            minimizedStartPos.Y.Scale,
+            minimizedStartPos.Y.Offset + delta.Y
+        )
     end
 end)
 
