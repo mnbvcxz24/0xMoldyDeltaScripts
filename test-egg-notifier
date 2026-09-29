@@ -208,7 +208,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • V2.5"
+subtitle.Text = "Ride a Pet • Notifier • TEST V2.6"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -361,10 +361,6 @@ clearHistoryButton.AutoButtonColor = true
 
 local clearHistoryCorner = Instance.new("UICorner", clearHistoryButton)
 clearHistoryCorner.CornerRadius = UDim.new(0, 8)
-
-clearHistoryButton.MouseButton1Click:Connect(function()
-    clearSpawnHistory()
-end)
 
 local antiAfkCard = card(
     settingsPage,
@@ -759,6 +755,16 @@ gearStockStatus.TextSize = 10
 gearStockStatus.Font = Enum.Font.GothamMedium
 gearStockStatus.TextColor3 = Color3.fromRGB(200, 200, 210)
 
+local gearStockDetected = Instance.new("TextLabel", gearStockCard)
+gearStockDetected.Size = UDim2.new(1, -24, 0, 22)
+gearStockDetected.Position = UDim2.new(0, 12, 0, 57)
+gearStockDetected.BackgroundTransparency = 1
+gearStockDetected.Text = "Detected: None"
+gearStockDetected.TextSize = 10
+gearStockDetected.Font = Enum.Font.GothamMedium
+gearStockDetected.TextColor3 = Color3.fromRGB(200, 200, 210)
+gearStockDetected.TextXAlignment = Enum.TextXAlignment.Left
+
 local gearStockInput = inputBox(
     gearStockCard,
     62,
@@ -1035,6 +1041,10 @@ local function clearSpawnHistory()
         end
     end
 end
+
+clearHistoryButton.MouseButton1Click:Connect(function()
+    clearSpawnHistory()
+end)
 
 local function getHistoryDate()
     return os.date("%Y-%m-%d")
@@ -1558,7 +1568,7 @@ Restock.OnClientEvent:Connect(function(data)
         end
     end
 
-    gearStockStatus.Text =
+    gearStockDetected.Text =
         #found > 0
         and "Detected: " .. table.concat(found, " | ")
         or "Detected: None"
@@ -1725,9 +1735,9 @@ discordWeatherTest.MouseButton1Click:Connect(function()
         embeds = {
             {
                 title = "💜 ETERNAL WEATHER STARTED!",
-                color = weatherEmbedColors.Thunder,
+                color = weatherEmbedColors.Eternal,
                 image = {
-                    url = "https://klipy.com/gifs/dance-vibing-7"
+                    url = "https://static2.klipy.com/ii/d6b0ce929193df3c242ac34b5654d2ce/f3/d4/zlLmOunU.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
