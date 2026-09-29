@@ -443,61 +443,34 @@ ScanButton.MouseButton1Click:Connect(function()
 
         local eggs = ActiveEggs:GetChildren()
 
-        AddDebug("Total eggs: " .. tostring(#eggs))
-        AddDebug("Selected filter:")
+        local selectedName
 
         for name in pairs(SelectedEggs) do
-            AddDebug("  " .. name)
+            selectedName = name
+            break
         end
 
-        AddDebug("")
-        AddDebug("----- FILTERED EGGS -----")
+        AddDebug("Total Active Eggs: " .. tostring(#eggs))
 
-        local shown = 0
+        if selectedName == "All Eggs" then
+            AddDebug("Filter: All Eggs")
+            AddDebug("Eggs Found: " .. tostring(#eggs))
+        else
+            AddDebug("Filter: " .. selectedName)
 
-        for index, egg in ipairs(eggs) do
-            local matched = SelectedEggs["All Eggs"] == true
+            local searchName = selectedName:gsub(" Egg$", ""):lower()
+            local count = 0
 
-            if not matched then
-                for selectedName in pairs(SelectedEggs) do
-                    if selectedName ~= "All Eggs" then
-                        local cleanName = selectedName:gsub(" Egg$", "")
-
-                        if egg.Name:lower():find(cleanName:lower(), 1, true) then
-                            matched = true
-                            break
-                        end
-                    end
+            for _, egg in ipairs(eggs) do
+                if egg.Name:lower():find(searchName, 1, true) then
+                    count += 1
                 end
             end
 
-            if matched then
-                shown += 1
-
-                AddDebug(
-                    "#" ..
-                    tostring(index) ..
-                    " | " ..
-                    egg.Name ..
-                    " | " ..
-                    egg.ClassName
-                )
-
-                for _, object in ipairs(egg:GetDescendants()) do
-                    if object:IsA("ValueBase") then
-                        AddDebug(
-                            "   " ..
-                            object.Name ..
-                            " = " ..
-                            tostring(object.Value)
-                        )
-                    end
-                end
-            end
+            AddDebug(selectedName .. " Found: " .. tostring(count))
         end
 
         AddDebug("")
-        AddDebug("Showing: " .. tostring(shown))
         AddDebug("========== SCAN COMPLETE ==========")
     end)
 
