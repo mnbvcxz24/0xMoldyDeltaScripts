@@ -451,26 +451,53 @@ ScanButton.MouseButton1Click:Connect(function()
         end
 
         AddDebug("Total Active Eggs: " .. tostring(#eggs))
+        AddDebug("Filter: " .. tostring(selectedName))
+        AddDebug("")
 
         if selectedName == "All Eggs" then
-            AddDebug("Filter: All Eggs")
-            AddDebug("Eggs Found: " .. tostring(#eggs))
+            AddDebug("All Eggs Found: " .. tostring(#eggs))
         else
-            AddDebug("Filter: " .. selectedName)
+            AddDebug("Searching for: " .. selectedName)
+            AddDebug("")
 
-            local searchName = selectedName:gsub(" Egg$", ""):lower()
-            local count = 0
+            local found = 0
 
             for _, egg in ipairs(eggs) do
-                if egg.Name:lower():find(searchName, 1, true) then
-                    count += 1
+                local matched = false
+
+                if egg.Name:lower():find(selectedName:lower(), 1, true) then
+                    matched = true
+                end
+
+                for _, object in ipairs(egg:GetDescendants()) do
+                    if object.Name:lower():find(selectedName:lower(), 1, true) then
+                        matched = true
+                        break
+                    end
+
+                    if object:IsA("ValueBase") then
+                        if tostring(object.Value):lower():find(selectedName:lower(), 1, true) then
+                            matched = true
+                            break
+                        end
+                    end
+                end
+
+                if matched then
+                    found += 1
+                    AddDebug(
+                        "#" ..
+                        tostring(found) ..
+                        "  " ..
+                        egg.Name
+                    )
                 end
             end
 
-            AddDebug(selectedName .. " Found: " .. tostring(count))
+            AddDebug("")
+            AddDebug("Total Found: " .. tostring(found))
         end
 
-        AddDebug("")
         AddDebug("========== SCAN COMPLETE ==========")
     end)
 
