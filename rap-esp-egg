@@ -1,40 +1,47 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/gen2"))()
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local ActiveEggs = ReplicatedStorage
-    :WaitForChild("ServerData")
-    :WaitForChild("ActiveEggs")
-
 local Window = Rayfield:CreateWindow({
     name = "Egg ESP",
     subtitle = "Active Eggs",
     sidebarLayout = true,
 })
 
-local ESPTab = Window:CreateTab({
+local MainTab = Window:CreateTab({
     name = "ESP",
     icon = 93364949241311,
 })
 
-ESPTab:CreateToggle({
+local ESPEnabled = false
+
+MainTab:CreateToggle({
     name = "Egg ESP",
     flag = "EggESP",
     callback = function(value)
-        print("Egg ESP:", value)
+        ESPEnabled = value
     end,
 })
 
-ESPTab:CreateButton({
+MainTab:CreateButton({
     name = "Scan Active Eggs",
     callback = function()
-        for _, egg in ipairs(ActiveEggs:GetChildren()) do
-            local eggName = egg:GetAttribute("Egg")
-            local position = egg:GetAttribute("Position")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
+        local ActiveEggs = ServerData and ServerData:FindFirstChild("ActiveEggs")
 
-            if eggName and position then
-                print(eggName, position)
-            end
+        if not ActiveEggs then
+            return
+        end
+
+        for _, egg in ipairs(ActiveEggs:GetChildren()) do
+            local galaxy = egg:FindFirstChild("Galaxy")
+
+            local galaxyValue = galaxy and galaxy.Value or "nil"
+
+            Rayfield:Notify({
+                Title = egg.Name,
+                Content = "Galaxy: " .. tostring(galaxyValue),
+                Duration = 3,
+            })
         end
     end,
 })
