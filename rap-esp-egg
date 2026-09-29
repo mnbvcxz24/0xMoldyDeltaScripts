@@ -1,6 +1,5 @@
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 pcall(function()
@@ -18,6 +17,7 @@ pcall(function()
 end)
 
 local TEXT_SCALE = 0.70
+
 local function textSize(size)
     return math.floor(size * TEXT_SCALE)
 end
@@ -31,7 +31,7 @@ Gui.Parent = CoreGui
 local Main = Instance.new("Frame")
 Main.Name = "Main"
 Main.Size = UDim2.fromOffset(350, 400)
-Main.Position = UDim2.new(0.5, -175, 0.5, -150)
+Main.Position = UDim2.new(0.5, -175, 0.5, -200)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
 Main.Parent = Gui
@@ -60,7 +60,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V1.7"
+Subtitle.Text = "Egg ESP TEST V1.8"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -231,7 +231,7 @@ FilterFrame.Visible = false
 FilterFrame.ZIndex = 20
 FilterFrame.ScrollBarThickness = 3
 FilterFrame.ScrollBarImageTransparency = 0.3
-FilterFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+FilterFrame.CanvasSize = UDim2.fromOffset(0, 0)
 FilterFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 FilterFrame.Parent = ESPPage
 
@@ -242,33 +242,79 @@ FilterFrameCorner.Parent = FilterFrame
 local EggTypes = {
     "--"
 }
-local function refreshEggTypes()
+
+local KnownEggTypes = {}
+
+local SelectedEggs = {}
+local FilterButtons = {}
+
+local DebugLines = {
+    "[SYSTEM] ESP UI loaded."
+}
+
+local DebugText
+local DebugBox
+
+local function AddDebug(text)
+    table.insert(DebugLines, tostring(text))
+
+    if #DebugLines > 150 then
+        table.remove(DebugLines, 1)
+    end
+
+    if not DebugText or not DebugBox then
+        return
+    end
+
+    DebugText.Text = table.concat(DebugLines, "\n")
+
+    task.defer(function()
+        if DebugText and DebugBox then
+            DebugBox.CanvasSize = UDim2.fromOffset(
+                0,
+                DebugText.AbsoluteSize.Y + 15
+            )
+
+            DebugBox.CanvasPosition = Vector2.new(
+                0,
+                math.max(0, DebugText.AbsoluteSize.Y - DebugBox.AbsoluteSize.Y)
+            )
+        end
+    end)
+end
+
+local function getActiveEggs()
     local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
+
     if not ServerData then
-        return
+        return nil
     end
 
-    local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
+    return ServerData:FindFirstChild("ActiveEggs")
+end
+
+local function refreshEggTypes()
+    local ActiveEggs = getActiveEggs()
+
     if not ActiveEggs then
-        return
+        return false
     end
-
-    local found = {}
 
     for _, egg in ipairs(ActiveEggs:GetChildren()) do
         local eggName = egg:GetAttribute("Egg")
 
         if eggName and eggName ~= "" then
-            found[eggName] = true
+            KnownEggTypes[eggName] = true
         end
     end
 
     table.clear(EggTypes)
+
     table.insert(EggTypes, "--")
 
     local names = {}
 
-    for eggName in pairs(found) do
+    for eggName in pairs(KnownEggTypes) do
         table.insert(names, eggName)
     end
 
@@ -277,10 +323,9 @@ local function refreshEggTypes()
     for _, eggName in ipairs(names) do
         table.insert(EggTypes, eggName)
     end
-end
 
-local SelectedEggs = {}
-local FilterButtons = {}
+    return true
+end
 
 local function updateFilterText()
     local selectedName
@@ -311,47 +356,69 @@ local function refreshFilterButtons()
     end
 end
 
-local function createFilterOption(eggName, index)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -10, 0, 22)
-    button.Position = UDim2.fromOffset(5, 5 + ((index - 1) * 22))
-    button.BackgroundTransparency = 1
-    button.TextColor3 = Color3.fromRGB(190, 190, 198)
-    button.TextSize = 10
-    button.Font = Enum.Font.Gotham
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.AutoButtonColor = false
-    button.ZIndex = 21
-    button.Parent = FilterFrame
+local function rebuildFilter()
+    for _, child in ipairs(FilterFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
 
-    FilterButtons[eggName] = button
+    table.clear(FilterButtons)
 
-    button.Text = "☐ " .. eggName
+    for index, eggName in ipairs(EggTypes) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, -10, 0, 22)
+        button.Position = UDim2.fromOffset(
+            5,
+            5 + ((index - 1) * 22)
+        )
+        button.BackgroundTransparency = 1
+        button.TextColor3 = Color3.fromRGB(190, 190, 198)
+        button.TextSize = textSize(10)
+        button.Font = Enum.Font.Gotham
+        button.TextXAlignment = Enum.TextXAlignment.Left
+        button.AutoButtonColor = false
+        button.ZIndex = 21
+        button.Parent = FilterFrame
 
-    button.MouseButton1Click:Connect(function()
-        if eggName == "--" then
-            SelectedEggs = {}
+        FilterButtons[eggName] = button
+
+        if SelectedEggs[eggName] then
+            button.Text = "☑ " .. eggName
+            button.TextColor3 = Color3.fromRGB(100, 200, 130)
         else
-            SelectedEggs = {
-                [eggName] = true
-            }
+            button.Text = "☐ " .. eggName
         end
 
-        refreshFilterButtons()
-        updateFilterText()
-        FilterFrame.Visible = false
-    end)
+        button.MouseButton1Click:Connect(function()
+            if eggName == "--" then
+                SelectedEggs = {}
+            else
+                SelectedEggs = {
+                    [eggName] = true
+                }
+            end
+
+            refreshFilterButtons()
+            updateFilterText()
+
+            FilterFrame.Visible = false
+
+            if Toggle.Text == "ON" then
+                updateESP()
+            end
+        end)
+    end
+
+    FilterFrame.CanvasPosition = Vector2.new(0, 0)
 end
 
-for index, eggName in ipairs(EggTypes) do
-    createFilterOption(eggName, index)
-end
+refreshEggTypes()
+rebuildFilter()
 
 FilterButton.MouseButton1Click:Connect(function()
     FilterFrame.Visible = not FilterFrame.Visible
 end)
-
-refreshEggTypes()
 
 local DebugTitle = Instance.new("TextLabel")
 DebugTitle.Size = UDim2.new(1, -10, 0, 30)
@@ -364,20 +431,20 @@ DebugTitle.Font = Enum.Font.GothamBold
 DebugTitle.TextXAlignment = Enum.TextXAlignment.Left
 DebugTitle.Parent = DebugPage
 
-local DebugBox = Instance.new("ScrollingFrame")
+DebugBox = Instance.new("ScrollingFrame")
 DebugBox.Size = UDim2.new(1, -10, 1, -95)
 DebugBox.Position = UDim2.fromOffset(5, 40)
 DebugBox.BackgroundColor3 = Color3.fromRGB(17, 17, 21)
 DebugBox.BorderSizePixel = 0
 DebugBox.ScrollBarThickness = 3
-DebugBox.CanvasSize = UDim2.new()
+DebugBox.CanvasSize = UDim2.fromOffset(0, 0)
 DebugBox.Parent = DebugPage
 
 local DebugCorner = Instance.new("UICorner")
 DebugCorner.CornerRadius = UDim.new(0, 7)
 DebugCorner.Parent = DebugBox
 
-local DebugText = Instance.new("TextLabel")
+DebugText = Instance.new("TextLabel")
 DebugText.Size = UDim2.new(1, -10, 0, 0)
 DebugText.Position = UDim2.fromOffset(5, 5)
 DebugText.BackgroundTransparency = 1
@@ -391,31 +458,7 @@ DebugText.TextWrapped = true
 DebugText.AutomaticSize = Enum.AutomaticSize.Y
 DebugText.Parent = DebugBox
 
-local DebugLines = {
-    "[SYSTEM] ESP UI loaded."
-}
-
-local function AddDebug(text)
-    table.insert(DebugLines, tostring(text))
-
-    if #DebugLines > 150 then
-        table.remove(DebugLines, 1)
-    end
-
-    DebugText.Text = table.concat(DebugLines, "\n")
-
-    task.defer(function()
-        DebugBox.CanvasSize = UDim2.fromOffset(
-            0,
-            DebugText.AbsoluteSize.Y + 15
-        )
-
-        DebugBox.CanvasPosition = Vector2.new(
-            0,
-            math.max(0, DebugText.AbsoluteSize.Y - DebugBox.AbsoluteSize.Y)
-        )
-    end)
-end
+AddDebug("[SYSTEM] Egg filter initialized")
 
 local ScanButton = Instance.new("TextButton")
 ScanButton.Size = UDim2.new(1, -10, 0, 35)
@@ -453,15 +496,6 @@ end
 local function getEggPosition(egg)
     local position = egg:GetAttribute("Position")
 
-    AddDebug(
-        "[POSITION] " ..
-        egg:GetAttribute("Egg") .. 
-        " | Type: " .. 
-        typeof(position) ..
-        " | Value: " ..
-        tostring(position)
-    )
-
     if typeof(position) == "Vector3" then
         return position
     end
@@ -482,7 +516,7 @@ local function createESP(egg)
     local position = getEggPosition(egg)
 
     if not position then
-        AddDebug("[ESP ERROR] No usable Position for " .. tostring(eggName))
+        AddDebug("[ESP ERROR] No usable Position: " .. tostring(eggName))
         return
     end
 
@@ -520,14 +554,11 @@ local function createESP(egg)
         Part = part,
         Label = label
     }
-
-    AddDebug("[ESP] Created: " .. tostring(eggName))
 end
 
 local function updateESP()
-    clearESP()
-
     if Toggle.Text ~= "ON" then
+        clearESP()
         return
     end
 
@@ -539,33 +570,46 @@ local function updateESP()
     end
 
     if not selectedName then
-        AddDebug("[ESP] No egg selected")
+        clearESP()
+        FilterCount.Text = "Selected Eggs: 0"
         return
     end
 
-    local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
-
-    if not ServerData then
-        AddDebug("[ESP ERROR] ServerData not found")
-        return
-    end
-
-    local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
+    local ActiveEggs = getActiveEggs()
 
     if not ActiveEggs then
+        clearESP()
         AddDebug("[ESP ERROR] ActiveEggs not found")
         return
     end
 
+    local activeEggSet = {}
     local total = 0
 
     for _, egg in ipairs(ActiveEggs:GetChildren()) do
         if egg:GetAttribute("Egg") == selectedName then
             total += 1
-            createESP(egg)
+            activeEggSet[egg] = true
+
+            if not ESPObjects[egg] then
+                createESP(egg)
+            end
         end
     end
 
+    for egg, data in pairs(ESPObjects) do
+        if not activeEggSet[egg] then
+            if data.Part then
+                pcall(function()
+                    data.Part:Destroy()
+                end)
+            end
+
+            ESPObjects[egg] = nil
+        end
+    end
+
+    EggCount.Text = "Active Eggs: " .. tostring(#ActiveEggs:GetChildren())
     FilterCount.Text = selectedName .. ": " .. tostring(total)
 end
 
@@ -577,19 +621,15 @@ ScanButton.MouseButton1Click:Connect(function()
     AddDebug("========== EGG SCAN ==========")
 
     local success, err = pcall(function()
-        local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
-
-        if not ServerData then
-            AddDebug("[ERROR] ServerData not found")
-            return
-        end
-
-        local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
+        local ActiveEggs = getActiveEggs()
 
         if not ActiveEggs then
             AddDebug("[ERROR] ActiveEggs not found")
             return
         end
+
+        refreshEggTypes()
+        rebuildFilter()
 
         local eggs = ActiveEggs:GetChildren()
 
@@ -605,34 +645,43 @@ ScanButton.MouseButton1Click:Connect(function()
         AddDebug("Total Active Eggs: " .. tostring(#eggs))
         AddDebug("Filter: " .. tostring(selectedName or "--"))
 
-        if not selectedName then
-            FilterCount.Text = "Selected Eggs: 0"
-            AddDebug("No egg selected")
-            AddDebug("========== SCAN COMPLETE ==========")
-            return
-        end
-
-        local count = 0
+        local counts = {}
 
         for _, egg in ipairs(eggs) do
-            if egg:GetAttribute("Egg") == selectedName then
-                count += 1
+            local eggName = egg:GetAttribute("Egg")
 
-                local position = egg:GetAttribute("Position")
-
-                AddDebug(
-                    tostring(count) ..
-                    ". " ..
-                    tostring(egg:GetAttribute("Egg")) ..
-                    " | Position Type: " ..
-                    typeof(position)
-                )
+            if eggName and eggName ~= "" then
+                counts[eggName] = (counts[eggName] or 0) + 1
             end
         end
 
-        FilterCount.Text = selectedName .. ": " .. tostring(count)
+        for eggName, count in pairs(counts) do
+            AddDebug(tostring(eggName) .. " x " .. tostring(count))
+        end
 
-        AddDebug("Selected Eggs: " .. tostring(count))
+        if selectedName then
+            local count = counts[selectedName] or 0
+
+            FilterCount.Text = selectedName .. ": " .. tostring(count)
+
+            AddDebug("Selected Eggs: " .. tostring(count))
+
+            for _, egg in ipairs(eggs) do
+                if egg:GetAttribute("Egg") == selectedName then
+                    local position = egg:GetAttribute("Position")
+
+                    AddDebug(
+                        tostring(selectedName) ..
+                        " | Position: " ..
+                        typeof(position)
+                    )
+                end
+            end
+        else
+            FilterCount.Text = "Selected Eggs: 0"
+            AddDebug("No egg selected")
+        end
+
         AddDebug("========== SCAN COMPLETE ==========")
     end)
 
@@ -670,6 +719,16 @@ task.spawn(function()
             pcall(updateESP)
         end
 
+        local oldTypes = table.concat(EggTypes, "|")
+
+        if refreshEggTypes() then
+            local newTypes = table.concat(EggTypes, "|")
+
+            if oldTypes ~= newTypes then
+                rebuildFilter()
+            end
+        end
+
         task.wait(1)
     end
 end)
@@ -686,7 +745,7 @@ SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 SettingsTitle.Parent = SettingsPage
 
 local Minimized = Instance.new("TextButton")
-Minimized.Size = UDim2.fromOffset(60, 60)
+Minimized.Size = UDim2.fromOffset(39, 30)
 Minimized.AnchorPoint = Vector2.new(0.5, 0.5)
 Minimized.Position = UDim2.fromScale(0.5, 0.5)
 Minimized.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
