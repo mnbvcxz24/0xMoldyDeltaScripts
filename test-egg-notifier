@@ -59,6 +59,10 @@ local function defaultConfig()
                 ["Angelic Radar"] = {
                     enabled = false,
                     role = ""
+                },
+                ["Magic Radar"] = {
+                    enabled = false,
+                    role = ""
                 }
             }
         },
