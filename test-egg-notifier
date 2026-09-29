@@ -1383,9 +1383,8 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     }
 
     local embed = {
-        title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName),
+        title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName) .. "\n SPAWNED!",
         color = eggEmbedColors[eggName] or 0x5865F2,
-        description = "**SPAWNED!**",
         fields = fields,
         footer = {
             text = "Ride a Pet • Egg Stock Notifier",
@@ -1424,8 +1423,7 @@ local function sendDiscordWeather(info)
     local ends = info.endsAt or (start + 300)
     
     local embed = {
-        title = m.emoji .. " " .. string.upper(name),
-        description = "**WEATHER STARTED!**",
+        title = m.emoji .. " " .. string.upper(name) .. "\n WEATHER STARTED!",
         color = weatherEmbedColors[name] or 0x64B4FF,
         fields = {
             {
