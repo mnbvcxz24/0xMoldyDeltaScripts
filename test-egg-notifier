@@ -1699,7 +1699,7 @@ discordEggTest.MouseButton1Click:Connect(function()
                 description = "*THIS IS JUST A TEST FOR NOTIFIER*",
                 color = 0xF6D77A,
                 image = {
-                    url = "https://static2.klipy.com/ii/925f17378dd1893b674a723c07535afe/21/55/wjSPsj6s.gif"
+                    url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Egg Stock Notifier",
@@ -1729,7 +1729,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                 color = weatherEmbedColors.Eternal,
                 description = "*THIS IS JUST A TEST FOR NOTIFIER*",
                 image = {
-                    url = "https://static2.klipy.com/ii/925f17378dd1893b674a723c07535afe/21/55/wjSPsj6s.gif"
+                    url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
