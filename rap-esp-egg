@@ -219,7 +219,7 @@ FilterCount.Parent = ESPPage
 
 local FilterFrame = Instance.new("Frame")
 FilterFrame.Size = UDim2.new(1, -10, 0, 150)
-FilterFrame.Position = UDim2.fromOffset(5, 155)
+FilterFrame.Position = UDim2.fromOffset(5, 140)
 FilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 FilterFrame.BorderSizePixel = 0
 FilterFrame.Visible = false
