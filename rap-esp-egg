@@ -199,7 +199,7 @@ FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 25)
-FilterCount.Position = UDim2.fromOffset(5, 183)
+FilterCount.Position = UDim2.fromOffset(5, 145)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Selected Eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
@@ -236,33 +236,16 @@ local FilterButtons = {}
 
 local function updateFilterText()
     local selected
-        for name in pairs(SelectedEggs) do
-            selected = name
-            break
-        end
-    
-        if selected then
-            FilterButton.Text = selected .. " ▼"
-        else
-            FilterButton.Text = "-- ▼"
-        end
+
+    for name in pairs(SelectedEggs) do
+        selected = name
+        break
     end
 
-    local selected = {}
-
-    for _, eggName in ipairs(EggTypes) do
-        if eggName ~= "All Eggs" and SelectedEggs[eggName] then
-            table.insert(selected, eggName)
-        end
-    end
-
-    if #selected == 0 then
-        SelectedEggs["All Eggs"] = true
-        FilterButton.Text = "All Eggs ▼"
-    elseif #selected == 1 then
-        FilterButton.Text = selected[1] .. " ▼"
+    if selected then
+        FilterButton.Text = selected .. " ▼"
     else
-        FilterButton.Text = tostring(#selected) .. " Eggs Selected ▼"
+        FilterButton.Text = "-- ▼"
     end
 end
 
@@ -301,7 +284,7 @@ local function createFilterOption(eggName, index)
                 [eggName] = true
             }
         end
-    
+
         for name, filterButton in pairs(FilterButtons) do
             if SelectedEggs[name] then
                 filterButton.Text = "☑ " .. name
@@ -311,24 +294,23 @@ local function createFilterOption(eggName, index)
                 filterButton.TextColor3 = Color3.fromRGB(190, 190, 198)
             end
         end
-    
+
         updateFilterText()
         FilterFrame.Visible = false
-    end)
 
-        for name, filterButton in pairs(FilterButtons) do
-            if SelectedEggs[name] then
-                filterButton.Text = "☑ " .. name
-                filterButton.TextColor3 = Color3.fromRGB(100, 200, 130)
-            else
-                filterButton.Text = "☐ " .. name
-                filterButton.TextColor3 = Color3.fromRGB(190, 190, 198)
-            end
+        if not next(SelectedEggs) then
+            FilterCount.Text = "Selected Eggs: 0"
         end
-
-        updateFilterText()
     end)
 end
+
+for index, eggName in ipairs(EggTypes) do
+    createFilterOption(eggName, index)
+end
+
+FilterButton.MouseButton1Click:Connect(function()
+    FilterFrame.Visible = not FilterFrame.Visible
+end)
 
 for index, eggName in ipairs(EggTypes) do
     createFilterOption(eggName, index)
@@ -607,10 +589,6 @@ local function updateESP()
     end
 end
 
-Toggle.MouseButton1Click:Connect(function()
-    task.wait()
-    updateESP()
-end)
 
 task.spawn(function()
     while Gui.Parent do
@@ -719,6 +697,12 @@ Toggle.MouseButton1Click:Connect(function()
     Status.Text = enabled
         and "ESP Status: Enabled"
         or "ESP Status: Disabled"
+
+    if enabled then
+        updateESP()
+    else
+        clearESP()
+    end
 end)
 
 Close.MouseButton1Click:Connect(function()
