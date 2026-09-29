@@ -747,7 +747,7 @@ local gearStockCard = card(
     webhookPage,
     "GearStockNotifierCard",
     "Gear Stock Notifier",
-    245
+    265
 )
 
 local gearStockStatus = Instance.new("TextLabel", gearStockCard)
@@ -800,7 +800,7 @@ for i, name in ipairs(gearList) do
     gearStockRows[name] = {
         row(
             gearStockCard,
-            105 + (i - 1) * 34,
+            125 + (i - 1) * 34,
             "📡 " .. name,
             data,
             true,
