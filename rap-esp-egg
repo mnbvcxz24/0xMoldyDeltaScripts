@@ -424,17 +424,12 @@ ScanButton.MouseButton1Click:Connect(function()
 
     local success, err = pcall(function()
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-        AddDebug("[1] ReplicatedStorage: OK")
-
         local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
 
         if not ServerData then
             AddDebug("[ERROR] ServerData not found")
             return
         end
-
-        AddDebug("[2] ServerData: FOUND")
 
         local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
 
@@ -443,82 +438,60 @@ ScanButton.MouseButton1Click:Connect(function()
             return
         end
 
-        AddDebug("[3] ActiveEggs: FOUND")
-
         local eggs = ActiveEggs:GetChildren()
 
         AddDebug("Total eggs: " .. tostring(#eggs))
+        AddDebug("Selected filter:")
+
+        for name in pairs(SelectedEggs) do
+            AddDebug("  " .. name)
+        end
+
         AddDebug("")
+        AddDebug("----- ACTUAL EGG NAMES -----")
 
-        local shown = 0
+        local eggNames = {}
 
-        for index, egg in ipairs(eggs) do
-            local eggName = egg.Name
-            local matched = SelectedEggs["All Eggs"] == true
+        for _, egg in ipairs(eggs) do
+            eggNames[egg.Name] = (eggNames[egg.Name] or 0) + 1
+        end
 
-            if not matched then
-                for selectedName in pairs(SelectedEggs) do
-                    if selectedName ~= "All Eggs" then
-                        local cleanName = selectedName:gsub(" Egg$", "")
+        for name, count in pairs(eggNames) do
+            AddDebug(
+                tostring(name) ..
+                "  x" ..
+                tostring(count)
+            )
+        end
 
-                        if eggName:lower():find(cleanName:lower(), 1, true) then
-                            matched = true
-                            break
-                        end
-                    end
+        AddDebug("")
+        AddDebug("----- FIRST 10 EGGS -----")
+
+        for index = 1, math.min(10, #eggs) do
+            local egg = eggs[index]
+
+            AddDebug(
+                "#" ..
+                tostring(index) ..
+                " | " ..
+                egg.Name ..
+                " | " ..
+                egg.ClassName
+            )
+
+            for _, object in ipairs(egg:GetDescendants()) do
+                if object:IsA("ValueBase") then
+                    AddDebug(
+                        "   " ..
+                        object.Name ..
+                        " = " ..
+                        tostring(object.Value)
+                    )
                 end
-            end
-
-            if matched then
-                shown += 1
-
-                AddDebug("----- EGG #" .. index .. " -----")
-                AddDebug("Name: " .. eggName)
-                AddDebug("Class: " .. egg.ClassName)
-
-                local descendants = egg:GetDescendants()
-                local foundGalaxy = false
-
-                for _, object in ipairs(descendants) do
-                    if object.Name:lower():find("galaxy", 1, true) then
-                        foundGalaxy = true
-
-                        if object:IsA("ValueBase") then
-                            AddDebug(
-                                "Galaxy: " ..
-                                tostring(object.Value)
-                            )
-                        else
-                            AddDebug(
-                                "Galaxy: " ..
-                                object.ClassName
-                            )
-                        end
-                    end
-                end
-
-                for _, object in ipairs(descendants) do
-                    if object:IsA("ValueBase") then
-                        if not object.Name:lower():find("galaxy", 1, true) then
-                            AddDebug(
-                                "  " ..
-                                object.Name ..
-                                " = " ..
-                                tostring(object.Value)
-                            )
-                        end
-                    end
-                end
-
-                if not foundGalaxy then
-                    AddDebug("Galaxy: NOT FOUND")
-                end
-
-                AddDebug("")
             end
         end
 
-        AddDebug("Showing: " .. tostring(shown))
+        AddDebug("")
         AddDebug("========== SCAN COMPLETE ==========")
     end)
 
@@ -527,6 +500,7 @@ ScanButton.MouseButton1Click:Connect(function()
         AddDebug(tostring(err))
     end
 end)
+
 local SettingsTitle = Instance.new("TextLabel")
 SettingsTitle.Size = UDim2.new(1, -10, 0, 30)
 SettingsTitle.Position = UDim2.fromOffset(5, 5)
