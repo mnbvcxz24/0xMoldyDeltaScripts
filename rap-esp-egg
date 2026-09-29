@@ -69,7 +69,7 @@ CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = Close
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.fromOffset(105, 325)
+Sidebar.Size = UDim2.fromOffset(105, 245)
 Sidebar.Position = UDim2.fromOffset(10, 55)
 Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 Sidebar.BorderSizePixel = 0
@@ -171,6 +171,148 @@ EggCount.Font = Enum.Font.Gotham
 EggCount.TextXAlignment = Enum.TextXAlignment.Left
 EggCount.Parent = ESPPage
 
+local FilterLabel = Instance.new("TextLabel")
+FilterLabel.Size = UDim2.new(1, -10, 0, 25)
+FilterLabel.Position = UDim2.fromOffset(5, 120)
+FilterLabel.BackgroundTransparency = 1
+FilterLabel.Text = "Egg Filter"
+FilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+FilterLabel.TextSize = 12
+FilterLabel.Font = Enum.Font.GothamMedium
+FilterLabel.TextXAlignment = Enum.TextXAlignment.Left
+FilterLabel.Parent = ESPPage
+
+local FilterButton = Instance.new("TextButton")
+FilterButton.Size = UDim2.new(1, -10, 0, 32)
+FilterButton.Position = UDim2.fromOffset(5, 148)
+FilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+FilterButton.Text = "All Eggs ▼"
+FilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+FilterButton.TextSize = 11
+FilterButton.Font = Enum.Font.Gotham
+FilterButton.AutoButtonColor = false
+FilterButton.Parent = ESPPage
+
+local FilterCorner = Instance.new("UICorner")
+FilterCorner.CornerRadius = UDim.new(0, 7)
+FilterCorner.Parent = FilterButton
+
+local FilterFrame = Instance.new("Frame")
+FilterFrame.Size = UDim2.new(1, -10, 0, 150)
+FilterFrame.Position = UDim2.fromOffset(5, 185)
+FilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
+FilterFrame.BorderSizePixel = 0
+FilterFrame.Visible = false
+FilterFrame.ZIndex = 10
+FilterFrame.Parent = ESPPage
+
+local FilterFrameCorner = Instance.new("UICorner")
+FilterFrameCorner.CornerRadius = UDim.new(0, 7)
+FilterFrameCorner.Parent = FilterFrame
+
+local EggTypes = {
+    "All Eggs",
+    "White Egg",
+    "Blackhole Egg",
+    "Solaris Egg",
+    "Cherub Egg",
+    "Volcanic Egg"
+}
+
+local SelectedEggs = {
+    ["All Eggs"] = true
+}
+
+local FilterButtons = {}
+
+local function updateFilterText()
+    if SelectedEggs["All Eggs"] then
+        FilterButton.Text = "All Eggs ▼"
+        return
+    end
+
+    local selected = {}
+
+    for _, eggName in ipairs(EggTypes) do
+        if eggName ~= "All Eggs" and SelectedEggs[eggName] then
+            table.insert(selected, eggName)
+        end
+    end
+
+    if #selected == 0 then
+        SelectedEggs["All Eggs"] = true
+        FilterButton.Text = "All Eggs ▼"
+    elseif #selected == 1 then
+        FilterButton.Text = selected[1] .. " ▼"
+    else
+        FilterButton.Text = tostring(#selected) .. " Eggs Selected ▼"
+    end
+end
+
+local function createFilterOption(eggName, index)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -10, 0, 23)
+    button.Position = UDim2.fromOffset(5, 5 + ((index - 1) * 24))
+    button.BackgroundTransparency = 1
+    button.TextColor3 = Color3.fromRGB(210, 210, 218)
+    button.TextSize = 11
+    button.Font = Enum.Font.Gotham
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.AutoButtonColor = false
+    button.ZIndex = 11
+    button.Parent = FilterFrame
+
+    FilterButtons[eggName] = button
+
+    local function updateButton()
+        if SelectedEggs[eggName] then
+            button.Text = "☑ " .. eggName
+            button.TextColor3 = Color3.fromRGB(100, 200, 130)
+        else
+            button.Text = "☐ " .. eggName
+            button.TextColor3 = Color3.fromRGB(190, 190, 198)
+        end
+    end
+
+    updateButton()
+
+    button.MouseButton1Click:Connect(function()
+        if eggName == "All Eggs" then
+            SelectedEggs = {
+                ["All Eggs"] = true
+            }
+        else
+            SelectedEggs["All Eggs"] = nil
+
+            if SelectedEggs[eggName] then
+                SelectedEggs[eggName] = nil
+            else
+                SelectedEggs[eggName] = true
+            end
+        end
+
+        for name, filterButton in pairs(FilterButtons) do
+            if SelectedEggs[name] then
+                filterButton.Text = "☑ " .. name
+                filterButton.TextColor3 = Color3.fromRGB(100, 200, 130)
+            else
+                filterButton.Text = "☐ " .. name
+                filterButton.TextColor3 = Color3.fromRGB(190, 190, 198)
+            end
+        end
+
+        updateFilterText()
+    end)
+end
+
+for index, eggName in ipairs(EggTypes) do
+    createFilterOption(eggName, index)
+end
+
+FilterButton.MouseButton1Click:Connect(function()
+    FilterFrame.Visible = not FilterFrame.Visible
+end)
+
 local DebugTitle = Instance.new("TextLabel")
 DebugTitle.Size = UDim2.new(1, -10, 0, 30)
 DebugTitle.Position = UDim2.fromOffset(5, 5)
@@ -196,7 +338,7 @@ DebugCorner.CornerRadius = UDim.new(0, 7)
 DebugCorner.Parent = DebugBox
 
 local DebugText = Instance.new("TextLabel")
-DebugText.Size = UDim2.new(1, -10, 0, 20)
+DebugText.Size = UDim2.new(1, -10, 0, 0)
 DebugText.Position = UDim2.fromOffset(5, 5)
 DebugText.BackgroundTransparency = 1
 DebugText.Text = "[SYSTEM] ESP UI loaded."
@@ -234,6 +376,33 @@ local function AddDebug(text)
     end)
 end
 
+local DebugLines = {
+    "[SYSTEM] ESP UI loaded."
+}
+
+local function AddDebug(text)
+    table.insert(DebugLines, tostring(text))
+
+    if #DebugLines > 150 then
+        table.remove(DebugLines, 1)
+    end
+
+    DebugText.Text = table.concat(DebugLines, "\n")
+    DebugText.AutomaticSize = Enum.AutomaticSize.Y
+
+    task.defer(function()
+        DebugBox.CanvasSize = UDim2.fromOffset(
+            0,
+            DebugText.AbsoluteSize.Y + 15
+        )
+
+        DebugBox.CanvasPosition = Vector2.new(
+            0,
+            math.max(0, DebugText.AbsoluteSize.Y - DebugBox.AbsoluteSize.Y)
+        )
+    end)
+end
+
 local ScanButton = Instance.new("TextButton")
 ScanButton.Size = UDim2.new(1, -10, 0, 35)
 ScanButton.Position = UDim2.new(0, 5, 1, -40)
@@ -251,7 +420,7 @@ ScanCorner.Parent = ScanButton
 
 ScanButton.MouseButton1Click:Connect(function()
     AddDebug("")
-    AddDebug("========== SCAN START ==========")
+    AddDebug("========== EGG SCAN ==========")
 
     local success, err = pcall(function()
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -275,45 +444,81 @@ ScanButton.MouseButton1Click:Connect(function()
         end
 
         AddDebug("[3] ActiveEggs: FOUND")
-        AddDebug("Class: " .. ActiveEggs.ClassName)
 
         local eggs = ActiveEggs:GetChildren()
 
         AddDebug("Total eggs: " .. tostring(#eggs))
         AddDebug("")
 
+        local shown = 0
+
         for index, egg in ipairs(eggs) do
-            AddDebug("----- EGG #" .. index .. " -----")
-            AddDebug("Name: " .. egg.Name)
-            AddDebug("Class: " .. egg.ClassName)
+            local eggName = egg.Name
+            local matched = SelectedEggs["All Eggs"] == true
 
-            local descendants = egg:GetDescendants()
+            if not matched then
+                for selectedName in pairs(SelectedEggs) do
+                    if selectedName ~= "All Eggs" then
+                        local cleanName = selectedName:gsub(" Egg$", "")
 
-            AddDebug(
-                "Descendants: " ..
-                tostring(#descendants)
-            )
+                        if eggName:lower():find(cleanName:lower(), 1, true) then
+                            matched = true
+                            break
+                        end
+                    end
+                end
+            end
 
-            for _, object in ipairs(descendants) do
-                local line =
-                    "  " ..
-                    object.Name ..
-                    " [" ..
-                    object.ClassName ..
-                    "]"
+            if matched then
+                shown += 1
 
-                if object:IsA("ValueBase") then
-                    line =
-                        line ..
-                        " = " ..
-                        tostring(object.Value)
+                AddDebug("----- EGG #" .. index .. " -----")
+                AddDebug("Name: " .. eggName)
+                AddDebug("Class: " .. egg.ClassName)
+
+                local descendants = egg:GetDescendants()
+                local foundGalaxy = false
+
+                for _, object in ipairs(descendants) do
+                    if object.Name:lower():find("galaxy", 1, true) then
+                        foundGalaxy = true
+
+                        if object:IsA("ValueBase") then
+                            AddDebug(
+                                "Galaxy: " ..
+                                tostring(object.Value)
+                            )
+                        else
+                            AddDebug(
+                                "Galaxy: " ..
+                                object.ClassName
+                            )
+                        end
+                    end
                 end
 
-                AddDebug(line)
+                for _, object in ipairs(descendants) do
+                    if object:IsA("ValueBase") then
+                        if not object.Name:lower():find("galaxy", 1, true) then
+                            AddDebug(
+                                "  " ..
+                                object.Name ..
+                                " = " ..
+                                tostring(object.Value)
+                            )
+                        end
+                    end
+                end
+
+                if not foundGalaxy then
+                    AddDebug("Galaxy: NOT FOUND")
+                end
+
+                AddDebug("")
             end
         end
 
-        AddDebug("")
+        AddDebug("Showing: " .. tostring(shown))
         AddDebug("========== SCAN COMPLETE ==========")
     end)
 
@@ -322,7 +527,6 @@ ScanButton.MouseButton1Click:Connect(function()
         AddDebug(tostring(err))
     end
 end)
-
 local SettingsTitle = Instance.new("TextLabel")
 SettingsTitle.Size = UDim2.new(1, -10, 0, 30)
 SettingsTitle.Position = UDim2.fromOffset(5, 5)
