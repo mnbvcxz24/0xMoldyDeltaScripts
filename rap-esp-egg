@@ -46,7 +46,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP V1.4"
+Subtitle.Text = "Egg ESP V1.5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = 11
 Subtitle.Font = Enum.Font.Gotham
@@ -199,7 +199,7 @@ FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 25)
-FilterCount.Position = UDim2.fromOffset(5, 220)
+FilterCount.Position = UDim2.fromOffset(5, 183)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Selected Eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
@@ -222,7 +222,7 @@ FilterFrameCorner.CornerRadius = UDim.new(0, 7)
 FilterFrameCorner.Parent = FilterFrame
 
 local EggTypes = {
-    "All Eggs",
+    "--",
     "White Egg",
     "Blackhole Egg",
     "Solaris Egg",
@@ -230,16 +230,22 @@ local EggTypes = {
     "Volcanic Egg"
 }
 
-local SelectedEggs = {
-    ["All Eggs"] = true
-}
+local SelectedEggs = {}
 
 local FilterButtons = {}
 
 local function updateFilterText()
-    if SelectedEggs["All Eggs"] then
-        FilterButton.Text = "All Eggs ▼"
-        return
+    local selected
+        for name in pairs(SelectedEggs) do
+            selected = name
+            break
+        end
+    
+        if selected then
+            FilterButton.Text = selected .. " ▼"
+        else
+            FilterButton.Text = "-- ▼"
+        end
     end
 
     local selected = {}
@@ -288,19 +294,27 @@ local function createFilterOption(eggName, index)
     updateButton()
 
     button.MouseButton1Click:Connect(function()
-        if eggName == "All Eggs" then
-            SelectedEggs = {
-                ["All Eggs"] = true
-            }
+        if eggName == "--" then
+            SelectedEggs = {}
         else
-            SelectedEggs["All Eggs"] = nil
-
-            if SelectedEggs[eggName] then
-                SelectedEggs[eggName] = nil
+            SelectedEggs = {
+                [eggName] = true
+            }
+        end
+    
+        for name, filterButton in pairs(FilterButtons) do
+            if SelectedEggs[name] then
+                filterButton.Text = "☑ " .. name
+                filterButton.TextColor3 = Color3.fromRGB(100, 200, 130)
             else
-                SelectedEggs[eggName] = true
+                filterButton.Text = "☐ " .. name
+                filterButton.TextColor3 = Color3.fromRGB(190, 190, 198)
             end
         end
+    
+        updateFilterText()
+        FilterFrame.Visible = false
+    end)
 
         for name, filterButton in pairs(FilterButtons) do
             if SelectedEggs[name] then
@@ -487,6 +501,126 @@ ScanButton.MouseButton1Click:Connect(function()
     if not success then
         AddDebug("========== LUA ERROR ==========")
         AddDebug(tostring(err))
+    end
+end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "EggESP"
+ESPFolder.Parent = Workspace
+
+local ESPObjects = {}
+
+local function clearESP()
+    for egg, data in pairs(ESPObjects) do
+        if data.Part then
+            data.Part:Destroy()
+        end
+
+        ESPObjects[egg] = nil
+    end
+end
+
+local function createESP(egg)
+    if ESPObjects[egg] then
+        return
+    end
+
+    local position = egg:GetAttribute("Position")
+
+    if typeof(position) ~= "Vector3" then
+        return
+    end
+
+    local part = Instance.new("Part")
+    part.Name = "EggESP_" .. egg.Name
+    part.Size = Vector3.new(0.1, 0.1, 0.1)
+    part.Position = position
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.Transparency = 1
+    part.Parent = ESPFolder
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "EggLabel"
+    billboard.Size = UDim2.fromOffset(150, 45)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 1000
+    billboard.Parent = part
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromScale(1, 1)
+    label.BackgroundTransparency = 1
+    label.Text = egg:GetAttribute("Egg") or "Egg"
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextStrokeTransparency = 0
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.TextSize = 13
+    label.Font = Enum.Font.GothamBold
+    label.Parent = billboard
+
+    ESPObjects[egg] = {
+        Part = part,
+        Label = label
+    }
+end
+
+local function updateESP()
+    clearESP()
+
+    if not Toggle or Toggle.Text ~= "ON" then
+        return
+    end
+
+    local selectedName
+
+    for name in pairs(SelectedEggs) do
+        selectedName = name
+        break
+    end
+
+    if not selectedName then
+        return
+    end
+
+    local ServerData = game:GetService("ReplicatedStorage"):FindFirstChild("ServerData")
+
+    if not ServerData then
+        return
+    end
+
+    local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
+
+    if not ActiveEggs then
+        return
+    end
+
+    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        if egg:GetAttribute("Egg") == selectedName then
+            createESP(egg)
+        end
+    end
+end
+
+Toggle.MouseButton1Click:Connect(function()
+    task.wait()
+    updateESP()
+end)
+
+task.spawn(function()
+    while Gui.Parent do
+        if Toggle.Text == "ON" then
+            updateESP()
+        else
+            clearESP()
+        end
+
+        task.wait(1)
     end
 end)
 
