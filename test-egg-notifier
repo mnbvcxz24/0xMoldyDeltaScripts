@@ -1,3 +1,20 @@
+local env = getgenv()
+if env.RapNotifierTest then
+    env.RapNotifierTest.running = false
+end
+
+local instance = {
+    running = true
+}
+
+env.RapNotifierTest = instance
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -208,7 +225,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • TEST V2"
+subtitle.Text = "Ride a Pet • Notifier • TEST V2.1"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -721,6 +738,10 @@ for i, name in ipairs(weatherList) do
 end
 
 local function requestPost(url, payload)
+    if not instance.running then
+        return false
+    end
+    
     local fn = (syn and syn.request) or (http and http.request) or http_request or request
     if not fn then
         return false
