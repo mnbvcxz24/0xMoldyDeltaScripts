@@ -1093,6 +1093,9 @@ local function getEggHistory(eggName)
 end
 
 sendHistoryWebhook = function(webhook, payload, method, messageId)
+    if not instance.running then
+        return false, nil
+    end
     local fn = (syn and syn.request)
         or (http and http.request)
         or http_request
