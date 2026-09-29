@@ -423,7 +423,7 @@ ScanButton.MouseButton1Click:Connect(function()
     DebugText.Text = ""
     DebugBox.CanvasPosition = Vector2.new(0, 0)
 
-    AddDebug("========== EGG INSPECT ==========")
+    AddDebug("========== EGG SCAN ==========")
 
     local success, err = pcall(function()
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -443,90 +443,40 @@ ScanButton.MouseButton1Click:Connect(function()
 
         local eggs = ActiveEggs:GetChildren()
 
-        AddDebug("Active Eggs: " .. tostring(#eggs))
-        AddDebug("")
+        local selectedName
 
-        if #eggs == 0 then
-            AddDebug("No eggs found")
-            return
+        for name in pairs(SelectedEggs) do
+            selectedName = name
+            break
         end
 
-        local egg = eggs[1]
-
-        AddDebug("FIRST EGG")
-        AddDebug("Name: " .. egg.Name)
-        AddDebug("Class: " .. egg.ClassName)
+        AddDebug("Total Active Eggs: " .. tostring(#eggs))
+        AddDebug("Filter: " .. tostring(selectedName))
         AddDebug("")
 
-        AddDebug("ATTRIBUTES")
+        local count = 0
 
-        local attributes = egg:GetAttributes()
+        if selectedName == "All Eggs" then
+            count = #eggs
+            AddDebug("All Eggs Found: " .. tostring(count))
+        else
+            for _, egg in ipairs(eggs) do
+                local eggType = egg:GetAttribute("Egg")
 
-        for name, value in pairs(attributes) do
+                if eggType == selectedName then
+                    count += 1
+                end
+            end
+
             AddDebug(
-                name ..
-                " = " ..
-                tostring(value)
+                selectedName ..
+                " Found: " ..
+                tostring(count)
             )
         end
 
-        if next(attributes) == nil then
-            AddDebug("No attributes")
-        end
-
         AddDebug("")
-        AddDebug("CHILDREN")
-
-        for _, child in ipairs(egg:GetChildren()) do
-            AddDebug(
-                child.Name ..
-                " [" ..
-                child.ClassName ..
-                "]"
-            )
-
-            if child:IsA("ValueBase") then
-                AddDebug(
-                    "  Value = " ..
-                    tostring(child.Value)
-                )
-            end
-
-            local childAttributes = child:GetAttributes()
-
-            for name, value in pairs(childAttributes) do
-                AddDebug(
-                    "  " ..
-                    name ..
-                    " = " ..
-                    tostring(value)
-                )
-            end
-        end
-
-        AddDebug("")
-        AddDebug("DESCENDANT VALUES")
-
-        local valueCount = 0
-
-        for _, object in ipairs(egg:GetDescendants()) do
-            if object:IsA("ValueBase") then
-                valueCount += 1
-
-                AddDebug(
-                    object:GetFullName() ..
-                    " = " ..
-                    tostring(object.Value)
-                )
-            end
-        end
-
-        if valueCount == 0 then
-            AddDebug("No ValueBase objects")
-        end
-
-        AddDebug("")
-        AddDebug("========== INSPECT COMPLETE ==========")
+        AddDebug("========== SCAN COMPLETE ==========")
     end)
 
     if not success then
