@@ -199,7 +199,7 @@ FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 25)
-FilterCount.Position = UDim2.fromOffset(5, 145)
+FilterCount.Position = UDim2.fromOffset(5, 180)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Selected Eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
