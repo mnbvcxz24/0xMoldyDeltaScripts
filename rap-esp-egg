@@ -23,26 +23,51 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateButton({
-    name = "Scan Active Eggs",
-    callback = function()
+    Name = "Scan Active Eggs",
+    Callback = function()
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
-        local ActiveEggs = ServerData and ServerData:FindFirstChild("ActiveEggs")
+
+        if not ServerData then
+            return
+        end
+
+        local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
 
         if not ActiveEggs then
             return
         end
 
+        local count = 0
+
         for _, egg in ipairs(ActiveEggs:GetChildren()) do
+            count = count + 1
+
             local galaxy = egg:FindFirstChild("Galaxy")
+            local galaxyValue = "N/A"
 
-            local galaxyValue = galaxy and galaxy.Value or "nil"
+            if galaxy then
+                if galaxy:IsA("ValueBase") then
+                    galaxyValue = tostring(galaxy.Value)
+                else
+                    galaxyValue = galaxy.ClassName
+                end
+            end
 
-            Rayfield:Notify({
-                Title = egg.Name,
-                Content = "Galaxy: " .. tostring(galaxyValue),
-                Duration = 3,
-            })
+            warn(
+                "EGG:",
+                egg.Name,
+                "| Galaxy:",
+                galaxyValue,
+                "| Class:",
+                egg.ClassName
+            )
         end
+
+        Rayfield:Notify({
+            Title = "Egg Scan",
+            Content = "Found " .. tostring(count) .. " active eggs.",
+            Duration = 3
+        })
     end,
 })
