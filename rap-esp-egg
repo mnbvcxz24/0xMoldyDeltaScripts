@@ -1,9 +1,10 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/gen2"))()
 
 local Window = Rayfield:CreateWindow({
-    name = "Egg ESP",
-    subtitle = "Active Eggs",
-    sidebarLayout = true,
+    Name = "ESP",
+    Subtitle = "Egg ESP",
+    Size = UDim2.fromOffset(400, 300),
+    MinimizeButton = true,
 })
 
 local MainTab = Window:CreateTab({
