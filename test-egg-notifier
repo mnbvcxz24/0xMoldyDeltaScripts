@@ -1343,7 +1343,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     }
 
     local embed = {
-        title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName) .. " SPAWNED!",
+        title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName),
         color = eggEmbedColors[eggName] or 0x5865F2,
         fields = fields,
         footer = {
@@ -1383,7 +1383,7 @@ local function sendDiscordWeather(info)
     local ends = info.endsAt or (start + 300)
 
     local embed = {
-        title = m.emoji .. " " .. string.upper(name) .. " WEATHER!",
+        title = m.emoji .. " " .. string.upper(name),
         fields = {
             {
                 name = "",
@@ -1695,7 +1695,7 @@ discordEggTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = "🪽 CHERUB EGG SPAWNED!",
+                title = "🪽 CHERUB EGG",
                 description = "*THIS IS JUST A TEST FOR NOTIFIER*",
                 color = 0xF6D77A,
                 image = {
@@ -1725,11 +1725,11 @@ discordWeatherTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = "💜 ETERNAL WEATHER STARTED!",
+                title = "💜 ETERNAL",
                 color = weatherEmbedColors.Eternal,
                 description = "*THIS IS JUST A TEST FOR NOTIFIER*",
                 image = {
-                    url = "https://klipy.com/gifs/dance-vibing-7"
+                    url = "https://static2.klipy.com/ii/925f17378dd1893b674a723c07535afe/21/55/wjSPsj6s.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
