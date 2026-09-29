@@ -46,7 +46,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP V1.3"
+Subtitle.Text = "Egg ESP V1.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = 11
 Subtitle.Font = Enum.Font.Gotham
@@ -196,6 +196,17 @@ FilterButton.Parent = ESPPage
 local FilterCorner = Instance.new("UICorner")
 FilterCorner.CornerRadius = UDim.new(0, 7)
 FilterCorner.Parent = FilterButton
+
+local FilterCount = Instance.new("TextLabel")
+FilterCount.Size = UDim2.new(1, -10, 0, 25)
+FilterCount.Position = UDim2.fromOffset(5, 220)
+FilterCount.BackgroundTransparency = 1
+FilterCount.Text = "Selected Eggs: 0"
+FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
+FilterCount.TextSize = 12
+FilterCount.Font = Enum.Font.Gotham
+FilterCount.TextXAlignment = Enum.TextXAlignment.Left
+FilterCount.Parent = ESPPage
 
 local FilterFrame = Instance.new("Frame")
 FilterFrame.Size = UDim2.new(1, -10, 0, 150)
@@ -443,6 +454,8 @@ ScanButton.MouseButton1Click:Connect(function()
 
         local eggs = ActiveEggs:GetChildren()
 
+        EggCount.Text = "Active Eggs: " .. tostring(#eggs)
+
         local selectedName
 
         for name in pairs(SelectedEggs) do
@@ -450,31 +463,23 @@ ScanButton.MouseButton1Click:Connect(function()
             break
         end
 
-        AddDebug("Total Active Eggs: " .. tostring(#eggs))
-        AddDebug("Filter: " .. tostring(selectedName))
-        AddDebug("")
-
         local count = 0
 
         if selectedName == "All Eggs" then
             count = #eggs
-            AddDebug("All Eggs Found: " .. tostring(count))
         else
             for _, egg in ipairs(eggs) do
-                local eggType = egg:GetAttribute("Egg")
-
-                if eggType == selectedName then
+                if egg:GetAttribute("Egg") == selectedName then
                     count += 1
                 end
             end
-
-            AddDebug(
-                selectedName ..
-                " Found: " ..
-                tostring(count)
-            )
         end
 
+        FilterCount.Text = selectedName .. ": " .. tostring(count)
+
+        AddDebug("Total Active Eggs: " .. tostring(#eggs))
+        AddDebug("Filter: " .. tostring(selectedName))
+        AddDebug("Selected Eggs: " .. tostring(count))
         AddDebug("")
         AddDebug("========== SCAN COMPLETE ==========")
     end)
