@@ -419,7 +419,10 @@ ScanCorner.CornerRadius = UDim.new(0, 7)
 ScanCorner.Parent = ScanButton
 
 ScanButton.MouseButton1Click:Connect(function()
-    AddDebug("")
+    DebugLines = {}
+    DebugText.Text = ""
+    DebugBox.CanvasPosition = Vector2.new(0, 0)
+
     AddDebug("========== EGG SCAN ==========")
 
     local success, err = pcall(function()
@@ -448,50 +451,53 @@ ScanButton.MouseButton1Click:Connect(function()
         end
 
         AddDebug("")
-        AddDebug("----- ACTUAL EGG NAMES -----")
+        AddDebug("----- FILTERED EGGS -----")
 
-        local eggNames = {}
+        local shown = 0
 
-        for _, egg in ipairs(eggs) do
-            eggNames[egg.Name] = (eggNames[egg.Name] or 0) + 1
-        end
+        for index, egg in ipairs(eggs) do
+            local matched = SelectedEggs["All Eggs"] == true
 
-        for name, count in pairs(eggNames) do
-            AddDebug(
-                tostring(name) ..
-                "  x" ..
-                tostring(count)
-            )
-        end
+            if not matched then
+                for selectedName in pairs(SelectedEggs) do
+                    if selectedName ~= "All Eggs" then
+                        local cleanName = selectedName:gsub(" Egg$", "")
 
-        AddDebug("")
-        AddDebug("----- FIRST 10 EGGS -----")
+                        if egg.Name:lower():find(cleanName:lower(), 1, true) then
+                            matched = true
+                            break
+                        end
+                    end
+                end
+            end
 
-        for index = 1, math.min(10, #eggs) do
-            local egg = eggs[index]
+            if matched then
+                shown += 1
 
-            AddDebug(
-                "#" ..
-                tostring(index) ..
-                " | " ..
-                egg.Name ..
-                " | " ..
-                egg.ClassName
-            )
+                AddDebug(
+                    "#" ..
+                    tostring(index) ..
+                    " | " ..
+                    egg.Name ..
+                    " | " ..
+                    egg.ClassName
+                )
 
-            for _, object in ipairs(egg:GetDescendants()) do
-                if object:IsA("ValueBase") then
-                    AddDebug(
-                        "   " ..
-                        object.Name ..
-                        " = " ..
-                        tostring(object.Value)
-                    )
+                for _, object in ipairs(egg:GetDescendants()) do
+                    if object:IsA("ValueBase") then
+                        AddDebug(
+                            "   " ..
+                            object.Name ..
+                            " = " ..
+                            tostring(object.Value)
+                        )
+                    end
                 end
             end
         end
 
         AddDebug("")
+        AddDebug("Showing: " .. tostring(shown))
         AddDebug("========== SCAN COMPLETE ==========")
     end)
 
