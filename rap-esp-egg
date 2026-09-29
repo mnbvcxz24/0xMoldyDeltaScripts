@@ -16,7 +16,7 @@ Gui.Parent = CoreGui
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(400, 380)
+Main.Size = UDim2.fromOffset(350, 300)
 Main.Position = UDim2.new(0.5, -200, 0.5, -190)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
@@ -183,7 +183,7 @@ DebugTitle.TextXAlignment = Enum.TextXAlignment.Left
 DebugTitle.Parent = DebugPage
 
 local DebugBox = Instance.new("ScrollingFrame")
-DebugBox.Size = UDim2.new(1, -10, 1, -50)
+DebugBox.Size = UDim2.new(1, -10, 1, -95)
 DebugBox.Position = UDim2.fromOffset(5, 40)
 DebugBox.BackgroundColor3 = Color3.fromRGB(17, 17, 21)
 DebugBox.BorderSizePixel = 0
@@ -207,6 +207,121 @@ DebugText.TextXAlignment = Enum.TextXAlignment.Left
 DebugText.TextYAlignment = Enum.TextYAlignment.Top
 DebugText.TextWrapped = true
 DebugText.Parent = DebugBox
+
+local DebugLines = {
+    "[SYSTEM] ESP UI loaded."
+}
+
+local function AddDebug(text)
+    table.insert(DebugLines, tostring(text))
+
+    if #DebugLines > 150 then
+        table.remove(DebugLines, 1)
+    end
+
+    DebugText.Text = table.concat(DebugLines, "\n")
+
+    task.defer(function()
+        DebugBox.CanvasSize = UDim2.fromOffset(
+            0,
+            DebugText.TextBounds.Y + 15
+        )
+
+        DebugBox.CanvasPosition = Vector2.new(
+            0,
+            math.max(0, DebugText.TextBounds.Y - DebugBox.AbsoluteSize.Y)
+        )
+    end)
+end
+
+local ScanButton = Instance.new("TextButton")
+ScanButton.Size = UDim2.new(1, -10, 0, 35)
+ScanButton.Position = UDim2.new(0, 5, 1, -40)
+ScanButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+ScanButton.Text = "Scan Active Eggs"
+ScanButton.TextColor3 = Color3.fromRGB(225, 225, 230)
+ScanButton.TextSize = 12
+ScanButton.Font = Enum.Font.GothamMedium
+ScanButton.AutoButtonColor = false
+ScanButton.Parent = DebugPage
+
+local ScanCorner = Instance.new("UICorner")
+ScanCorner.CornerRadius = UDim.new(0, 7)
+ScanCorner.Parent = ScanButton
+
+ScanButton.MouseButton1Click:Connect(function()
+    AddDebug("")
+    AddDebug("========== SCAN START ==========")
+
+    local success, err = pcall(function()
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+        AddDebug("[1] ReplicatedStorage: OK")
+
+        local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
+
+        if not ServerData then
+            AddDebug("[ERROR] ServerData not found")
+            return
+        end
+
+        AddDebug("[2] ServerData: FOUND")
+
+        local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
+
+        if not ActiveEggs then
+            AddDebug("[ERROR] ActiveEggs not found")
+            return
+        end
+
+        AddDebug("[3] ActiveEggs: FOUND")
+        AddDebug("Class: " .. ActiveEggs.ClassName)
+
+        local eggs = ActiveEggs:GetChildren()
+
+        AddDebug("Total eggs: " .. tostring(#eggs))
+        AddDebug("")
+
+        for index, egg in ipairs(eggs) do
+            AddDebug("----- EGG #" .. index .. " -----")
+            AddDebug("Name: " .. egg.Name)
+            AddDebug("Class: " .. egg.ClassName)
+
+            local descendants = egg:GetDescendants()
+
+            AddDebug(
+                "Descendants: " ..
+                tostring(#descendants)
+            )
+
+            for _, object in ipairs(descendants) do
+                local line =
+                    "  " ..
+                    object.Name ..
+                    " [" ..
+                    object.ClassName ..
+                    "]"
+
+                if object:IsA("ValueBase") then
+                    line =
+                        line ..
+                        " = " ..
+                        tostring(object.Value)
+                end
+
+                AddDebug(line)
+            end
+        end
+
+        AddDebug("")
+        AddDebug("========== SCAN COMPLETE ==========")
+    end)
+
+    if not success then
+        AddDebug("========== LUA ERROR ==========")
+        AddDebug(tostring(err))
+    end
+end)
 
 local SettingsTitle = Instance.new("TextLabel")
 SettingsTitle.Size = UDim2.new(1, -10, 0, 30)
