@@ -230,7 +230,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • TEST V2.6"
+subtitle.Text = "Ride a Pet • Notifier • TEST V2.7"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -1487,6 +1487,9 @@ ActiveEggs.ChildAdded:Connect(function(egg)
 end)
 
 ActiveEggs.ChildRemoved:Connect(function(egg)
+    if not instance.running then
+        return
+    end
     knownEggs[egg] = nil
 end)
 
