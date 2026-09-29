@@ -1,3 +1,21 @@
+local env = getgenv()
+
+if env.RapNotifierTest then
+    env.RapNotifierTest.running = false
+end
+
+local instance = {
+    running = true
+}
+
+env.RapNotifierTest = instance
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -1436,6 +1454,9 @@ for _, egg in ipairs(ActiveEggs:GetChildren()) do
 end
 
 ActiveEggs.ChildAdded:Connect(function(egg)
+    if not instance.running then
+        return
+    end
     if knownEggs[egg] then
         return
     end
@@ -1546,6 +1567,9 @@ local function sendGearStockWebhook(gearName, stock)
 end
 
 Restock.OnClientEvent:Connect(function(data)
+    if not instance.running then
+        return
+    end
     if not data then
         gearStockStatus.Text = "Restock: No data"
         return
