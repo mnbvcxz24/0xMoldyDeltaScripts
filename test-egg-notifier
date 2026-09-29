@@ -1706,6 +1706,7 @@ discordEggTest.MouseButton1Click:Connect(function()
         embeds = {
             {
                 title = "🪽 CHERUB EGG SPAWNED!",
+                description = "**TESTING NOTIFER STATUS**",
                 color = 0xF6D77A,
                 image = {
                     url = "https://static2.klipy.com/ii/d6b0ce929193df3c242ac34b5654d2ce/f3/d4/zlLmOunU.gif"
@@ -1735,6 +1736,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
         embeds = {
             {
                 title = "💜 ETERNAL WEATHER STARTED!",
+                description = "**TESTING NOTIFER STATUS**",
                 color = weatherEmbedColors.Eternal,
                 image = {
                     url = "https://static2.klipy.com/ii/d6b0ce929193df3c242ac34b5654d2ce/f3/d4/zlLmOunU.gif"
