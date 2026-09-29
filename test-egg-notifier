@@ -743,7 +743,7 @@ local gearStockCard = card(
     webhookPage,
     "GearStockNotifierCard",
     "Gear Stock Notifier",
-    220
+    245
 )
 
 local gearStockStatus = Instance.new("TextLabel", gearStockCard)
