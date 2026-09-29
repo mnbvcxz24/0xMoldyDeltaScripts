@@ -1,3 +1,35 @@
+local env = getgenv()
+
+if env.RapNotifierCleanup then
+    pcall(env.RapNotifierCleanup)
+end
+
+if env.RapNotifier then
+    env.RapNotifier.running = false
+end
+
+local connections = {}
+
+local function trackConnection(connection)
+    table.insert(connections, connection)
+    return connection
+end
+
+env.RapNotifierCleanup = function()
+    for _, connection in ipairs(connections) do
+        pcall(function()
+            connection:Disconnect()
+        end)
+    end
+    table.clear(connections)
+end
+
+local instance = {
+    running = true
+}
+
+env.RapNotifier = instance
+
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -128,10 +160,10 @@ local eggEmbedColors = {
 }
 
 local eggThumbnails = {
-    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6ab4aca4&is=6ab35b24&hm=c7028814e47869365ae61eb1bbc4929ba2ca8ec859f342dae5866b708928ca57",
-    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6ab4acaf&is=6ab35b2f&hm=681382a7614080e000678997f1a0de57c6d811f19da92bd4523ec56523caa651",
-    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6ab4acaa&is=6ab35b2a&hm=3002a61a79193802421a5e963888394768637520fea4685215c95e42a5e058b7",
-    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552177973229125672/1553420646271291462/Volcanic.webp?ex=6ab92f37&is=6ab7ddb7&hm=3d3f043c3dd706476d14348b0f34562dc960d626be01b4ac9c1e268e4ad0fa32"
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6abbece4&is=6aba9b64&hm=22fb275694b117312682c0c4253ee39b54b14c4c62f42c56df90498756381fd4",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6abbecef&is=6aba9b6f&hm=fe55fa29bfae4a5e3bf11a24d276a083166d8985affd4ef2d3a4ca447bd48a2e",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6abbecea&is=6aba9b6a&hm=766b820715a64d458be1c7c81d9f9f99d40686e7845e945a114dd4b737b66463",
+    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1554330719826747432/Volcanic.webp?ex=6abc7ec9&is=6abb2d49&hm=46ae28d7b8fad3efcc72ba5a9faeb59c9f107d4af8a67b27a2315a66240caec2"
 }
 
 local weatherMutationInfo = {
@@ -151,11 +183,11 @@ local weatherEmbedColors = {
 }
 
 local weatherThumbnails = {
-    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6ab4c6d0&is=6ab37550&hm=0dea4539bf332842617e12cb37dec350612242173d6b068675430f5a75635954",
-    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6ab4c6cf&is=6ab3754f&hm=36903a65146efdaa38f7154411c37982a9b01e957f0564b35c8adb0c7be17207",
-    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6ab4c6ce&is=6ab3754e&hm=d566308490948b294acf5ba7190a1868bd602b81b9b28be9659ea4328621e307",
-    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6ab4c6cd&is=6ab3754d&hm=d26b1aa39d234c48bd202c1f6c9a6a04e7e1e26fc6b0c10cd95770b7e6a8bacc",
-    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6ab4c6cc&is=6ab3754c&hm=2a53d9f8153df535a845581704411d7ce0e3bdddd9b2f7b1767032bb62c48f95"
+    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6abc0710&is=6abab590&hm=4aae63a9ed7e1d31f10c7d80f66c8a28fa91af18f39ffb2afa7d1f4b08675fe8",
+    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6abc070f&is=6abab58f&hm=a81351f9b1fc00afb7715104dcc8144c4882d5e85d667fcae66b7b2029afab8d",
+    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6abc070e&is=6abab58e&hm=2326dab4599eec8cfccf5f290232a2b9a6a749c658fc7f5f2ff34d925ae0e34d",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6abc070d&is=6abab58d&hm=27b97ac85e7f974ac878edb37d30e7619455319e780725030411976182bceada",
+    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6abc070c&is=6abab58c&hm=02b881ac9593034de40b865d91088ddfbb418261350df80d4d92c377503bbad4"
 }
 
 for _, name in ipairs(eggList) do
@@ -208,7 +240,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • V2"
+subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.1"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -228,7 +260,7 @@ open.Size = UDim2.new(0, 45, 0, 45)
 open.Position = UDim2.new(0.5, -22, 0.5, -22)
 open.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 open.BorderSizePixel = 0
-open.Text = "W"
+open.Text = "🔔"
 open.TextSize = 18
 open.Font = Enum.Font.GothamBold
 open.TextColor3 = Color3.new(1, 1, 1)
@@ -402,12 +434,12 @@ local function antiAfk()
         return
     end
 
-    player.Idled:Connect(function()
+    trackConnection(player.Idled:Connect(function()
         if config.antiAfk then
             VirtualUser:CaptureController()
             VirtualUser:ClickButton2(Vector2.new())
         end
-    end)
+    end))
 end
 
 antiAfk()
@@ -721,6 +753,10 @@ for i, name in ipairs(weatherList) do
 end
 
 local function requestPost(url, payload)
+    if not instance.running then
+        return false
+    end
+    
     local fn = (syn and syn.request) or (http and http.request) or http_request or request
     if not fn then
         return false
@@ -1057,6 +1093,9 @@ local function getEggHistory(eggName)
 end
 
 sendHistoryWebhook = function(webhook, payload, method, messageId)
+    if not instance.running then
+        return false, nil
+    end
     local fn = (syn and syn.request)
         or (http and http.request)
         or http_request
@@ -1331,6 +1370,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     local reset = spawnTime + 420
     
     local fields = {
+
         {
             name = "",
             value =
@@ -1343,7 +1383,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     }
 
     local embed = {
-        title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName) .. " SPAWNED!",
+        title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName) .. "\n SPAWNED!",
         color = eggEmbedColors[eggName] or 0x5865F2,
         fields = fields,
         footer = {
@@ -1381,9 +1421,10 @@ local function sendDiscordWeather(info)
     local roles = getRoleList(wc.roles)
     local start = os.time()
     local ends = info.endsAt or (start + 300)
-
+    
     local embed = {
-        title = m.emoji .. " " .. string.upper(name) .. " WEATHER!",
+        title = m.emoji .. " " .. string.upper(name) .. "\n WEATHER STARTED!",
+        color = weatherEmbedColors[name] or 0x64B4FF,
         fields = {
             {
                 name = "",
@@ -1421,7 +1462,7 @@ for _, egg in ipairs(ActiveEggs:GetChildren()) do
     knownEggs[egg] = true
 end
 
-ActiveEggs.ChildAdded:Connect(function(egg)
+trackConnection(ActiveEggs.ChildAdded:Connect(function(egg)
     if knownEggs[egg] then
         return
     end
@@ -1449,7 +1490,7 @@ ActiveEggs.ChildAdded:Connect(function(egg)
 
     sendDiscordEgg(name, stock, spawnTime)
     sendEggHistory(name, stock)
-end)
+end))
 
 ActiveEggs.ChildRemoved:Connect(function(egg)
     knownEggs[egg] = nil
@@ -1491,16 +1532,18 @@ local function sendGearStockWebhook(gearName, stock)
 
     local roles = getRoleList(gearConfig.role)
 
+    local stockTime = os.time()
+    local resetTime = stockTime + (5 * 60)
+    
     local fields = {
         {
-            name = "📦 Stock",
-            value = tostring(stock),
-            inline = true
-        },
-        {
-            name = "🕐 Stock Time",
-            value = "<t:" .. tostring(os.time()) .. ":t>",
-            inline = true
+            name = "",
+            value =
+                "**📦 Stock: **" .. tostring(stock) .. "\n" ..
+                "**🕐 Stock Time: **<t:" .. math.floor(stockTime) .. ":t>\n" ..
+                "**🔄 Reset Time: **<t:" .. math.floor(resetTime) .. ":t>\n" ..
+                "**⏳ Resets: **<t:" .. math.floor(resetTime) .. ":R>",
+            inline = false
         }
     }
 
@@ -1531,7 +1574,7 @@ local function sendGearStockWebhook(gearName, stock)
     end
 end
 
-Restock.OnClientEvent:Connect(function(data)
+trackConnection(Restock.OnClientEvent:Connect(function(data)
     if not data then
         gearStockStatus.Text = "Restock: No data"
         return
@@ -1575,7 +1618,7 @@ Restock.OnClientEvent:Connect(function(data)
             end
         end
     end
-end)
+end))
 
 local function updateWeather()
     local names = {}
@@ -1605,7 +1648,7 @@ local function updateWeather()
     knownWeather = nextKnown
 end
 
-ServerData:GetAttributeChangedSignal("ActiveWeathers"):Connect(updateWeather)
+trackConnection(ServerData:GetAttributeChangedSignal("ActiveWeathers"):Connect(updateWeather))
 
 local function updateEggs()
     local counts = {}
@@ -1695,10 +1738,11 @@ discordEggTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = "🪽 CHERUB EGG SPAWNED!",
+                title = "🪽 CHERUB EGG",
+                description = "*THIS IS JUST A TEST FOR NOTIFIER*",
                 color = 0xF6D77A,
                 image = {
-                    url = "https://klipy.com/gifs/dance-vibing-7"
+                    url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Egg Stock Notifier",
@@ -1724,10 +1768,11 @@ discordWeatherTest.MouseButton1Click:Connect(function()
     local ok = requestPost(url, {
         embeds = {
             {
-                title = "💜 ETERNAL WEATHER STARTED!",
-                color = weatherEmbedColors.Thunder,
+                title = "💜 ETERNAL",
+                color = weatherEmbedColors.Eternal,
+                description = "*THIS IS JUST A TEST FOR NOTIFIER*",
                 image = {
-                    url = "https://klipy.com/gifs/dance-vibing-7"
+                    url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
                 },
                 footer = {
                     text = "Ride a Pet • Weather Notifier",
