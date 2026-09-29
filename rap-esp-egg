@@ -55,7 +55,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP V1.5"
+Subtitle.Text = "Egg ESP V1.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = 11
 Subtitle.Font = Enum.Font.Gotham
@@ -79,7 +79,7 @@ CloseCorner.Parent = Close
 
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.fromOffset(105, 245)
-Sidebar.Position = UDim2.fromOffset(10, 55)
+Sidebar.Position = UDim2.fromOffset(10, 45)
 Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = Main
@@ -219,7 +219,7 @@ FilterCount.Parent = ESPPage
 
 local FilterFrame = Instance.new("Frame")
 FilterFrame.Size = UDim2.new(1, -10, 0, 150)
-FilterFrame.Position = UDim2.fromOffset(5, 140)
+FilterFrame.Position = UDim2.fromOffset(5, 177)
 FilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 FilterFrame.BorderSizePixel = 0
 FilterFrame.Visible = false
@@ -460,7 +460,7 @@ local function createESP(egg)
     billboard.Size = UDim2.fromOffset(180, 50)
     billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.AlwaysOnTop = true
-    billboard.MaxDistance = 1000
+    billboard.MaxDistance = math.huge
     billboard.Parent = part
 
     local label = Instance.new("TextLabel")
