@@ -1,76 +1,316 @@
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/gen2"))()
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
 
-local Window = Rayfield:CreateWindow({
-    Name = "ESP",
-    Subtitle = "Egg ESP",
-    Size = UDim2.fromOffset(400, 300),
-    MinimizeButton = true,
-})
+pcall(function()
+    local oldGui = CoreGui:FindFirstChild("EggESPGUI")
+    if oldGui then
+        oldGui:Destroy()
+    end
+end)
 
-local MainTab = Window:CreateTab({
-    name = "ESP",
-    icon = 93364949241311,
-})
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "EggESPGUI"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.Parent = CoreGui
 
-local ESPEnabled = false
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.fromOffset(400, 380)
+Main.Position = UDim2.new(0.5, -200, 0.5, -190)
+Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+Main.BorderSizePixel = 0
+Main.Parent = Gui
 
-MainTab:CreateToggle({
-    name = "Egg ESP",
-    flag = "EggESP",
-    callback = function(value)
-        ESPEnabled = value
-    end,
-})
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.Parent = Main
 
-MainTab:CreateButton({
-    Name = "Scan Active Eggs",
-    Callback = function()
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
-        local ActiveEggs = ServerData and ServerData:FindFirstChild("ActiveEggs")
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 55)
+Header.BackgroundTransparency = 1
+Header.Parent = Main
 
-        if not ActiveEggs then
-            Rayfield:Notify({
-                Title = "Egg Scan",
-                Content = "ActiveEggs not found.",
-                Duration = 3
-            })
-            return
-        end
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -70, 0, 28)
+Title.Position = UDim2.fromOffset(16, 7)
+Title.BackgroundTransparency = 1
+Title.Text = "ESP"
+Title.TextColor3 = Color3.fromRGB(240, 240, 245)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Header
 
-        local count = 0
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1, -70, 0, 18)
+Subtitle.Position = UDim2.fromOffset(16, 31)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "Egg ESP"
+Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
+Subtitle.TextSize = 11
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+Subtitle.Parent = Header
 
-        for _, egg in ipairs(ActiveEggs:GetChildren()) do
-            count += 1
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.fromOffset(32, 32)
+Close.Position = UDim2.new(1, -42, 0, 11)
+Close.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+Close.Text = "×"
+Close.TextColor3 = Color3.fromRGB(220, 220, 225)
+Close.TextSize = 20
+Close.Font = Enum.Font.Gotham
+Close.AutoButtonColor = false
+Close.Parent = Header
 
-            warn("========== EGG ==========")
-            warn("Name:", egg.Name)
-            warn("Class:", egg.ClassName)
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = Close
 
-            for _, descendant in ipairs(egg:GetDescendants()) do
-                local value
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.fromOffset(105, 325)
+Sidebar.Position = UDim2.fromOffset(10, 55)
+Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = Main
 
-                if descendant:IsA("ValueBase") then
-                    value = descendant.Value
-                else
-                    value = "-"
-                end
+local SidebarCorner = Instance.new("UICorner")
+SidebarCorner.CornerRadius = UDim.new(0, 8)
+SidebarCorner.Parent = Sidebar
 
-                warn(
-                    "Path:",
-                    descendant:GetFullName(),
-                    "| Class:",
-                    descendant.ClassName,
-                    "| Value:",
-                    tostring(value)
-                )
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, -125, 1, -65)
+Content.Position = UDim2.fromOffset(120, 55)
+Content.BackgroundTransparency = 1
+Content.Parent = Main
+
+local function createPage()
+    local page = Instance.new("Frame")
+    page.Size = UDim2.fromScale(1, 1)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.Parent = Content
+    return page
+end
+
+local ESPPage = createPage()
+local DebugPage = createPage()
+local SettingsPage = createPage()
+
+ESPPage.Visible = true
+
+local function createSidebarButton(text, y)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -12, 0, 40)
+    button.Position = UDim2.fromOffset(6, y)
+    button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(210, 210, 218)
+    button.TextSize = 12
+    button.Font = Enum.Font.GothamMedium
+    button.AutoButtonColor = false
+    button.Parent = Sidebar
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = button
+
+    return button
+end
+
+local ESPButton = createSidebarButton("ESP", 10)
+local DebugButton = createSidebarButton("Debug", 57)
+local SettingsButton = createSidebarButton("Settings", 104)
+
+local PageTitle = Instance.new("TextLabel")
+PageTitle.Size = UDim2.new(1, -10, 0, 30)
+PageTitle.Position = UDim2.fromOffset(5, 5)
+PageTitle.BackgroundTransparency = 1
+PageTitle.Text = "Egg ESP"
+PageTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+PageTitle.TextSize = 16
+PageTitle.Font = Enum.Font.GothamBold
+PageTitle.TextXAlignment = Enum.TextXAlignment.Left
+PageTitle.Parent = ESPPage
+
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1, -10, 0, 25)
+Status.Position = UDim2.fromOffset(5, 42)
+Status.BackgroundTransparency = 1
+Status.Text = "ESP Status: Disabled"
+Status.TextColor3 = Color3.fromRGB(150, 150, 158)
+Status.TextSize = 12
+Status.Font = Enum.Font.Gotham
+Status.TextXAlignment = Enum.TextXAlignment.Left
+Status.Parent = ESPPage
+
+local Toggle = Instance.new("TextButton")
+Toggle.Size = UDim2.fromOffset(70, 32)
+Toggle.Position = UDim2.new(1, -75, 0, 38)
+Toggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+Toggle.Text = "OFF"
+Toggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+Toggle.TextSize = 11
+Toggle.Font = Enum.Font.GothamBold
+Toggle.AutoButtonColor = false
+Toggle.Parent = ESPPage
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 7)
+ToggleCorner.Parent = Toggle
+
+local EggCount = Instance.new("TextLabel")
+EggCount.Size = UDim2.new(1, -10, 0, 25)
+EggCount.Position = UDim2.fromOffset(5, 85)
+EggCount.BackgroundTransparency = 1
+EggCount.Text = "Active Eggs: 0"
+EggCount.TextColor3 = Color3.fromRGB(175, 175, 185)
+EggCount.TextSize = 12
+EggCount.Font = Enum.Font.Gotham
+EggCount.TextXAlignment = Enum.TextXAlignment.Left
+EggCount.Parent = ESPPage
+
+local DebugTitle = Instance.new("TextLabel")
+DebugTitle.Size = UDim2.new(1, -10, 0, 30)
+DebugTitle.Position = UDim2.fromOffset(5, 5)
+DebugTitle.BackgroundTransparency = 1
+DebugTitle.Text = "Debug Console"
+DebugTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+DebugTitle.TextSize = 16
+DebugTitle.Font = Enum.Font.GothamBold
+DebugTitle.TextXAlignment = Enum.TextXAlignment.Left
+DebugTitle.Parent = DebugPage
+
+local DebugBox = Instance.new("ScrollingFrame")
+DebugBox.Size = UDim2.new(1, -10, 1, -50)
+DebugBox.Position = UDim2.fromOffset(5, 40)
+DebugBox.BackgroundColor3 = Color3.fromRGB(17, 17, 21)
+DebugBox.BorderSizePixel = 0
+DebugBox.ScrollBarThickness = 3
+DebugBox.CanvasSize = UDim2.new()
+DebugBox.Parent = DebugPage
+
+local DebugCorner = Instance.new("UICorner")
+DebugCorner.CornerRadius = UDim.new(0, 7)
+DebugCorner.Parent = DebugBox
+
+local DebugText = Instance.new("TextLabel")
+DebugText.Size = UDim2.new(1, -10, 0, 20)
+DebugText.Position = UDim2.fromOffset(5, 5)
+DebugText.BackgroundTransparency = 1
+DebugText.Text = "[SYSTEM] ESP UI loaded."
+DebugText.TextColor3 = Color3.fromRGB(180, 180, 190)
+DebugText.TextSize = 11
+DebugText.Font = Enum.Font.Code
+DebugText.TextXAlignment = Enum.TextXAlignment.Left
+DebugText.TextYAlignment = Enum.TextYAlignment.Top
+DebugText.TextWrapped = true
+DebugText.Parent = DebugBox
+
+local SettingsTitle = Instance.new("TextLabel")
+SettingsTitle.Size = UDim2.new(1, -10, 0, 30)
+SettingsTitle.Position = UDim2.fromOffset(5, 5)
+SettingsTitle.BackgroundTransparency = 1
+SettingsTitle.Text = "Settings"
+SettingsTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+SettingsTitle.TextSize = 16
+SettingsTitle.Font = Enum.Font.GothamBold
+SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
+SettingsTitle.Parent = SettingsPage
+
+local Minimized = Instance.new("TextButton")
+Minimized.Name = "MinimizedButton"
+Minimized.Size = UDim2.fromOffset(45, 45)
+Minimized.Position = UDim2.new(0, 20, 0.5, -22)
+Minimized.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+Minimized.Text = "ESP"
+Minimized.TextColor3 = Color3.fromRGB(235, 235, 240)
+Minimized.TextSize = 11
+Minimized.Font = Enum.Font.GothamBold
+Minimized.Visible = false
+Minimized.AutoButtonColor = false
+Minimized.Parent = Gui
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(1, 0)
+MinCorner.Parent = Minimized
+
+local dragging = false
+local dragStart
+local startPos
+
+Header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
             end
-        end
+        end)
+    end
+end)
 
-        Rayfield:Notify({
-            Title = "Egg Scan",
-            Content = "Found " .. tostring(count) .. " active eggs.",
-            Duration = 3
-        })
-    end,
-})
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (
+        input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+    ) then
+        local delta = input.Position - dragStart
+
+        Main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+local function showPage(page, title)
+    ESPPage.Visible = false
+    DebugPage.Visible = false
+    SettingsPage.Visible = false
+
+    page.Visible = true
+end
+
+ESPButton.MouseButton1Click:Connect(function()
+    showPage(ESPPage, "ESP")
+end)
+
+DebugButton.MouseButton1Click:Connect(function()
+    showPage(DebugPage, "Debug")
+end)
+
+SettingsButton.MouseButton1Click:Connect(function()
+    showPage(SettingsPage, "Settings")
+end)
+
+Toggle.MouseButton1Click:Connect(function()
+    local enabled = Toggle.Text == "OFF"
+
+    Toggle.Text = enabled and "ON" or "OFF"
+    Toggle.BackgroundColor3 = enabled
+        and Color3.fromRGB(55, 120, 75)
+        or Color3.fromRGB(45, 45, 53)
+
+    Status.Text = enabled
+        and "ESP Status: Enabled"
+        or "ESP Status: Disabled"
+end)
+
+Close.MouseButton1Click:Connect(function()
+    Main.Visible = false
+    Minimized.Visible = true
+end)
+
+Minimized.MouseButton1Click:Connect(function()
+    Main.Visible = true
+    Minimized.Visible = false
+end)
