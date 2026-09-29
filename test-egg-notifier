@@ -1756,10 +1756,6 @@ discordEggTest.MouseButton1Click:Connect(function()
             ok = false
         end
     end
-
-    discordEggStatus.Text = ok and "Test sent successfully" or "Test failed"
-end)
-
     discordEggStatus.Text = ok and "Test sent successfully" or "Test failed"
 end)
 
@@ -1795,10 +1791,6 @@ discordWeatherTest.MouseButton1Click:Connect(function()
             ok = false
         end
     end
-
-    discordWeatherStatus.Text = ok and "Test sent successfully" or "Test failed"
-end)
-
     discordWeatherStatus.Text = ok and "Test sent successfully" or "Test failed"
 end)
 
