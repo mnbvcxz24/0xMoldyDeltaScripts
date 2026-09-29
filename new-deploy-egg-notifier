@@ -240,7 +240,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.1"
+subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.2"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -1726,8 +1726,8 @@ discordWeatherInput.FocusLost:Connect(function()
 end)
 
 discordEggTest.MouseButton1Click:Connect(function()
-    local url = discordEggInput.Text
-    if url == "" then
+    local webhooks = getWebhookList(discordEggInput.Text)
+    if #webhooks == 0 then
         discordEggStatus.Text = "Webhook URL is empty"
         return
     end
@@ -1735,28 +1735,33 @@ discordEggTest.MouseButton1Click:Connect(function()
     local now = os.time()
     local reset = now + 420
 
-    local ok = requestPost(url, {
-        embeds = {
-            {
-                title = "🪽 CHERUB EGG",
-                description = "*THIS IS JUST A TEST FOR NOTIFIER*",
-                color = 0xF6D77A,
-                image = {
-                    url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
-                },
-                footer = {
-                    text = "Ride a Pet • Egg Stock Notifier",
+    local ok = true
+
+    for _, url in ipairs(webhooks) do
+        if not requestPost(url, {
+            embeds = {
+                {
+                    title = "🪽 CHERUB EGG",
+                    description = "*THIS IS JUST A TEST FOR NOTIFIER*",
+                    color = 0xF6D77A,
+                    image = {
+                        url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
+                    },
+                    footer = {
+                        text = "Ride a Pet • Egg Stock Notifier",
+                    },
                 },
             },
-        },
-    })
-
+        }) then
+            ok = false
+        end
+    end
     discordEggStatus.Text = ok and "Test sent successfully" or "Test failed"
 end)
 
 discordWeatherTest.MouseButton1Click:Connect(function()
-    local url = discordWeatherInput.Text
-    if url == "" then
+    local webhooks = getWebhookList(discordWeatherInput.Text)
+    if #webhooks == 0 then
         discordWeatherStatus.Text = "Webhook URL is empty"
         return
     end
@@ -1765,22 +1770,27 @@ discordWeatherTest.MouseButton1Click:Connect(function()
     local ends = now + 300
     local m = weatherMutationInfo.Thunder
 
-    local ok = requestPost(url, {
-        embeds = {
-            {
-                title = "💜 ETERNAL",
-                color = weatherEmbedColors.Eternal,
-                description = "*THIS IS JUST A TEST FOR NOTIFIER*",
-                image = {
-                    url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
-                },
-                footer = {
-                    text = "Ride a Pet • Weather Notifier",
+    local ok = true
+
+    for _, url in ipairs(webhooks) do
+        if not requestPost(url, {
+            embeds = {
+                {
+                    title = "💜 ETERNAL",
+                    color = weatherEmbedColors.Eternal,
+                    description = "*THIS IS JUST A TEST FOR NOTIFIER*",
+                    image = {
+                        url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
+                    },
+                    footer = {
+                        text = "Ride a Pet • Weather Notifier",
+                    },
                 },
             },
-        },
-    })
-
+        }) then
+            ok = false
+        end
+    end
     discordWeatherStatus.Text = ok and "Test sent successfully" or "Test failed"
 end)
 
