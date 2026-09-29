@@ -1370,6 +1370,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     local reset = spawnTime + 420
     
     local fields = {
+
         {
             name = "",
             value =
@@ -1384,6 +1385,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
     local embed = {
         title = (eggEmojis[eggName] or "🥚") .. " " .. string.upper(eggName),
         color = eggEmbedColors[eggName] or 0x5865F2,
+        description = "**SPAWNED!**",
         fields = fields,
         footer = {
             text = "Ride a Pet • Egg Stock Notifier",
@@ -1420,9 +1422,11 @@ local function sendDiscordWeather(info)
     local roles = getRoleList(wc.roles)
     local start = os.time()
     local ends = info.endsAt or (start + 300)
-
+    
     local embed = {
         title = m.emoji .. " " .. string.upper(name),
+        description = "**WEATHER STARTED!**",
+        color = weatherEmbedColors[name] or 0x64B4FF,
         fields = {
             {
                 name = "",
@@ -1530,16 +1534,18 @@ local function sendGearStockWebhook(gearName, stock)
 
     local roles = getRoleList(gearConfig.role)
 
+    local stockTime = os.time()
+    local resetTime = stockTime + (5 * 60)
+    
     local fields = {
         {
-            name = "📦 Stock",
-            value = tostring(stock),
-            inline = true
-        },
-        {
-            name = "🕐 Stock Time",
-            value = "<t:" .. tostring(os.time()) .. ":t>",
-            inline = true
+            name = "",
+            value =
+                "**📦 Stock: **" .. tostring(stock) .. "\n" ..
+                "**🕐 Stock Time: **<t:" .. math.floor(stockTime) .. ":t>\n" ..
+                "**🔄 Reset Time: **<t:" .. math.floor(resetTime) .. ":t>\n" ..
+                "**⏳ Resets: **<t:" .. math.floor(resetTime) .. ":R>",
+            inline = false
         }
     }
 
