@@ -222,13 +222,17 @@ FilterCount.Font = Enum.Font.Gotham
 FilterCount.TextXAlignment = Enum.TextXAlignment.Left
 FilterCount.Parent = ESPPage
 
-local FilterFrame = Instance.new("Frame")
-FilterFrame.Size = UDim2.new(1, -10, 0, 150)
+local FilterFrame = Instance.new("ScrollingFrame")
+FilterFrame.Size = UDim2.new(1, -10, 0, 155)
 FilterFrame.Position = UDim2.fromOffset(5, 177)
 FilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 FilterFrame.BorderSizePixel = 0
 FilterFrame.Visible = false
 FilterFrame.ZIndex = 20
+FilterFrame.ScrollBarThickness = 3
+FilterFrame.ScrollBarImageTransparency = 0.3
+FilterFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+FilterFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 FilterFrame.Parent = ESPPage
 
 local FilterFrameCorner = Instance.new("UICorner")
@@ -236,13 +240,44 @@ FilterFrameCorner.CornerRadius = UDim.new(0, 7)
 FilterFrameCorner.Parent = FilterFrame
 
 local EggTypes = {
-    "--",
-    "White Egg",
-    "Blackhole Egg",
-    "Solaris Egg",
-    "Cherub Egg",
-    "Volcanic Egg"
+    "--"
 }
+local function refreshEggTypes()
+    local ServerData = ReplicatedStorage:FindFirstChild("ServerData")
+    if not ServerData then
+        return
+    end
+
+    local ActiveEggs = ServerData:FindFirstChild("ActiveEggs")
+    if not ActiveEggs then
+        return
+    end
+
+    local found = {}
+
+    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        local eggName = egg:GetAttribute("Egg")
+
+        if eggName and eggName ~= "" then
+            found[eggName] = true
+        end
+    end
+
+    table.clear(EggTypes)
+    table.insert(EggTypes, "--")
+
+    local names = {}
+
+    for eggName in pairs(found) do
+        table.insert(names, eggName)
+    end
+
+    table.sort(names)
+
+    for _, eggName in ipairs(names) do
+        table.insert(EggTypes, eggName)
+    end
+end
 
 local SelectedEggs = {}
 local FilterButtons = {}
@@ -278,11 +313,11 @@ end
 
 local function createFilterOption(eggName, index)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -10, 0, 23)
-    button.Position = UDim2.fromOffset(5, 5 + ((index - 1) * 20))
+    button.Size = UDim2.new(1, -10, 0, 22)
+    button.Position = UDim2.fromOffset(5, 5 + ((index - 1) * 22))
     button.BackgroundTransparency = 1
     button.TextColor3 = Color3.fromRGB(190, 190, 198)
-    button.TextSize = textSize(11)
+    button.TextSize = 10
     button.Font = Enum.Font.Gotham
     button.TextXAlignment = Enum.TextXAlignment.Left
     button.AutoButtonColor = false
@@ -290,6 +325,8 @@ local function createFilterOption(eggName, index)
     button.Parent = FilterFrame
 
     FilterButtons[eggName] = button
+
+    button.Text = "☐ " .. eggName
 
     button.MouseButton1Click:Connect(function()
         if eggName == "--" then
@@ -304,8 +341,6 @@ local function createFilterOption(eggName, index)
         updateFilterText()
         FilterFrame.Visible = false
     end)
-
-    button.Text = "☐ " .. eggName
 end
 
 for index, eggName in ipairs(EggTypes) do
@@ -315,6 +350,8 @@ end
 FilterButton.MouseButton1Click:Connect(function()
     FilterFrame.Visible = not FilterFrame.Visible
 end)
+
+refreshEggTypes()
 
 local DebugTitle = Instance.new("TextLabel")
 DebugTitle.Size = UDim2.new(1, -10, 0, 30)
@@ -649,16 +686,14 @@ SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 SettingsTitle.Parent = SettingsPage
 
 local Minimized = Instance.new("TextButton")
-Minimized.Name = "MinimizedButton"
-Minimized.Size = UDim2.fromOffset(45, 45)
-Minimized.Position = UDim2.new(0, 20, 0.5, -22)
-Minimized.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+Minimized.Size = UDim2.fromOffset(60, 30)
+Minimized.AnchorPoint = Vector2.new(0.5, 0.5)
+Minimized.Position = UDim2.fromScale(0.5, 0.5)
+Minimized.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 Minimized.Text = "ESP"
-Minimized.TextColor3 = Color3.fromRGB(235, 235, 240)
-Minimized.TextSize = textSize(11)
+Minimized.TextSize = 12
+Minimized.TextColor3 = Color3.fromRGB(220, 220, 225)
 Minimized.Font = Enum.Font.GothamBold
-Minimized.Visible = false
-Minimized.AutoButtonColor = false
 Minimized.Parent = Gui
 
 local MinCorner = Instance.new("UICorner")
