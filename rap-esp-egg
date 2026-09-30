@@ -2,6 +2,7 @@ local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+
 local player = Players.LocalPlayer
 
 pcall(function()
@@ -257,7 +258,6 @@ local EggTypes = {
 }
 
 local KnownEggTypes = {}
-
 local SelectedEggs = {}
 local FilterButtons = {}
 
@@ -315,24 +315,19 @@ local function getRanchLuckText()
     return currentUpgrade.Text
 end
 
-local function getRanchLuck()
-    local text = getRanchLuckText()
-    if not text then
-        return nil
-    end
-
-    local value = tostring(text):gsub("x", "")
-    return tonumber(value)
-end
-
 local function parseLuck(value)
     if not value then
         return nil
     end
 
-    value = tostring(value):upper():gsub(",", ""):gsub("%s+", ""):gsub("X", "")
+    value = tostring(value)
+        :upper()
+        :gsub(",", "")
+        :gsub("%s+", "")
+        :gsub("X", "")
 
     local number, suffix = value:match("([%d%.]+)([KMBT]?)")
+
     number = tonumber(number)
 
     if not number then
@@ -349,9 +344,55 @@ local function parseLuck(value)
     return number * (multipliers[suffix] or 1)
 end
 
+local function getRanchLuck()
+    return parseLuck(getRanchLuckText())
+end
+
+local function getEggLuckText(eggName)
+    if not eggName or eggName == "--" then
+        return nil
+    end
+
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then
+        return nil
+    end
+
+    local main = playerGui:FindFirstChild("Main")
+    if not main then
+        return nil
+    end
+
+    local eggTracker = main:FindFirstChild("EggTracker")
+    if not eggTracker then
+        return nil
+    end
+
+    local eggsHolder = eggTracker:FindFirstChild("EggsHolder")
+    if not eggsHolder then
+        return nil
+    end
+
+    local eggFrame = eggsHolder:FindFirstChild(eggName)
+    if not eggFrame then
+        return nil
+    end
+
+    local luckDisplay = eggFrame:FindFirstChild("LuckDisplay")
+    if not luckDisplay then
+        return nil
+    end
+
+    local luck = luckDisplay:FindFirstChild("Luck")
+    if not luck then
+        return nil
+    end
+
+    return luck.Text
+end
+
 local function getEggLuck(eggName)
-    local text = getEggLuckText(eggName)
-    return parseLuck(text)
+    return parseLuck(getEggLuckText(eggName))
 end
 
 local function getActiveEggs()
@@ -460,11 +501,14 @@ local function rebuildFilter()
 
     for index, eggName in ipairs(EggTypes) do
         local button = Instance.new("TextButton")
+
         button.Size = UDim2.new(1, -10, 0, 22)
+
         button.Position = UDim2.fromOffset(
             5,
             5 + ((index - 1) * 22)
         )
+
         button.BackgroundTransparency = 1
         button.TextColor3 = Color3.fromRGB(190, 190, 198)
         button.TextSize = textSize(10)
@@ -758,14 +802,16 @@ ScanButton.MouseButton1Click:Connect(function()
             break
         end
 
-        local eggLuckText = getEggLuckText(SelectedEgg)
+        local eggLuckText = getEggLuckText(selectedName)
+        local eggLuck = getEggLuck(selectedName)
 
-        AddDebug("Egg: " .. tostring(SelectedEgg))
+        AddDebug("Egg: " .. tostring(selectedName))
         AddDebug("Egg Luck Text: " .. tostring(eggLuckText))
+        AddDebug("Egg Luck Value: " .. tostring(eggLuck))
 
         local ranchLuckText = getRanchLuckText()
         local ranchLuck = getRanchLuck()
-        
+
         AddDebug("Ranch Luck Text: " .. tostring(ranchLuckText))
         AddDebug("Ranch Luck Value: " .. tostring(ranchLuck))
 
@@ -1000,3 +1046,5 @@ AddDebug("[SYSTEM] Ready")
 AddDebug("[SYSTEM] Source: ServerData.ActiveEggs")
 AddDebug("[SYSTEM] Filter uses Egg attribute")
 AddDebug("[SYSTEM] ESP uses Position attribute")
+AddDebug("[SYSTEM] Ranch Luck source: Upgrade.CurrentUpgrade")
+AddDebug("[SYSTEM] Egg Luck source: EggTracker.EggsHolder")
