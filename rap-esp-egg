@@ -63,7 +63,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.2"
+Subtitle.Text = "Egg ESP TEST V2.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -393,6 +393,18 @@ end
 
 local function getEggLuck(eggName)
     return parseLuck(getEggLuckText(eggName))
+end
+
+local function calculateKG(weight, eggLuck, ranchLuck)
+    if not weight or not eggLuck or not ranchLuck then
+        return nil
+    end
+
+    if weight <= 0 or eggLuck <= 0 or ranchLuck <= 0 then
+        return nil
+    end
+
+    return weight * ((eggLuck * ranchLuck) ^ (1 / 3)) * 0.1272
 end
 
 local function getActiveEggs()
@@ -814,6 +826,25 @@ ScanButton.MouseButton1Click:Connect(function()
 
         AddDebug("Ranch Luck Text: " .. tostring(ranchLuckText))
         AddDebug("Ranch Luck Value: " .. tostring(ranchLuck))
+
+        local selectedWeight
+
+            for _, egg in ipairs(eggs) do
+                if egg:GetAttribute("Egg") == selectedName then
+                    selectedWeight = egg:GetAttribute("Weight")
+                    break
+                end
+            end
+            
+            local calculatedKG = calculateKG(
+                selectedWeight,
+                eggLuck,
+                ranchLuck
+            )
+            
+            AddDebug("Weight: " .. tostring(selectedWeight))
+            AddDebug("Calculated KG: " .. tostring(calculatedKG))
+
 
         AddDebug("Total Active Eggs: " .. tostring(#eggs))
         AddDebug("Filter: " .. tostring(selectedName or "--"))
