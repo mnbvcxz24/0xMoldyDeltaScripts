@@ -211,9 +211,20 @@ local FilterCorner = Instance.new("UICorner")
 FilterCorner.CornerRadius = UDim.new(0, 7)
 FilterCorner.Parent = FilterButton
 
+local WeightLabel = Instance.new("TextLabel")
+WeightLabel.Size = UDim2.new(1, -10, 0, 25)
+WeightLabel.Position = UDim2.fromOffset(5, 175)
+WeightLabel.BackgroundTransparency = 1
+WeightLabel.Text = "Weight: --"
+WeightLabel.TextColor3 = Color3.fromRGB(175, 175, 185)
+WeightLabel.TextSize = textSize(12)
+WeightLabel.Font = Enum.Font.Gotham
+WeightLabel.TextXAlignment = Enum.TextXAlignment.Left
+WeightLabel.Parent = ESPPage
+
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 25)
-FilterCount.Position = UDim2.fromOffset(5, 175)
+FilterCount.Position = UDim2.fromOffset(5, 205)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Selected Eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
@@ -339,8 +350,30 @@ local function updateFilterText()
 
     if selectedName then
         FilterCount.Text = selectedName .. ": 0"
+
+        local ActiveEggs = getActiveEggs()
+        local weightFound = false
+
+        if ActiveEggs then
+            for _, egg in ipairs(ActiveEggs:GetChildren()) do
+                if egg:GetAttribute("Egg") == selectedName then
+                    local weight = egg:GetAttribute("Weight")
+
+                    if weight ~= nil then
+                        WeightLabel.Text = "Weight: " .. tostring(weight) .. " kg"
+                        weightFound = true
+                        break
+                    end
+                end
+            end
+        end
+
+        if not weightFound then
+            WeightLabel.Text = "Weight: --"
+        end
     else
         FilterCount.Text = "Selected Eggs: 0"
+        WeightLabel.Text = "Weight: --"
     end
 end
 
