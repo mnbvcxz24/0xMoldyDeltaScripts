@@ -19,7 +19,7 @@ pcall(function()
     end
 end)
 
-local TEXT_SCALE = 0.70
+local TEXT_SCALE = 0.90
 
 local function textSize(size)
     return math.floor(size * TEXT_SCALE)
@@ -63,7 +63,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.4"
+Subtitle.Text = "Egg ESP TEST V2.5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -986,6 +986,48 @@ SettingsTitle.TextSize = textSize(16)
 SettingsTitle.Font = Enum.Font.GothamBold
 SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 SettingsTitle.Parent = SettingsPage
+
+local AutoExecuteButton = Instance.new("TextButton")
+AutoExecuteButton.Size = UDim2.new(1, -10, 0, 38)
+AutoExecuteButton.Position = UDim2.fromOffset(5, 45)
+AutoExecuteButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+AutoExecuteButton.Text = "Create Auto Execute"
+AutoExecuteButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoExecuteButton.TextSize = textSize(11)
+AutoExecuteButton.Font = Enum.Font.GothamMedium
+AutoExecuteButton.AutoButtonColor = false
+AutoExecuteButton.Parent = SettingsPage
+
+local AutoExecuteCorner = Instance.new("UICorner")
+AutoExecuteCorner.CornerRadius = UDim.new(0, 7)
+AutoExecuteCorner.Parent = AutoExecuteButton
+
+local AutoExecuteStatus = Instance.new("TextLabel")
+AutoExecuteStatus.Size = UDim2.new(1, -10, 0, 35)
+AutoExecuteStatus.Position = UDim2.fromOffset(5, 88)
+AutoExecuteStatus.BackgroundTransparency = 1
+AutoExecuteStatus.Text = "Creates rap_esp_egg.txt"
+AutoExecuteStatus.TextColor3 = Color3.fromRGB(145, 145, 155)
+AutoExecuteStatus.TextSize = textSize(10)
+AutoExecuteStatus.Font = Enum.Font.Gotham
+AutoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoExecuteStatus.Parent = SettingsPage
+
+AutoExecuteButton.MouseButton1Click:Connect(function()
+    local content = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-esp-egg"))()'
+
+    local success, err = pcall(function()
+        writefile("RAP/rap_esp_egg.txt", content)
+    end)
+
+    if success then
+        AutoExecuteStatus.Text = "Created: rap_esp_egg.txt"
+        AddDebug("[AUTOEXEC] rap_esp_egg.txt created")
+    else
+        AutoExecuteStatus.Text = "Failed: " .. tostring(err)
+        AddDebug("[AUTOEXEC ERROR] " .. tostring(err))
+    end
+end)
 
 local Minimized = Instance.new("TextButton")
 Minimized.Size = UDim2.fromOffset(39, 30)
