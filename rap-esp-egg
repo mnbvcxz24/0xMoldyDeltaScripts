@@ -513,7 +513,10 @@ local function createESP(egg)
     end
 
     local eggName = egg:GetAttribute("Egg") or "Egg"
-    local position = getEggPosition(egg)
+    local weight = egg:GetAttribute("Weight")
+    local weightText = weight and ("Weight: " .. tostring(weight) .. " kg") or "Weight: --"
+    
+    label.Text = eggName .. "\n" .. weightText
 
     if not position then
         AddDebug("[ESP ERROR] No usable Position: " .. tostring(eggName))
