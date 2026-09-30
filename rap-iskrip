@@ -191,8 +191,6 @@ local SettingsPage = createPage()
 
 AutoPage.Visible = true
 
-AutoPage.Visible = true
-
 local function createSidebarButton(text, y)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, -12, 0, 40)
@@ -435,8 +433,8 @@ AutoToggle.MouseButton1Click:Connect(function()
 end)
 
 
-local CONFIG_FOLDER = "RAP"
-local CONFIG_FILE = CONFIG_FOLDER .. "/rap_esp_egg_config.json"
+local CONFIG_FOLDER = "RAPSkrip"
+local CONFIG_FILE = CONFIG_FOLDER .. "/rap_skrip_config.json"
 
 local function saveConfig()
     if not writefile then
