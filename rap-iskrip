@@ -191,7 +191,7 @@ local SettingsPage = createPage()
 
 AutoPage.Visible = true
 
-ESPPage.Visible = true
+AutoPage.Visible = true
 
 local function createSidebarButton(text, y)
     local button = Instance.new("TextButton")
