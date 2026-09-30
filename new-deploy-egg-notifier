@@ -240,7 +240,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.3"
+subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.4"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -1187,7 +1187,7 @@ local function buildEggHistoryPayload(eggName, history)
         "📅 <t:"
         .. tostring(firstTimestamp)
         .. ":D>\n\n"
-        .. table.concat(lines, "\n\n")
+        .. table.concat(lines, "\n")
 
     local embed = {
         title =
