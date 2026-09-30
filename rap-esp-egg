@@ -16,6 +16,29 @@ pcall(function()
     end
 end)
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function getRanchLuckText()
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then
+        return nil
+    end
+
+    local upgrade = playerGui:FindFirstChild("Upgrade")
+    if not upgrade then
+        return nil
+    end
+
+    local currentUpgrade = upgrade:FindFirstChild("CurrentUpgrade")
+    if not currentUpgrade then
+        return nil
+    end
+
+    return currentUpgrade.Text
+end
+
+
 local TEXT_SCALE = 0.70
 
 local function textSize(size)
@@ -60,7 +83,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2"
+Subtitle.Text = "Egg ESP TEST V2.1"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -663,7 +686,7 @@ local function updateESP()
     FilterCount.Text = selectedName .. ": " .. tostring(total)
 
     if selectedWeight ~= nil then
-        WeightLabel.Text = "Weight: " .. tostring(selectedWeight) .. " kg"
+        WeightLabel.Text = "Weight: " .. tostring(selectedWeight)
     else
         WeightLabel.Text = "Weight: --"
     end
@@ -700,6 +723,9 @@ ScanButton.MouseButton1Click:Connect(function()
 
         AddDebug("Total Active Eggs: " .. tostring(#eggs))
         AddDebug("Filter: " .. tostring(selectedName or "--"))
+
+        local ranchLuckText = getRanchLuckText()
+        AddDebug("Ranch Luck Text: " .. tostring(ranchLuckText))
 
         local counts = {}
 
