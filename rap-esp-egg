@@ -19,23 +19,14 @@ end)
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
-local function getRanchLuckText()
-    local playerGui = player:FindFirstChild("PlayerGui")
-    if not playerGui then
+local function getRanchLuck()
+    local text = getRanchLuckText()
+    if not text then
         return nil
     end
 
-    local upgrade = playerGui:FindFirstChild("Upgrade")
-    if not upgrade then
-        return nil
-    end
-
-    local currentUpgrade = upgrade:FindFirstChild("CurrentUpgrade")
-    if not currentUpgrade then
-        return nil
-    end
-
-    return currentUpgrade.Text
+    local value = tostring(text):gsub("x", "")
+    return tonumber(value)
 end
 
 
@@ -720,12 +711,15 @@ ScanButton.MouseButton1Click:Connect(function()
             selectedName = name
             break
         end
+        
+        local ranchLuckText = getRanchLuckText()
+        local ranchLuck = getRanchLuck()
+        
+        AddDebug("Ranch Luck Text: " .. tostring(ranchLuckText))
+        AddDebug("Ranch Luck Value: " .. tostring(ranchLuck))
 
         AddDebug("Total Active Eggs: " .. tostring(#eggs))
         AddDebug("Filter: " .. tostring(selectedName or "--"))
-
-        local ranchLuckText = getRanchLuckText()
-        AddDebug("Ranch Luck Text: " .. tostring(ranchLuckText))
 
         local counts = {}
 
