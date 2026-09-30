@@ -63,7 +63,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.3"
+Subtitle.Text = "Egg ESP TEST V2.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -225,9 +225,20 @@ WeightLabel.Font = Enum.Font.Gotham
 WeightLabel.TextXAlignment = Enum.TextXAlignment.Left
 WeightLabel.Parent = ESPPage
 
+local KGLabel = Instance.new("TextLabel")
+KGLabel.Size = UDim2.new(1, -10, 0, 25)
+KGLabel.Position = UDim2.fromOffset(5, 190)
+KGLabel.BackgroundTransparency = 1
+KGLabel.Text = "Calculated KG: --"
+KGLabel.TextColor3 = Color3.fromRGB(175, 175, 185)
+KGLabel.TextSize = textSize(12)
+KGLabel.Font = Enum.Font.Gotham
+KGLabel.TextXAlignment = Enum.TextXAlignment.Left
+KGLabel.Parent = ESPPage
+
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 25)
-FilterCount.Position = UDim2.fromOffset(5, 190)
+FilterCount.Position = UDim2.fromOffset(5, 215)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Selected Eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
@@ -326,7 +337,7 @@ local function parseLuck(value)
         :gsub("%s+", "")
         :gsub("X", "")
 
-    local number, suffix = value:match("([%d%.]+)([KMBT]?)")
+    local number, suffix = value:match("^([%d%.]+)([KMBT]?)$")
 
     number = tonumber(number)
 
@@ -396,11 +407,11 @@ local function getEggLuck(eggName)
 end
 
 local function calculateKG(weight, eggLuck, ranchLuck)
-    if not weight or not eggLuck or not ranchLuck then
-        return nil
-    end
+    weight = tonumber(weight)
+    eggLuck = tonumber(eggLuck)
+    ranchLuck = tonumber(ranchLuck)
 
-    if weight <= 0 or eggLuck <= 0 or ranchLuck <= 0 then
+    if not weight or not eggLuck or not ranchLuck then
         return nil
     end
 
@@ -484,9 +495,21 @@ local function updateFilterText()
         if not weightFound then
             WeightLabel.Text = "Weight: --"
         end
+
+        local eggLuck = getEggLuck(selectedName)
+        local ranchLuck = getRanchLuck()
+        local calculatedKG
+
+        if weightFound then
+            local weight = tonumber(string.match(WeightLabel.Text, "([%d%.]+)"))
+            calculatedKG = calculateKG(weight, eggLuck, ranchLuck)
+        end
+
+        KGLabel.Text = "Calculated KG: " .. formatKG(calculatedKG)
     else
         FilterCount.Text = "Selected Eggs: 0"
         WeightLabel.Text = "Weight: --"
+        KGLabel.Text = "Calculated KG: --"
     end
 end
 
@@ -705,6 +728,20 @@ local function createESP(egg)
     }
 end
 
+local function formatKG(kg)
+    if not kg then
+        return "--"
+    end
+
+    if kg >= 1000000 then
+        return string.format("%.2fM KG", kg / 1000000)
+    elseif kg >= 1000 then
+        return string.format("%.2fK KG", kg / 1000)
+    else
+        return string.format("%.2f KG", kg)
+    end
+end
+
 local function updateESP()
     if Toggle.Text ~= "ON" then
         clearESP()
@@ -721,6 +758,8 @@ local function updateESP()
     if not selectedName then
         clearESP()
         FilterCount.Text = "Selected Eggs: 0"
+        WeightLabel.Text = "Weight: --"
+        KGLabel.Text = "Calculated KG: --"
         return
     end
 
@@ -732,34 +771,43 @@ local function updateESP()
         return
     end
 
+    local eggs = ActiveEggs:GetChildren()
     local activeEggSet = {}
     local total = 0
     local selectedWeight
+    local selectedKG
+    local eggLuck = getEggLuck(selectedName)
+    local ranchLuck = getRanchLuck()
 
-    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+    for _, egg in ipairs(eggs) do
         if egg:GetAttribute("Egg") == selectedName then
-            total += 1
-            activeEggSet[egg] = true
+            total = total + 1
+            local weight = tonumber(egg:GetAttribute("Weight"))
+            local kg = calculateKG(weight, eggLuck, ranchLuck)
 
-            local weight = egg:GetAttribute("Weight")
-
-            if weight ~= nil and selectedWeight == nil then
+            if selectedWeight == nil then
                 selectedWeight = weight
+            end
+            if selectedKG == nil then
+                selectedKG = kg
             end
 
             if not ESPObjects[egg] then
                 createESP(egg)
             end
 
-            local data = ESPObjects[egg]
-
-            if data and data.Part then
+            if ESPObjects[egg] then
+                local data = ESPObjects[egg]
                 local position = getEggPosition(egg)
-
-                if position then
+                if position and data.Part then
                     data.Part.Position = position
                 end
+                if data.Label then
+                    data.Label.Text = selectedName .. " | " .. formatKG(kg)
+                end
             end
+
+            activeEggSet[egg] = true
         end
     end
 
@@ -770,19 +818,14 @@ local function updateESP()
                     data.Part:Destroy()
                 end)
             end
-
             ESPObjects[egg] = nil
         end
     end
 
-    EggCount.Text = "Active Eggs: " .. tostring(#ActiveEggs:GetChildren())
+    EggCount.Text = "Active Eggs: " .. tostring(#eggs)
     FilterCount.Text = selectedName .. ": " .. tostring(total)
-
-    if selectedWeight ~= nil then
-        WeightLabel.Text = "Weight: " .. tostring(selectedWeight)
-    else
-        WeightLabel.Text = "Weight: --"
-    end
+    WeightLabel.Text = selectedWeight ~= nil and "Weight: " .. tostring(selectedWeight) or "Weight: --"
+    KGLabel.Text = "Calculated KG: " .. formatKG(selectedKG)
 end
 
 ScanButton.MouseButton1Click:Connect(function()
@@ -828,23 +871,19 @@ ScanButton.MouseButton1Click:Connect(function()
         AddDebug("Ranch Luck Value: " .. tostring(ranchLuck))
 
         local selectedWeight
+        local calculatedKG
 
-            for _, egg in ipairs(eggs) do
-                if egg:GetAttribute("Egg") == selectedName then
-                    selectedWeight = egg:GetAttribute("Weight")
-                    break
-                end
+        for _, egg in ipairs(eggs) do
+            if egg:GetAttribute("Egg") == selectedName then
+                selectedWeight = tonumber(egg:GetAttribute("Weight"))
+                calculatedKG = calculateKG(selectedWeight, eggLuck, ranchLuck)
+                break
             end
-            
-            local calculatedKG = calculateKG(
-                selectedWeight,
-                eggLuck,
-                ranchLuck
-            )
-            
-            AddDebug("Weight: " .. tostring(selectedWeight))
-            AddDebug("Calculated KG: " .. tostring(calculatedKG))
+        end
 
+        AddDebug("Weight: " .. tostring(selectedWeight))
+        AddDebug("Calculated KG: " .. tostring(calculatedKG))
+        AddDebug("Calculated KG Formatted: " .. formatKG(calculatedKG))
 
         AddDebug("Total Active Eggs: " .. tostring(#eggs))
         AddDebug("Filter: " .. tostring(selectedName or "--"))
