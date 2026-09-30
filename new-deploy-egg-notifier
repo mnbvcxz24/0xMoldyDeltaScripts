@@ -160,10 +160,10 @@ local eggEmbedColors = {
 }
 
 local eggThumbnails = {
-    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180933275287552/Black_Hole_Egg_RideAPet.webp?ex=6abbece4&is=6aba9b64&hm=22fb275694b117312682c0c4253ee39b54b14c4c62f42c56df90498756381fd4",
-    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180978750070876/Solaris_Egg_RideAPet.webp?ex=6abbecef&is=6aba9b6f&hm=fe55fa29bfae4a5e3bf11a24d276a083166d8985affd4ef2d3a4ca447bd48a2e",
-    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1552180958772465674/Cherub_Egg_RideAPet.webp?ex=6abbecea&is=6aba9b6a&hm=766b820715a64d458be1c7c81d9f9f99d40686e7845e945a114dd4b737b66463",
-    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1554330719826747432/Volcanic.webp?ex=6abc7ec9&is=6abb2d49&hm=46ae28d7b8fad3efcc72ba5a9faeb59c9f107d4af8a67b27a2315a66240caec2"
+    ["Blackhole Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1554776297421410325/Black_Hole_Egg_RideAPet.png?backend=b2&ex=6abe1dc3&is=6abccc43&hm=a1d2a0d60f9b3dac3a35a504711dca786112e092ff470e180390e157a2a7f2de&",
+    ["Solaris Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1554776298872639488/Solaris_Egg_RideAPet.png?backend=b2&ex=6abe1dc3&is=6abccc43&hm=47c35d368d715866ce4e4f48cde21f63a2049f9033e039307191385a75ace353&",
+    ["Cherub Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1554776298180714558/Cherub_Egg_RideAPet.png?backend=b2&ex=6abe1dc3&is=6abccc43&hm=c581296f60399a4266a3483561eb20acb1e790c3b81e33e999ab2abc67c6591b&",
+    ["Volcanic Egg"] = "https://cdn.discordapp.com/attachments/1552180852778336348/1554776299472552006/Volcanic.png?backend=b2&ex=6abe1dc4&is=6abccc44&hm=d2f9b39b2a5434cdaf2fc922bca28e6198427efa95cd3cf4d19b6298f99d3692&"
 }
 
 local weatherMutationInfo = {
