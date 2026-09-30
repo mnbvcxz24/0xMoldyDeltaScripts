@@ -803,7 +803,7 @@ local function updateESP()
                     data.Part.Position = position
                 end
                 if data.Label then
-                    data.Label.Text = selectedName .. " | " .. formatKG(kg)
+                    data.Label.Text = selectedName .. " | " .. tostring(weight)
                 end
             end
 
