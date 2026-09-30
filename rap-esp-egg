@@ -63,7 +63,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.5"
+Subtitle.Text = "Egg ESP TEST V2.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -271,6 +271,65 @@ local EggTypes = {
 local KnownEggTypes = {}
 local SelectedEggs = {}
 local FilterButtons = {}
+
+local CONFIG_FOLDER = "RAP"
+local CONFIG_FILE = CONFIG_FOLDER .. "/rap_esp_egg_config.json"
+
+local function saveConfig()
+    if not writefile then
+        AddDebug("[CONFIG] writefile unavailable")
+        return
+    end
+
+    pcall(function()
+        if not isfolder(CONFIG_FOLDER) then
+            makefolder(CONFIG_FOLDER)
+        end
+
+        local selected = {}
+
+        for eggName in pairs(SelectedEggs) do
+            table.insert(selected, eggName)
+        end
+
+        writefile(
+            CONFIG_FILE,
+            game:GetService("HttpService"):JSONEncode({
+                selectedEggs = selected
+            })
+        )
+
+        AddDebug("[CONFIG] Saved " .. tostring(#selected) .. " selected eggs")
+    end)
+end
+
+local function loadConfig()
+    if not isfile or not isfile(CONFIG_FILE) then
+        return
+    end
+
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(
+            readfile(CONFIG_FILE)
+        )
+    end)
+
+    if not success or type(data) ~= "table" then
+        return
+    end
+
+    SelectedEggs = {}
+
+    if type(data.selectedEggs) == "table" then
+        for _, eggName in ipairs(data.selectedEggs) do
+            if type(eggName) == "string" and eggName ~= "--" then
+                SelectedEggs[eggName] = true
+            end
+        end
+    end
+
+    AddDebug("[CONFIG] Loaded " .. tostring(#data.selectedEggs or 0) .. " selected eggs")
+end
 
 local DebugLines = {
     "[SYSTEM] ESP UI loaded."
@@ -566,16 +625,19 @@ local function rebuildFilter()
             if eggName == "--" then
                 SelectedEggs = {}
             else
-                SelectedEggs = {
-                    [eggName] = true
-                }
+                if SelectedEggs[eggName] then
+                    SelectedEggs[eggName] = nil
+                else
+                    SelectedEggs[eggName] = true
+                end
             end
-
+        
             refreshFilterButtons()
             updateFilterText()
-
-            FilterFrame.Visible = false
-
+            saveConfig()
+        
+            FilterFrame.Visible = true
+        
             if Toggle.Text == "ON" then
                 updateESP()
             end
@@ -587,6 +649,9 @@ end
 
 refreshEggTypes()
 rebuildFilter()
+loadConfig()
+refreshFilterButtons()
+updateFilterText()
 
 FilterButton.MouseButton1Click:Connect(function()
     FilterFrame.Visible = not FilterFrame.Visible
@@ -780,7 +845,7 @@ local function updateESP()
     local ranchLuck = getRanchLuck()
 
     for _, egg in ipairs(eggs) do
-        if egg:GetAttribute("Egg") == selectedName then
+        if SelectedEggs[egg:GetAttribute("Egg")] then
             total = total + 1
             local weight = tonumber(egg:GetAttribute("Weight"))
             local kg = calculateKG(weight, eggLuck, ranchLuck)
