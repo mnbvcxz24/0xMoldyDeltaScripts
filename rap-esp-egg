@@ -63,7 +63,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.7"
+Subtitle.Text = "Egg ESP TEST V2.8"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -803,13 +803,6 @@ local function updateESP()
     if Toggle.Text ~= "ON" then
         clearESP()
         return
-    end
-
-    local selectedName
-
-    for name in pairs(SelectedEggs) do
-        selectedName = name
-        break
     end
 
     if not selectedName then
