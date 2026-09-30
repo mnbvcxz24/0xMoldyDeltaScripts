@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.1"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.1"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -402,10 +402,10 @@ AutoToggleCorner.CornerRadius = UDim.new(0, 7)
 AutoToggleCorner.Parent = AutoToggle
 
 local AutoInfo = Instance.new("TextLabel")
-AutoInfo.Size = UDim2.new(1, -10, 0, 100)
-AutoInfo.Position = UDim2.fromOffset(5, 85)
+AutoInfo.Size = UDim2.new(1, -10, 0, 45)
+AutoInfo.Position = UDim2.fromOffset(5, 82)
 AutoInfo.BackgroundTransparency = 1
-AutoInfo.Text = "Automation is currently inactive.\n\nAuto pickup and teleport controls will be added here."
+AutoInfo.Text = "Select the eggs you want Auto Pickup to target."
 AutoInfo.TextColor3 = Color3.fromRGB(175, 175, 185)
 AutoInfo.TextSize = textSize(11)
 AutoInfo.Font = Enum.Font.Gotham
@@ -416,7 +416,7 @@ AutoInfo.Parent = AutoPage
 
 local AutoFilterLabel = Instance.new("TextLabel")
 AutoFilterLabel.Size = UDim2.new(1, -10, 0, 25)
-AutoFilterLabel.Position = UDim2.fromOffset(5, 145)
+AutoFilterLabel.Position = UDim2.fromOffset(5, 130)
 AutoFilterLabel.BackgroundTransparency = 1
 AutoFilterLabel.Text = "Auto Pickup Egg Filter"
 AutoFilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -427,7 +427,7 @@ AutoFilterLabel.Parent = AutoPage
 
 local AutoFilterButton = Instance.new("TextButton")
 AutoFilterButton.Size = UDim2.new(1, -10, 0, 32)
-AutoFilterButton.Position = UDim2.fromOffset(5, 170)
+AutoFilterButton.Position = UDim2.fromOffset(5, 153)
 AutoFilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 AutoFilterButton.Text = "-- ▼"
 AutoFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
@@ -444,8 +444,8 @@ AutoFilterCorner.CornerRadius = UDim.new(0, 7)
 AutoFilterCorner.Parent = AutoFilterButton
 
 local AutoFilterFrame = Instance.new("ScrollingFrame")
-AutoFilterFrame.Size = UDim2.new(1, -10, 0, 120)
-AutoFilterFrame.Position = UDim2.fromOffset(5, 205)
+AutoFilterFrame.Size = UDim2.new(1, -10, 0, 105)
+AutoFilterFrame.Position = UDim2.fromOffset(5, 153)
 AutoFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 AutoFilterFrame.BorderSizePixel = 0
 AutoFilterFrame.Visible = false
@@ -493,40 +493,42 @@ local function createAutoFilterButtons()
     local y = 5
 
     for _, eggName in ipairs(EggTypes) do
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, -10, 0, 28)
-        button.Position = UDim2.fromOffset(5, y)
-        button.BackgroundColor3 = AutoSelectedEggs[eggName]
-            and Color3.fromRGB(55, 85, 60)
-            or Color3.fromRGB(38, 38, 45)
-        button.BorderSizePixel = 0
-        button.Text = (AutoSelectedEggs[eggName] and "✓ " or "") .. eggName
-        button.TextColor3 = Color3.fromRGB(225, 225, 230)
-        button.TextSize = textSize(11)
-        button.Font = Enum.Font.Gotham
-        button.AutoButtonColor = false
-        button.ZIndex = 31
-        button.Parent = AutoFilterFrame
-
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 5)
-        corner.Parent = button
-
-        button.MouseButton1Click:Connect(function()
-            AutoSelectedEggs[eggName] = not AutoSelectedEggs[eggName]
-
+        if eggName ~= "--" then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, -10, 0, 28)
+            button.Position = UDim2.fromOffset(5, y)
             button.BackgroundColor3 = AutoSelectedEggs[eggName]
                 and Color3.fromRGB(55, 85, 60)
                 or Color3.fromRGB(38, 38, 45)
-
+            button.BorderSizePixel = 0
             button.Text = (AutoSelectedEggs[eggName] and "✓ " or "") .. eggName
+            button.TextColor3 = Color3.fromRGB(225, 225, 230)
+            button.TextSize = textSize(11)
+            button.Font = Enum.Font.Gotham
+            button.AutoButtonColor = false
+            button.ZIndex = 31
+            button.Parent = AutoFilterFrame
 
-            refreshAutoFilterText()
-        end)
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 5)
+            corner.Parent = button
 
-        table.insert(AutoFilterButtons, button)
+            button.MouseButton1Click:Connect(function()
+                AutoSelectedEggs[eggName] = not AutoSelectedEggs[eggName]
 
-        y = y + 33
+                button.BackgroundColor3 = AutoSelectedEggs[eggName]
+                    and Color3.fromRGB(55, 85, 60)
+                    or Color3.fromRGB(38, 38, 45)
+
+                button.Text = (AutoSelectedEggs[eggName] and "✓ " or "") .. eggName
+
+                refreshAutoFilterText()
+            end)
+
+            table.insert(AutoFilterButtons, button)
+
+            y = y + 33
+        end
     end
 end
 
@@ -540,68 +542,6 @@ end)
 
 createAutoFilterButtons()
 refreshAutoFilterText()
-
-local AutoInspectButton = Instance.new("TextButton")
-AutoInspectButton.Size = UDim2.new(1, -10, 0, 32)
-AutoInspectButton.Position = UDim2.fromOffset(5, 335)
-AutoInspectButton.BackgroundColor3 = Color3.fromRGB(42, 42, 50)
-AutoInspectButton.BorderSizePixel = 0
-AutoInspectButton.Text = "Inspect Selected Egg"
-AutoInspectButton.TextColor3 = Color3.fromRGB(225, 225, 230)
-AutoInspectButton.TextSize = textSize(11)
-AutoInspectButton.Font = Enum.Font.GothamMedium
-AutoInspectButton.AutoButtonColor = false
-AutoInspectButton.Parent = AutoPage
-
-local AutoInspectCorner = Instance.new("UICorner")
-AutoInspectCorner.CornerRadius = UDim.new(0, 7)
-AutoInspectCorner.Parent = AutoInspectButton
-
-AutoInspectButton.MouseButton1Click:Connect(function()
-    local ActiveEggs = getActiveEggs()
-
-    if not ActiveEggs then
-        AddDebug("[AUTO] ActiveEggs not found")
-        return
-    end
-
-    local found = false
-
-    for _, egg in ipairs(ActiveEggs:GetChildren()) do
-        local eggName = egg:GetAttribute("Egg")
-
-        if eggName and isAutoPickupEggSelected(eggName) then
-            found = true
-
-            local uuid = getEggUUID(egg)
-
-            local lines = {
-                "[INSPECT] Egg: " .. tostring(eggName),
-                "[INSPECT] UUID: " .. tostring(uuid),
-                "[INSPECT] Object: " .. egg:GetFullName(),
-                "[INSPECT] Class: " .. egg.ClassName
-            }
-
-            for _, child in ipairs(egg:GetChildren()) do
-                table.insert(
-                    lines,
-                    "[INSPECT] Child: " ..
-                    child.Name ..
-                    " [" ..
-                    child.ClassName ..
-                    "]"
-                )
-            end
-
-            AddDebug(table.concat(lines, "\n"))
-            break
-        end
-    end
-
-    if not found then
-        AddDebug("[INSPECT] No selected egg currently found")
-    end
-end)
 
 AutoToggle.MouseButton1Click:Connect(function()
     local enabled = AutoToggle.Text == "OFF"
@@ -618,13 +558,14 @@ AutoToggle.MouseButton1Click:Connect(function()
         and "Auto Status: Enabled"
         or "Auto Status: Disabled"
 
+    AutoPickupRunning = enabled
+
     AddDebug(
         enabled
         and "[AUTO] Enabled"
         or "[AUTO] Disabled"
     )
 end)
-
 
 local CONFIG_FOLDER = "RAPSkrip"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_skrip_config.json"
@@ -903,7 +844,7 @@ local function tryAutoPickup()
                     "[AUTO] UUID: " .. tostring(uuid),
                     "[AUTO] Class: " .. egg.ClassName
                 }
-            
+
                 for _, child in ipairs(egg:GetChildren()) do
                     table.insert(
                         details,
@@ -914,9 +855,9 @@ local function tryAutoPickup()
                         "]"
                     )
                 end
-            
+
                 AddDebug(table.concat(details, "\n"))
-            
+
                 return egg, uuid
             end
         end
@@ -1766,6 +1707,7 @@ local function showPage(page)
     page.Visible = true
 
     FilterFrame.Visible = false
+    AutoFilterFrame.Visible = false
 end
 
 AutoButton.MouseButton1Click:Connect(function()
@@ -1802,3 +1744,4 @@ AddDebug("[SYSTEM] ESP displays EggName | Weight")
 AddDebug("[SYSTEM] Ranch Luck source: Upgrade.CurrentUpgrade")
 AddDebug("[SYSTEM] Egg Luck source: EggTracker.EggsHolder")
 AddDebug("[SYSTEM] Config autosave enabled")
+AddDebug("[SYSTEM] Auto filter initialized")
