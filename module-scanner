@@ -1,0 +1,521 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+pcall(function()
+    CoreGui:FindFirstChild("ModuleScanner"):Destroy()
+end)
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "ModuleScanner"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.Parent = CoreGui
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(520, 360)
+Main.Position = UDim2.new(0.5, -260, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+Main.BorderSizePixel = 0
+Main.Parent = Gui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 8)
+Corner.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 0, 32)
+Title.Position = UDim2.fromOffset(10, 3)
+Title.BackgroundTransparency = 1
+Title.Text = "Module Scanner"
+Title.TextColor3 = Color3.fromRGB(235, 235, 240)
+Title.TextSize = 14
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.fromOffset(32, 32)
+Close.Position = UDim2.new(1, -40, 0, 8)
+Close.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+Close.Text = "×"
+Close.TextColor3 = Color3.fromRGB(240, 240, 240)
+Close.TextSize = 20
+Close.Font = Enum.Font.GothamBold
+Close.Active = true
+Close.Parent = Main
+
+local Search = Instance.new("TextBox")
+Search.Size = UDim2.fromOffset(145, 26)
+Search.Position = UDim2.fromOffset(10, 38)
+Search.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+Search.BorderSizePixel = 0
+Search.PlaceholderText = "Search modules..."
+Search.PlaceholderColor3 = Color3.fromRGB(130, 130, 140)
+Search.Text = ""
+Search.TextColor3 = Color3.fromRGB(235, 235, 240)
+Search.TextSize = 10
+Search.Font = Enum.Font.Gotham
+Search.ClearTextOnFocus = false
+Search.Parent = Main
+
+local SearchCorner = Instance.new("UICorner")
+SearchCorner.CornerRadius = UDim.new(0, 5)
+SearchCorner.Parent = Search
+
+local ModuleList = Instance.new("ScrollingFrame")
+ModuleList.Size = UDim2.fromOffset(145, 285)
+ModuleList.Position = UDim2.fromOffset(10, 70)
+ModuleList.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
+ModuleList.BorderSizePixel = 0
+ModuleList.ScrollBarThickness = 4
+ModuleList.CanvasSize = UDim2.new()
+ModuleList.Parent = Main
+
+local ModuleLayout = Instance.new("UIListLayout")
+ModuleLayout.Padding = UDim.new(0, 4)
+ModuleLayout.Parent = ModuleList
+
+local Output = Instance.new("ScrollingFrame")
+Output.Size = UDim2.fromOffset(345, 285)
+Output.Position = UDim2.fromOffset(165, 70)
+Output.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+Output.BorderSizePixel = 0
+Output.ScrollBarThickness = 5
+Output.CanvasSize = UDim2.new()
+Output.Parent = Main
+
+local OutputLayout = Instance.new("UIListLayout")
+OutputLayout.Padding = UDim.new(0, 1)
+OutputLayout.Parent = Output
+
+local SelectedLabel = Instance.new("TextLabel")
+SelectedLabel.Size = UDim2.fromOffset(250, 22)
+SelectedLabel.Position = UDim2.fromOffset(165, 39)
+SelectedLabel.BackgroundTransparency = 1
+SelectedLabel.Text = "Selected: --"
+SelectedLabel.TextColor3 = Color3.fromRGB(170, 170, 180)
+SelectedLabel.TextSize = 9
+SelectedLabel.Font = Enum.Font.Gotham
+SelectedLabel.TextXAlignment = Enum.TextXAlignment.Left
+SelectedLabel.Parent = Main
+
+local RequireButton = Instance.new("TextButton")
+RequireButton.Size = UDim2.fromOffset(70, 26)
+RequireButton.Position = UDim2.new(1, -80, 0, 38)
+RequireButton.BackgroundColor3 = Color3.fromRGB(45, 100, 65)
+RequireButton.Text = "REQUIRE"
+RequireButton.TextColor3 = Color3.fromRGB(240, 240, 240)
+RequireButton.TextSize = 9
+RequireButton.Font = Enum.Font.GothamBold
+RequireButton.Active = true
+RequireButton.Parent = Main
+
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1, -30, 0, 20)
+Status.Position = UDim2.new(0, 15, 1, -24)
+Status.BackgroundTransparency = 1
+Status.Text = "Modules: scanning..."
+Status.TextColor3 = Color3.fromRGB(140, 140, 150)
+Status.TextSize = 10
+Status.Font = Enum.Font.Gotham
+Status.TextXAlignment = Enum.TextXAlignment.Left
+Status.Parent = Main
+
+local selectedModule = nil
+local moduleButtons = {}
+local allModules = {}
+
+local function clearOutput()
+    for _, child in ipairs(Output:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+
+    Output.CanvasSize = UDim2.new()
+end
+
+local function addLine(text, depth)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -8, 0, 15)
+    label.BackgroundTransparency = 1
+    label.Text = string.rep("    ", depth or 0) .. tostring(text)
+    label.TextColor3 = Color3.fromRGB(210, 210, 220)
+    label.TextSize = 9
+    label.Font = Enum.Font.Code
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextYAlignment = Enum.TextYAlignment.Center
+    label.TextWrapped = false
+    label.Parent = Output
+
+    task.defer(function()
+        Output.CanvasSize = UDim2.fromOffset(0, OutputLayout.AbsoluteContentSize.Y + 10)
+        Output.CanvasPosition = Vector2.new(
+            0,
+            math.max(
+                0,
+                OutputLayout.AbsoluteContentSize.Y - Output.AbsoluteWindowSize.Y
+            )
+        )
+    end)
+
+    return label
+end
+
+local function safeToString(value)
+    local ok, result = pcall(function()
+        return tostring(value)
+    end)
+
+    if ok then
+        return result
+    end
+
+    return "<tostring failed>"
+end
+
+local function valueType(value)
+    local ok, result = pcall(function()
+        return typeof(value)
+    end)
+
+    if ok then
+        return result
+    end
+
+    return type(value)
+end
+
+local function inspectValue(value, depth, visited, keyName)
+    if depth > 12 then
+        addLine(tostring(keyName or "") .. " = <max depth>", depth)
+        return
+    end
+
+    local luaType = type(value)
+    local robloxType = valueType(value)
+
+    if luaType == "table" then
+        if visited[value] then
+            addLine(
+                tostring(keyName or "") .. " = <recursive table>",
+                depth
+            )
+            return
+        end
+
+        visited[value] = true
+
+        local prefix = ""
+
+        if keyName ~= nil then
+            prefix = tostring(keyName) .. " = "
+        end
+
+        addLine(
+            prefix .. "{",
+            depth
+        )
+
+        local entries = {}
+
+        local ok = pcall(function()
+            for key, childValue in pairs(value) do
+                table.insert(entries, {
+                    key = key,
+                    value = childValue
+                })
+            end
+        end)
+
+        if not ok then
+            addLine("<unable to enumerate table>", depth + 1)
+        else
+            table.sort(entries, function(a, b)
+                return safeToString(a.key) < safeToString(b.key)
+            end)
+
+            for _, entry in ipairs(entries) do
+                inspectValue(
+                    entry.value,
+                    depth + 1,
+                    visited,
+                    entry.key
+                )
+            end
+        end
+
+        addLine("}", depth)
+
+        return
+    end
+
+    if luaType == "function" then
+        addLine(
+            tostring(keyName or "function") ..
+            " = <function>",
+            depth
+        )
+        return
+    end
+
+    if luaType == "thread" then
+        addLine(
+            tostring(keyName or "thread") ..
+            " = <thread>",
+            depth
+        )
+        return
+    end
+
+    if luaType == "userdata" then
+        addLine(
+            tostring(keyName or "userdata") ..
+            " = <userdata> [" ..
+            robloxType ..
+            "]",
+            depth
+        )
+        return
+    end
+
+    local prefix = ""
+
+    if keyName ~= nil then
+        prefix = tostring(keyName) .. " = "
+    end
+
+    addLine(
+        prefix ..
+        safeToString(value) ..
+        " [" ..
+        robloxType ..
+        "]",
+        depth
+    )
+end
+
+local function inspectModule(module)
+    clearOutput()
+
+    if not module then
+        addLine("No module selected.", 0)
+        return
+    end
+
+    SelectedLabel.Text =
+        "Selected: " ..
+        module:GetFullName()
+
+    addLine("MODULE", 0)
+    addLine(module.Name, 1)
+    addLine("Path: " .. module:GetFullName(), 1)
+    addLine("Class: " .. module.ClassName, 1)
+
+    local attributes = module:GetAttributes()
+
+    if next(attributes) then
+        addLine("", 0)
+        addLine("ATTRIBUTES", 0)
+
+        local keys = {}
+
+        for key in pairs(attributes) do
+            table.insert(keys, key)
+        end
+
+        table.sort(keys)
+
+        for _, key in ipairs(keys) do
+            addLine(
+                tostring(key) ..
+                " = " ..
+                safeToString(attributes[key]),
+                1
+            )
+        end
+    end
+
+    addLine("", 0)
+    addLine("REQUIRE RESULT", 0)
+
+    local success, result = pcall(function()
+        return require(module)
+    end)
+
+    if not success then
+        addLine("ERROR", 1)
+        addLine(safeToString(result), 2)
+        Status.Text = "Require failed"
+        return
+    end
+
+    local resultType = valueType(result)
+
+    addLine(
+        "Type: " ..
+        resultType,
+        1
+    )
+
+    if type(result) == "table" then
+        addLine("", 0)
+        inspectValue(
+            result,
+            1,
+            {},
+            nil
+        )
+    else
+        addLine(
+            "Value: " ..
+            safeToString(result),
+            1
+        )
+    end
+
+    Status.Text =
+        "Loaded: " ..
+        module.Name
+end
+
+local function createModuleButton(module)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -6, 0, 24)
+    button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+    button.BorderSizePixel = 0
+    button.Text = module.Name
+    button.TextColor3 = Color3.fromRGB(220, 220, 230)
+    button.TextSize = 9
+    button.Font = Enum.Font.Gotham
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.Active = true
+    button.ZIndex = 5
+    button.Parent = ModuleList
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 6)
+    padding.Parent = button
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = button
+
+    button.MouseButton1Click:Connect(function()
+        selectedModule = module
+
+        for _, item in pairs(moduleButtons) do
+            item.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+        end
+
+        button.BackgroundColor3 = Color3.fromRGB(55, 85, 65)
+
+        inspectModule(module)
+    end)
+
+    moduleButtons[module] = button
+end
+
+local function rebuildModuleList()
+    for _, child in ipairs(ModuleList:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    moduleButtons = {}
+
+    local searchText = string.lower(Search.Text)
+
+    for _, module in ipairs(allModules) do
+        local name = string.lower(module.Name)
+        local path = string.lower(module:GetFullName())
+
+        if searchText == "" or
+            string.find(name, searchText, 1, true) or
+            string.find(path, searchText, 1, true) then
+
+            createModuleButton(module)
+        end
+    end
+
+    task.defer(function()
+        ModuleList.CanvasSize = UDim2.fromOffset(
+            0,
+            ModuleLayout.AbsoluteContentSize.Y + 10
+        )
+    end)
+end
+
+local function scanModules()
+    allModules = {}
+
+    for _, descendant in ipairs(ReplicatedStorage:GetDescendants()) do
+        if descendant:IsA("ModuleScript") then
+            table.insert(allModules, descendant)
+        end
+    end
+
+    table.sort(allModules, function(a, b)
+        return a:GetFullName() < b:GetFullName()
+    end)
+
+    rebuildModuleList()
+
+    Status.Text =
+        "Found " ..
+        tostring(#allModules) ..
+        " ModuleScripts"
+end
+
+Search:GetPropertyChangedSignal("Text"):Connect(function()
+    rebuildModuleList()
+end)
+
+RequireButton.MouseButton1Click:Connect(function()
+    if selectedModule then
+        inspectModule(selectedModule)
+    else
+        clearOutput()
+        addLine("Select a ModuleScript first.", 0)
+    end
+end)
+
+Close.MouseButton1Click:Connect(function()
+    Gui:Destroy()
+end)
+
+local dragging = false
+local dragStart
+local startPosition
+
+Title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPosition = Main.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+
+        Main.Position = UDim2.new(
+            startPosition.X.Scale,
+            startPosition.X.Offset + delta.X,
+            startPosition.Y.Scale,
+            startPosition.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+scanModules()
