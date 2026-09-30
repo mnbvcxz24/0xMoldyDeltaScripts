@@ -7,14 +7,14 @@ local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 pcall(function()
-    local oldGui = CoreGui:FindFirstChild("EggESPGUI")
+    local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
         oldGui:Destroy()
     end
 end)
 
 pcall(function()
-    local oldESP = workspace:FindFirstChild("EggESP")
+    local oldESP = workspace:FindFirstChild("RAPGUIskrip")
     if oldESP then
         oldESP:Destroy()
     end
@@ -27,7 +27,7 @@ local function textSize(size)
 end
 
 local Gui = Instance.new("ScreenGui")
-Gui.Name = "EggESPGUI"
+Gui.Name = "RAPGUIskrip"
 Gui.ResetOnSpawn = false
 Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 Gui.Enabled = true
@@ -118,7 +118,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -70, 0, 28)
 Title.Position = UDim2.fromOffset(16, 7)
 Title.BackgroundTransparency = 1
-Title.Text = "RIDE A PET"
+Title.Text = "Ride A Pet"
 Title.TextColor3 = Color3.fromRGB(240, 240, 240)
 Title.TextSize = textSize(18)
 Title.Font = Enum.Font.GothamBold
@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST V2"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -155,7 +155,7 @@ CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = Close
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.fromOffset(105, 145)
+Sidebar.Size = UDim2.fromOffset(105, 192)
 Sidebar.Position = UDim2.fromOffset(10, 45)
 Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 Sidebar.BorderSizePixel = 0
@@ -184,9 +184,12 @@ local function createPage()
     return page
 end
 
+local AutoPage = createPage()
 local ESPPage = createPage()
 local DebugPage = createPage()
 local SettingsPage = createPage()
+
+AutoPage.Visible = true
 
 ESPPage.Visible = true
 
@@ -212,9 +215,10 @@ local function createSidebarButton(text, y)
     return button
 end
 
-local ESPButton = createSidebarButton("ESP", 10)
-local DebugButton = createSidebarButton("Debug", 57)
-local SettingsButton = createSidebarButton("Settings", 104)
+local AutoButton = createSidebarButton("Auto", 10)
+local ESPButton = createSidebarButton("ESP", 57)
+local DebugButton = createSidebarButton("Debug", 104)
+local SettingsButton = createSidebarButton("Settings", 151)
 
 local PageTitle = Instance.new("TextLabel")
 PageTitle.Size = UDim2.new(1, -10, 0, 30)
@@ -357,6 +361,79 @@ local EggTypes = {
 
 local SelectedEggs = {}
 local FilterButtons = {}
+
+local AutoTitle = Instance.new("TextLabel")
+AutoTitle.Size = UDim2.new(1, -10, 0, 30)
+AutoTitle.Position = UDim2.fromOffset(5, 5)
+AutoTitle.BackgroundTransparency = 1
+AutoTitle.Text = "Automation"
+AutoTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoTitle.TextSize = textSize(16)
+AutoTitle.Font = Enum.Font.GothamBold
+AutoTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoTitle.Parent = AutoPage
+
+local AutoStatus = Instance.new("TextLabel")
+AutoStatus.Size = UDim2.new(1, -10, 0, 25)
+AutoStatus.Position = UDim2.fromOffset(5, 42)
+AutoStatus.BackgroundTransparency = 1
+AutoStatus.Text = "Auto Status: Disabled"
+AutoStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
+AutoStatus.TextSize = textSize(12)
+AutoStatus.Font = Enum.Font.Gotham
+AutoStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoStatus.Parent = AutoPage
+
+local AutoToggle = Instance.new("TextButton")
+AutoToggle.Size = UDim2.fromOffset(70, 32)
+AutoToggle.Position = UDim2.new(1, -75, 0, 38)
+AutoToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoToggle.Text = "OFF"
+AutoToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoToggle.TextSize = textSize(11)
+AutoToggle.Font = Enum.Font.GothamBold
+AutoToggle.AutoButtonColor = false
+AutoToggle.Parent = AutoPage
+
+local AutoToggleCorner = Instance.new("UICorner")
+AutoToggleCorner.CornerRadius = UDim.new(0, 7)
+AutoToggleCorner.Parent = AutoToggle
+
+local AutoInfo = Instance.new("TextLabel")
+AutoInfo.Size = UDim2.new(1, -10, 0, 100)
+AutoInfo.Position = UDim2.fromOffset(5, 85)
+AutoInfo.BackgroundTransparency = 1
+AutoInfo.Text = "Automation is currently inactive.\n\nAuto pickup and teleport controls will be added here."
+AutoInfo.TextColor3 = Color3.fromRGB(175, 175, 185)
+AutoInfo.TextSize = textSize(11)
+AutoInfo.Font = Enum.Font.Gotham
+AutoInfo.TextXAlignment = Enum.TextXAlignment.Left
+AutoInfo.TextYAlignment = Enum.TextYAlignment.Top
+AutoInfo.TextWrapped = true
+AutoInfo.Parent = AutoPage
+
+AutoToggle.MouseButton1Click:Connect(function()
+    local enabled = AutoToggle.Text == "OFF"
+
+    AutoToggle.Text = enabled and "ON" or "OFF"
+
+    AutoToggle.BackgroundColor3 =
+        enabled
+        and Color3.fromRGB(55, 120, 75)
+        or Color3.fromRGB(45, 45, 53)
+
+    AutoStatus.Text =
+        enabled
+        and "Auto Status: Enabled"
+        or "Auto Status: Disabled"
+
+    AddDebug(
+        enabled
+        and "[AUTO] Enabled"
+        or "[AUTO] Disabled"
+    )
+end)
+
 
 local CONFIG_FOLDER = "RAP"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_esp_egg_config.json"
@@ -1304,7 +1381,7 @@ Minimized.Size = UDim2.fromOffset(39, 30)
 Minimized.AnchorPoint = Vector2.new(0.5, 0.5)
 Minimized.Position = UDim2.fromScale(0.5, 0.5)
 Minimized.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
-Minimized.Text = "ESP"
+Minimized.Text = "RAP"
 Minimized.TextSize = textSize(12)
 Minimized.TextColor3 = Color3.fromRGB(220, 220, 225)
 Minimized.Font = Enum.Font.GothamBold
@@ -1403,6 +1480,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local function showPage(page)
+    AutoPage.Visible = false
     ESPPage.Visible = false
     DebugPage.Visible = false
     SettingsPage.Visible = false
@@ -1411,6 +1489,10 @@ local function showPage(page)
 
     FilterFrame.Visible = false
 end
+
+AutoButton.MouseButton1Click:Connect(function()
+    showPage(AutoPage)
+end)
 
 ESPButton.MouseButton1Click:Connect(function()
     showPage(ESPPage)
