@@ -63,7 +63,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.6"
+Subtitle.Text = "Egg ESP TEST V2.7"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -265,10 +265,37 @@ FilterFrameCorner.CornerRadius = UDim.new(0, 7)
 FilterFrameCorner.Parent = FilterFrame
 
 local EggTypes = {
-    "--"
+    "--",
+    "White Egg",
+    "Brown Egg",
+    "Cracked Egg",
+    "Easter Egg",
+    "Stone Egg",
+    "Leaf Egg",
+    "Mushroom Egg",
+    "Flower Egg",
+    "Slime Egg",
+    "Ice Egg",
+    "Glass Egg",
+    "Golden Egg",
+    "Crystal Egg",
+    "Skull Egg",
+    "Dominus Egg",
+    "Flaming Egg",
+    "Sinister Egg",
+    "Soul Egg",
+    "Aurora Egg",
+    "Galaxy Egg",
+    "Bloom Egg",
+    "Blackhole Egg",
+    "Solaris Egg",
+    "Cherub Egg",
+    "Volcanic Egg"
 }
 
-local KnownEggTypes = {}
+local SelectedEggs = {}
+local FilterButtons = {}
+
 local SelectedEggs = {}
 local FilterButtons = {}
 
@@ -487,40 +514,6 @@ local function getActiveEggs()
     return ServerData:FindFirstChild("ActiveEggs")
 end
 
-local function refreshEggTypes()
-    local ActiveEggs = getActiveEggs()
-
-    if not ActiveEggs then
-        return false
-    end
-
-    for _, egg in ipairs(ActiveEggs:GetChildren()) do
-        local eggName = egg:GetAttribute("Egg")
-
-        if eggName and eggName ~= "" then
-            KnownEggTypes[eggName] = true
-        end
-    end
-
-    table.clear(EggTypes)
-
-    table.insert(EggTypes, "--")
-
-    local names = {}
-
-    for eggName in pairs(KnownEggTypes) do
-        table.insert(names, eggName)
-    end
-
-    table.sort(names)
-
-    for _, eggName in ipairs(names) do
-        table.insert(EggTypes, eggName)
-    end
-
-    return true
-end
-
 local function updateFilterText()
     local selectedName
 
@@ -647,9 +640,8 @@ local function rebuildFilter()
     FilterFrame.CanvasPosition = Vector2.new(0, 0)
 end
 
-refreshEggTypes()
-rebuildFilter()
 loadConfig()
+rebuildFilter()
 refreshFilterButtons()
 updateFilterText()
 
@@ -1026,17 +1018,6 @@ task.spawn(function()
         if Toggle.Text == "ON" then
             pcall(updateESP)
         end
-
-        local oldTypes = table.concat(EggTypes, "|")
-
-        if refreshEggTypes() then
-            local newTypes = table.concat(EggTypes, "|")
-
-            if oldTypes ~= newTypes then
-                rebuildFilter()
-            end
-        end
-
         task.wait(1)
     end
 end)
