@@ -1,6 +1,8 @@
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("EggESPGUI")
@@ -15,20 +17,6 @@ pcall(function()
         oldESP:Destroy()
     end
 end)
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local function getRanchLuck()
-    local text = getRanchLuckText()
-    if not text then
-        return nil
-    end
-
-    local value = tostring(text):gsub("x", "")
-    return tonumber(value)
-end
-
 
 local TEXT_SCALE = 0.70
 
@@ -74,7 +62,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.1"
+Subtitle.Text = "Egg ESP TEST V2.2"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -306,6 +294,64 @@ local function AddDebug(text)
             )
         end
     end)
+end
+
+local function getRanchLuckText()
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then
+        return nil
+    end
+
+    local upgrade = playerGui:FindFirstChild("Upgrade")
+    if not upgrade then
+        return nil
+    end
+
+    local currentUpgrade = upgrade:FindFirstChild("CurrentUpgrade")
+    if not currentUpgrade then
+        return nil
+    end
+
+    return currentUpgrade.Text
+end
+
+local function getRanchLuck()
+    local text = getRanchLuckText()
+    if not text then
+        return nil
+    end
+
+    local value = tostring(text):gsub("x", "")
+    return tonumber(value)
+end
+
+local function parseLuck(value)
+    if not value then
+        return nil
+    end
+
+    value = tostring(value):upper():gsub(",", ""):gsub("%s+", ""):gsub("X", "")
+
+    local number, suffix = value:match("([%d%.]+)([KMBT]?)")
+    number = tonumber(number)
+
+    if not number then
+        return nil
+    end
+
+    local multipliers = {
+        K = 1000,
+        M = 1000000,
+        B = 1000000000,
+        T = 1000000000000
+    }
+
+    return number * (multipliers[suffix] or 1)
+end
+
+local function getEggLuck(eggName)
+    local text = getEggLuckText(eggName)
+    return parseLuck(text)
 end
 
 local function getActiveEggs()
@@ -711,7 +757,12 @@ ScanButton.MouseButton1Click:Connect(function()
             selectedName = name
             break
         end
-        
+
+        local eggLuckText = getEggLuckText(SelectedEgg)
+
+        AddDebug("Egg: " .. tostring(SelectedEgg))
+        AddDebug("Egg Luck Text: " .. tostring(eggLuckText))
+
         local ranchLuckText = getRanchLuckText()
         local ranchLuck = getRanchLuck()
         
