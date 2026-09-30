@@ -183,11 +183,11 @@ local weatherEmbedColors = {
 }
 
 local weatherThumbnails = {
-    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209033308405760/IMG_20260923_143520.jpg?ex=6abc0710&is=6abab590&hm=4aae63a9ed7e1d31f10c7d80f66c8a28fa91af18f39ffb2afa7d1f4b08675fe8",
-    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209029143470110/IMG_20260923_143555.jpg?ex=6abc070f&is=6abab58f&hm=a81351f9b1fc00afb7715104dcc8144c4882d5e85d667fcae66b7b2029afab8d",
-    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209025062408192/IMG_20260923_144257.jpg?ex=6abc070e&is=6abab58e&hm=2326dab4599eec8cfccf5f290232a2b9a6a749c658fc7f5f2ff34d925ae0e34d",
-    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209021166161920/IMG_20260923_144323.jpg?ex=6abc070d&is=6abab58d&hm=27b97ac85e7f974ac878edb37d30e7619455319e780725030411976182bceada",
-    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1552209016695033878/IMG_20260923_144412.jpg?ex=6abc070c&is=6abab58c&hm=02b881ac9593034de40b865d91088ddfbb418261350df80d4d92c377503bbad4"
+    Thunder = "https://cdn.discordapp.com/attachments/1552180852778336348/1554782939403919380/thunder.png?backend=b2&ex=6abe23f3&is=6abcd273&hm=950324d82d62bf3957d2f06d3ab3047314a543ec0912cae2bed784e882c42d87&",
+    Volt = "https://cdn.discordapp.com/attachments/1552180852778336348/1554782940045512704/volt.png?backend=b2&ex=6abe23f3&is=6abcd273&hm=bea0a4874d2feb82b7c687ef06c9383ce713cb1428c790404bff59119bf2ea87&",
+    Raging = "https://cdn.discordapp.com/attachments/1552180852778336348/1554782938841878599/raging.png?backend=b2&ex=6abe23f3&is=6abcd273&hm=5e92b0374a2b20c17323a8dee88c802c0e875fb1f0b1da48b83b59475ea7ada8&",
+    Dreadful = "https://cdn.discordapp.com/attachments/1552180852778336348/1554782937533259828/dreadful.png?backend=b2&ex=6abe23f2&is=6abcd272&hm=60759850c120bdaab2fef6fa2a3dd747ee9eac391f78a0384c97fbfc08651e04&",
+    Eternal = "https://cdn.discordapp.com/attachments/1552180852778336348/1554782938120589403/eternal.png?backend=b2&ex=6abe23f2&is=6abcd272&hm=5d17f96d0eac329c97b4b081ca91ec02a8b3903b314ef7e955e4cb97cd734f01&"
 }
 
 for _, name in ipairs(eggList) do
@@ -240,7 +240,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.2"
+subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.3"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
