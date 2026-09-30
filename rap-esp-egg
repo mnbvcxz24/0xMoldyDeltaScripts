@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V2.9"
+Subtitle.Text = "Egg ESP TEST V3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -296,37 +296,16 @@ local FilterCorner = Instance.new("UICorner")
 FilterCorner.CornerRadius = UDim.new(0, 7)
 FilterCorner.Parent = FilterButton
 
-local WeightLabel = Instance.new("TextLabel")
-WeightLabel.Size = UDim2.new(1, -10, 0, 25)
-WeightLabel.Position = UDim2.fromOffset(5, 160)
-WeightLabel.BackgroundTransparency = 1
-WeightLabel.Text = "Weight: --"
-WeightLabel.TextColor3 = Color3.fromRGB(175, 175, 185)
-WeightLabel.TextSize = textSize(12)
-WeightLabel.Font = Enum.Font.Gotham
-WeightLabel.TextXAlignment = Enum.TextXAlignment.Left
-WeightLabel.Parent = ESPPage
-
-local KGLabel = Instance.new("TextLabel")
-KGLabel.Size = UDim2.new(1, -10, 0, 25)
-KGLabel.Position = UDim2.fromOffset(5, 190)
-KGLabel.BackgroundTransparency = 1
-KGLabel.Text = "Calculated KG: --"
-KGLabel.TextColor3 = Color3.fromRGB(175, 175, 185)
-KGLabel.TextSize = textSize(12)
-KGLabel.Font = Enum.Font.Gotham
-KGLabel.TextXAlignment = Enum.TextXAlignment.Left
-KGLabel.Parent = ESPPage
-
 local FilterCount = Instance.new("TextLabel")
-FilterCount.Size = UDim2.new(1, -10, 0, 25)
-FilterCount.Position = UDim2.fromOffset(5, 215)
+FilterCount.Size = UDim2.new(1, -10, 0, 70)
+FilterCount.Position = UDim2.fromOffset(5, 160)
 FilterCount.BackgroundTransparency = 1
-FilterCount.Text = "Selected Eggs: 0"
+FilterCount.Text = "Detected eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
-FilterCount.TextSize = textSize(12)
+FilterCount.TextSize = textSize(11)
 FilterCount.Font = Enum.Font.Gotham
 FilterCount.TextXAlignment = Enum.TextXAlignment.Left
+FilterCount.TextYAlignment = Enum.TextYAlignment.Top
 FilterCount.Parent = ESPPage
 
 local FilterFrame = Instance.new("ScrollingFrame")
@@ -610,72 +589,89 @@ end
 
 local function updateFilterText()
     local selectedNames = getSelectedEggNames()
-    local count = #selectedNames
 
-    if count == 0 then
+    if #selectedNames == 0 then
         FilterButton.Text = "-- ▼"
-        FilterCount.Text = "Selected Eggs: 0"
-        WeightLabel.Text = "Weight: --"
-        KGLabel.Text = "Calculated KG: --"
+        FilterCount.Text = "Detected eggs: 0"
         return
     end
 
-    if count == 1 then
+    if #selectedNames == 1 then
         FilterButton.Text = selectedNames[1] .. " ▼"
     else
-        FilterButton.Text = tostring(count) .. " eggs selected ▼"
+        FilterButton.Text =
+            tostring(#selectedNames) ..
+            " eggs selected ▼"
     end
 
     local ActiveEggs = getActiveEggs()
-    local selectedWeight
-    local selectedKG
 
-    if ActiveEggs then
-        for _, egg in ipairs(ActiveEggs:GetChildren()) do
-            local eggName = egg:GetAttribute("Egg")
+    if not ActiveEggs then
+        FilterCount.Text = "Detected eggs: 0"
+        return
+    end
 
-            if eggName and SelectedEggs[eggName] then
-                local weight = tonumber(egg:GetAttribute("Weight"))
+    local lines = {}
+    local counts = {}
 
-                if selectedWeight == nil and weight ~= nil then
-                    selectedWeight = weight
+    for _, eggName in ipairs(selectedNames) do
+        counts[eggName] = 0
+    end
 
-                    local eggLuck = getEggLuck(eggName)
-                    local ranchLuck = getRanchLuck()
+    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        local eggName = egg:GetAttribute("Egg")
 
-                    selectedKG = calculateKG(
-                        weight,
-                        eggLuck,
-                        ranchLuck
-                    )
+        if eggName and SelectedEggs[eggName] then
+            counts[eggName] =
+                (counts[eggName] or 0) + 1
+        end
+    end
 
-                    break
+    local total = 0
+
+    for _, eggName in ipairs(selectedNames) do
+        local count = counts[eggName] or 0
+
+        if count > 0 then
+            total = total + count
+
+            for _, egg in ipairs(ActiveEggs:GetChildren()) do
+                if egg:GetAttribute("Egg") == eggName then
+                    local weight =
+                        tonumber(
+                            egg:GetAttribute("Weight")
+                        )
+
+                    if weight then
+                        table.insert(
+                            lines,
+                            string.format(
+                                "%s - %.2f",
+                                eggName,
+                                weight
+                            )
+                        )
+                    else
+                        table.insert(
+                            lines,
+                            eggName .. " - --"
+                        )
+                    end
                 end
             end
         end
     end
 
-    if selectedWeight ~= nil then
-        WeightLabel.Text = "Weight: " .. tostring(selectedWeight) .. " kg"
-    else
-        WeightLabel.Text = "Weight: --"
+    FilterCount.Text =
+        "Detected eggs: " ..
+        tostring(total)
+
+    if #lines > 0 then
+        FilterCount.Text =
+            FilterCount.Text ..
+            "\n" ..
+            table.concat(lines, "\n")
     end
-
-    KGLabel.Text = "Calculated KG: " .. formatKG(selectedKG)
-
-    local total = 0
-
-    if ActiveEggs then
-        for _, egg in ipairs(ActiveEggs:GetChildren()) do
-            local eggName = egg:GetAttribute("Egg")
-
-            if eggName and SelectedEggs[eggName] then
-                total = total + 1
-            end
-        end
-    end
-
-    FilterCount.Text = "Selected Eggs: " .. tostring(total)
 end
 
 local function refreshFilterButtons()
@@ -850,9 +846,7 @@ function updateESP()
 
     if #selectedNames == 0 then
         clearESP()
-        FilterCount.Text = "Selected Eggs: 0"
-        WeightLabel.Text = "Weight: --"
-        KGLabel.Text = "Calculated KG: --"
+        FilterCount.Text = "Detected eggs: 0"
         return
     end
 
@@ -861,40 +855,24 @@ function updateESP()
     if not ActiveEggs then
         clearESP()
         AddDebug("[ESP ERROR] ActiveEggs not found")
+        FilterCount.Text = "Detected eggs: 0"
         return
     end
 
     local eggs = ActiveEggs:GetChildren()
     local activeEggSet = {}
-    local counts = {}
-
-    for _, name in ipairs(selectedNames) do
-        counts[name] = 0
-    end
-
-    local firstWeight
-    local firstKG
+    local detectedLines = {}
+    local totalSelected = 0
 
     for _, egg in ipairs(eggs) do
         local currentEggName = egg:GetAttribute("Egg")
 
         if currentEggName and SelectedEggs[currentEggName] then
-            counts[currentEggName] = (counts[currentEggName] or 0) + 1
+            totalSelected = totalSelected + 1
 
-            local weight = tonumber(egg:GetAttribute("Weight"))
-
-            if firstWeight == nil and weight ~= nil then
-                firstWeight = weight
-
-                local eggLuck = getEggLuck(currentEggName)
-                local ranchLuck = getRanchLuck()
-
-                firstKG = calculateKG(
-                    weight,
-                    eggLuck,
-                    ranchLuck
-                )
-            end
+            local weight = tonumber(
+                egg:GetAttribute("Weight")
+            )
 
             local position = getEggPosition(egg)
 
@@ -910,12 +888,13 @@ function updateESP()
                 end
 
                 if data.Label then
-                    local weightText
+                    local weightText = "--"
 
                     if weight ~= nil then
-                        weightText = string.format("%.2f", weight)
-                    else
-                        weightText = "--"
+                        weightText = string.format(
+                            "%.2f",
+                            weight
+                        )
                     end
 
                     data.Label.Text =
@@ -926,6 +905,22 @@ function updateESP()
             end
 
             activeEggSet[egg] = true
+
+            local weightText = "--"
+
+            if weight ~= nil then
+                weightText = string.format(
+                    "%.2f",
+                    weight
+                )
+            end
+
+            table.insert(
+                detectedLines,
+                tostring(currentEggName) ..
+                " - " ..
+                weightText
+            )
         end
     end
 
@@ -941,30 +936,23 @@ function updateESP()
         end
     end
 
-    EggCount.Text = "Active Eggs: " .. tostring(#eggs)
-
-    local totalSelected = 0
-
-    for _, name in ipairs(selectedNames) do
-        totalSelected = totalSelected + (counts[name] or 0)
-    end
+    EggCount.Text =
+        "Active Eggs: " ..
+        tostring(#eggs)
 
     FilterCount.Text =
-        "Selected Eggs: " ..
+        "Detected eggs: " ..
         tostring(totalSelected)
 
-    if firstWeight ~= nil then
-        WeightLabel.Text =
-            "Weight: " ..
-            string.format("%.2f", firstWeight) ..
-            " kg"
-    else
-        WeightLabel.Text = "Weight: --"
+    if #detectedLines > 0 then
+        FilterCount.Text =
+            FilterCount.Text ..
+            "\n" ..
+            table.concat(
+                detectedLines,
+                "\n"
+            )
     end
-
-    KGLabel.Text =
-        "Calculated KG: " ..
-        formatKG(firstKG)
 end
 
 loadConfig()
