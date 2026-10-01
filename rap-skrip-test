@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.4"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -378,12 +378,12 @@ local EggPickupEvent
 local EggArrivalClaimEvent
 local TeleportToPlotEvent
 
-AutoDipResult = nil
-AutoDipWaitingForResult = true
-AutoVolcanoMessageReceived = false
-AutoVolcanoMessageText = nil
+local AutoDipResult = nil
+local AutoDipWaitingForResult = false
+
 local AutoVolcanoMessageReceived = false
 local AutoVolcanoMessageText = nil
+local AutoVolcanoWaitingForMessage = false
 
 local VolcanoDipEvent
 local VolcanoDipResultEvent
@@ -496,7 +496,7 @@ AutoDipCorner.Parent = AutoDipButton
 
 local AutoFilterLabel = Instance.new("TextLabel")
 AutoFilterLabel.Size = UDim2.new(1, -10, 0, 19)
-AutoFilterLabel.Position = UDim2.fromOffset(5, 89)
+AutoFilterLabel.Position = UDim2.fromOffset(5, 115)
 AutoFilterLabel.BackgroundTransparency = 1
 AutoFilterLabel.Text = "Auto Pickup Egg Filter"
 AutoFilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -507,7 +507,7 @@ AutoFilterLabel.Parent = AutoPage
 
 local AutoFilterButton = Instance.new("TextButton")
 AutoFilterButton.Size = UDim2.new(1, -10, 0, 27)
-AutoFilterButton.Position = UDim2.fromOffset(5, 108)
+AutoFilterButton.Position = UDim2.fromOffset(5, 134)
 AutoFilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 AutoFilterButton.Text = "-- ▼"
 AutoFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
@@ -525,7 +525,7 @@ AutoFilterCorner.Parent = AutoFilterButton
 
 local AutoSelectedLabel = Instance.new("TextLabel")
 AutoSelectedLabel.Size = UDim2.new(1, -10, 0, 22)
-AutoSelectedLabel.Position = UDim2.fromOffset(5, 137)
+AutoSelectedLabel.Position = UDim2.fromOffset(5, 163)
 AutoSelectedLabel.BackgroundTransparency = 1
 AutoSelectedLabel.Text = "Selected: None"
 AutoSelectedLabel.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -537,7 +537,7 @@ AutoSelectedLabel.Parent = AutoPage
 
 local AutoFilterFrame = Instance.new("ScrollingFrame")
 AutoFilterFrame.Size = UDim2.new(1, -10, 0, 102)
-AutoFilterFrame.Position = UDim2.fromOffset(5, 137)
+AutoFilterFrame.Position = UDim2.fromOffset(5, 163)
 AutoFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 AutoFilterFrame.BorderSizePixel = 0
 AutoFilterFrame.Visible = false
@@ -1764,6 +1764,10 @@ local function tryAutoPickup()
 
                 AutoDipResult = nil
                 AutoDipWaitingForResult = true
+                
+                AutoVolcanoMessageReceived = false
+                AutoVolcanoMessageText = nil
+                AutoVolcanoWaitingForMessage = false
 
                 local dipSuccess, dipErr =
                     pcall(function()
@@ -1832,6 +1836,8 @@ local function tryAutoPickup()
                     "[AUTO DIP] Waiting for mutation message..."
                 )
                 
+                AutoVolcanoWaitingForMessage = true
+                
                 local messageStart =
                     os.clock()
                 
@@ -1850,7 +1856,7 @@ local function tryAutoPickup()
                 end
 
                 if not AutoVolcanoMessageReceived then
-                    AutoDipWaitingForResult = false
+                    AutoVolcanoWaitingForMessage = false
                 
                     AddDebug(
                         "[AUTO DIP ERROR] Mutation message timeout"
@@ -1962,7 +1968,7 @@ local GameMessageEvent =
     .Remotes.Reusable.GameMessage
 
 GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
-    if not AutoDipWaitingForResult then
+    if not AutoVolcanoWaitingForMessage then
         return
     end
 
@@ -1976,8 +1982,10 @@ GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
         1,
         true
     ) then
+
         AutoVolcanoMessageReceived = true
         AutoVolcanoMessageText = message
+        AutoVolcanoWaitingForMessage = false
 
         AddDebug(
             "[AUTO DIP] Mutation successful"
@@ -1993,8 +2001,10 @@ GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
         1,
         true
     ) then
+
         AutoVolcanoMessageReceived = true
         AutoVolcanoMessageText = message
+        AutoVolcanoWaitingForMessage = false
 
         AddDebug(
             "[AUTO DIP] Mutation failed"
