@@ -275,22 +275,38 @@ AutoFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
 AutoFilterButton.TextSize = textSize(11)
 AutoFilterButton.Font = Enum.Font.Gotham
 AutoFilterButton.AutoButtonColor = false
-AutoFilterButton.ZIndex = 25
+AutoFilterButton.ZIndex = 39
 AutoFilterButton.Parent = AutoPage
 Instance.new("UICorner", AutoFilterButton).CornerRadius = UDim.new(0, 7)
 
 local AutoFilterFrame = Instance.new("ScrollingFrame")
-AutoFilterFrame.Size = UDim2.new(1, -10, 0, 105)
+AutoFilterFrame.Size = UDim2.new(1, -10, 0, 150)
 AutoFilterFrame.Position = UDim2.fromOffset(5, 151)
 AutoFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 AutoFilterFrame.BorderSizePixel = 0
 AutoFilterFrame.Visible = false
-AutoFilterFrame.ZIndex = 30
-AutoFilterFrame.ScrollBarThickness = 3
-AutoFilterFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+AutoFilterFrame.ZIndex = 40
+AutoFilterFrame.ScrollBarThickness = 4
+AutoFilterFrame.ScrollBarImageTransparency = 0.15
+AutoFilterFrame.CanvasSize = UDim2.fromOffset(0, 0)
 AutoFilterFrame.Active = true
+AutoFilterFrame.ClipsDescendants = true
 AutoFilterFrame.Parent = AutoPage
 Instance.new("UICorner", AutoFilterFrame).CornerRadius = UDim.new(0, 7)
+local AutoFilterLayout = Instance.new("UIListLayout")
+AutoFilterLayout.Padding = UDim.new(0, 5)
+AutoFilterLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+AutoFilterLayout.SortOrder = Enum.SortOrder.LayoutOrder
+AutoFilterLayout.Parent = AutoFilterFrame
+local AutoFilterPadding = Instance.new("UIPadding")
+AutoFilterPadding.PaddingTop = UDim.new(0, 5)
+AutoFilterPadding.PaddingBottom = UDim.new(0, 5)
+AutoFilterPadding.PaddingLeft = UDim.new(0, 5)
+AutoFilterPadding.PaddingRight = UDim.new(0, 5)
+AutoFilterPadding.Parent = AutoFilterFrame
+AutoFilterLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    AutoFilterFrame.CanvasSize = UDim2.fromOffset(0, AutoFilterLayout.AbsoluteContentSize.Y + 10)
+end)
 
 local AutoMovementLabel = Instance.new("TextLabel")
 AutoMovementLabel.Size = UDim2.new(1, -10, 0, 20)
@@ -403,12 +419,13 @@ end
 local function createAutoFilterButtons()
     for _, button in pairs(AutoFilterButtons) do pcall(function() button:Destroy() end) end
     table.clear(AutoFilterButtons)
-    local y = 5
+    local order = 0
     for _, eggName in ipairs(EggTypes) do
         if eggName ~= "--" then
+            order = order + 1
             local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, -10, 0, 28)
-            button.Position = UDim2.fromOffset(5, y)
+            button.Size = UDim2.new(1, 0, 0, 28)
+            button.LayoutOrder = order
             button.BackgroundColor3 = AutoSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
             button.BorderSizePixel = 0
             button.Text = (AutoSelectedEggs[eggName] and "✓ " or "") .. eggName
@@ -417,6 +434,9 @@ local function createAutoFilterButtons()
             button.Font = Enum.Font.Gotham
             button.AutoButtonColor = false
             button.ZIndex = 31
+            button.Active = true
+            button.Selectable = true
+            button.ZIndex = 41
             button.Parent = AutoFilterFrame
             Instance.new("UICorner", button).CornerRadius = UDim.new(0, 5)
             button.MouseButton1Click:Connect(function()
@@ -426,7 +446,6 @@ local function createAutoFilterButtons()
                 refreshAutoFilterText()
             end)
             table.insert(AutoFilterButtons, button)
-            y = y + 33
         end
     end
 end
@@ -926,7 +945,7 @@ function updateESP()
 end
 
 local CONFIG_FOLDER = "RAPSkrip"
-local CONFIG_FILE = CONFIG_FOLDER .. "/rap_skrip_config_test.json"
+local CONFIG_FILE = CONFIG_FOLDER .. "/rap_skrip_config.json"
 
 function saveConfig()
     if not writefile then return end
@@ -1172,7 +1191,7 @@ local AutoExecuteStatus = Instance.new("TextLabel")
 AutoExecuteStatus.Size = UDim2.new(1, -10, 0, 35)
 AutoExecuteStatus.Position = UDim2.fromOffset(5, 88)
 AutoExecuteStatus.BackgroundTransparency = 1
-AutoExecuteStatus.Text = "Creates rap_skrip_execute_test.txt"
+AutoExecuteStatus.Text = "Creates rap_skrip_test.txt"
 AutoExecuteStatus.TextColor3 = Color3.fromRGB(145, 145, 155)
 AutoExecuteStatus.TextSize = textSize(10)
 AutoExecuteStatus.Font = Enum.Font.Gotham
@@ -1183,11 +1202,11 @@ AutoExecuteButton.MouseButton1Click:Connect(function()
     local content = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-skrip"))()'
     local success, err = pcall(function()
         if makefolder and isfolder and not isfolder("RAPSkrip") then makefolder("RAPSkrip") end
-        writefile("RAPSkrip/rap_skrip_execute_test.txt", content)
+        writefile("RAPSkrip/rap_skrip_test.txt", content)
     end)
     if success then
-        AutoExecuteStatus.Text = "Created: rap_skrip_execute_test.txt"
-        AddDebug("[AUTOEXEC] rap_skrip_execute_test.txt created")
+        AutoExecuteStatus.Text = "Created: rap_skrip_test.txt"
+        AddDebug("[AUTOEXEC] rap_skrip_test.txt created")
     else
         AutoExecuteStatus.Text = "Failed: " .. tostring(err)
         AddDebug("[AUTOEXEC ERROR] " .. tostring(err))
