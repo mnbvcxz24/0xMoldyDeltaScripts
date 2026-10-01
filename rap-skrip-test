@@ -1871,6 +1871,17 @@ local function tryAutoPickup()
                 )
                 
                 AddDebug(
+                    "[AUTO DIP] Waiting 3 seconds before returning..."
+                )
+                
+                task.wait(3)
+                
+                if not AutoPickupRunning then
+                    AutoPickupBusy = false
+                    return
+                end
+                
+                AddDebug(
                     "[AUTO DIP] Returning to plot..."
                 )
             end
