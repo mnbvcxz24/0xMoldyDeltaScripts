@@ -20,7 +20,7 @@ pcall(function()
     end
 end)
 
-local TEXT_SCALE = 0.90
+local TEXT_SCALE = 0.80
 
 local function textSize(size)
     return math.floor(size * TEXT_SCALE)
@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.1"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.2"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -362,6 +362,7 @@ local FilterButtons = {}
 
 local AutoSelectedEggs = {}
 local AutoPickupRunning = false
+local AutoDipEnabled = false
 local AutoPickupBusy = false
 local AutoPickupDistance = math.huge
 local AutoPickupMovementMode = "Teleport"
@@ -373,10 +374,10 @@ local AutoPickupAwaitingPickup = false
 local AutoPickupAwaitingDeposit = false
 local AutoPickupPickupConfirmed = false
 local AutoPickupDepositConfirmed = false
-
 local EggPickupEvent
 local EggArrivalClaimEvent
 local TeleportToPlotEvent
+local AutoDipEnabled = false
 
 pcall(function()
     local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -396,7 +397,7 @@ local AutoTitle = Instance.new("TextLabel")
 AutoTitle.Size = UDim2.new(1, -10, 0, 25)
 AutoTitle.Position = UDim2.fromOffset(5, 3)
 AutoTitle.BackgroundTransparency = 1
-AutoTitle.Text = "Automation"
+AutoTitle.Text = "Auto Farm"
 AutoTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
 AutoTitle.TextSize = textSize(15)
 AutoTitle.Font = Enum.Font.GothamBold
@@ -407,9 +408,9 @@ local AutoStatus = Instance.new("TextLabel")
 AutoStatus.Size = UDim2.new(1, -85, 0, 22)
 AutoStatus.Position = UDim2.fromOffset(5, 30)
 AutoStatus.BackgroundTransparency = 1
-AutoStatus.Text = "Auto Status: Disabled"
+AutoStatus.Text = "● Inactive"
 AutoStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
-AutoStatus.TextSize = textSize(11)
+AutoStatus.TextSize = textSize(10)
 AutoStatus.Font = Enum.Font.Gotham
 AutoStatus.TextXAlignment = Enum.TextXAlignment.Left
 AutoStatus.Parent = AutoPage
@@ -431,14 +432,36 @@ local AutoToggleCorner = Instance.new("UICorner")
 AutoToggleCorner.CornerRadius = UDim.new(0, 6)
 AutoToggleCorner.Parent = AutoToggle
 
+local AutoDipTitle = Instance.new("TextLabel")
+AutoDipTitle.Size = UDim2.new(1, -85, 0, 19)
+AutoDipTitle.Position = UDim2.fromOffset(5, 58)
+AutoDipTitle.BackgroundTransparency = 1
+AutoDipTitle.Text = "Auto DIP"
+AutoDipTitle.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoDipTitle.TextSize = textSize(10)
+AutoDipTitle.Font = Enum.Font.GothamMedium
+AutoDipTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoDipTitle.Parent = AutoPage
+
+local AutoDipStatus = Instance.new("TextLabel")
+AutoDipStatus.Size = UDim2.new(1, -85, 0, 18)
+AutoDipStatus.Position = UDim2.fromOffset(5, 76)
+AutoDipStatus.BackgroundTransparency = 1
+AutoDipStatus.Text = "● Inactive"
+AutoDipStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
+AutoDipStatus.TextSize = textSize(9)
+AutoDipStatus.Font = Enum.Font.Gotham
+AutoDipStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoDipStatus.Parent = AutoPage
+
 local AutoDipButton = Instance.new("TextButton")
-AutoDipButton.Size = UDim2.new(1, -10, 0, 27)
-AutoDipButton.Position = UDim2.fromOffset(5, 57)
-AutoDipButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
-AutoDipButton.Text = "Auto DIP"
+AutoDipButton.Size = UDim2.fromOffset(62, 27)
+AutoDipButton.Position = UDim2.new(1, -67, 0, 58)
+AutoDipButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoDipButton.Text = "OFF"
 AutoDipButton.TextColor3 = Color3.fromRGB(220, 220, 225)
 AutoDipButton.TextSize = textSize(10)
-AutoDipButton.Font = Enum.Font.GothamMedium
+AutoDipButton.Font = Enum.Font.GothamBold
 AutoDipButton.AutoButtonColor = false
 AutoDipButton.Active = true
 AutoDipButton.Selectable = true
@@ -753,15 +776,31 @@ local function createAutoFilterButtons()
 end
 
 AutoDipButton.MouseButton1Click:Connect(function()
-    if AutoDipButton.Text == "Auto DIP" then
-        AutoDipButton.Text = "Auto DIP: OFF"
-        AutoDipButton.BackgroundColor3 =
-            Color3.fromRGB(45, 45, 53)
-    else
-        AutoDipButton.Text = "Auto DIP"
-        AutoDipButton.BackgroundColor3 =
-            Color3.fromRGB(35, 35, 42)
-    end
+    AutoDipEnabled = not AutoDipEnabled
+
+    AutoDipButton.Text =
+        AutoDipEnabled and "ON" or "OFF"
+
+    AutoDipButton.BackgroundColor3 =
+        AutoDipEnabled
+        and Color3.fromRGB(55, 120, 75)
+        or Color3.fromRGB(45, 45, 53)
+
+    AutoDipStatus.Text =
+        AutoDipEnabled
+        and "● Active"
+        or "● Inactive"
+
+    AutoDipStatus.TextColor3 =
+        AutoDipEnabled
+        and Color3.fromRGB(130, 180, 140)
+        or Color3.fromRGB(150, 150, 158)
+
+    AddDebug(
+        AutoDipEnabled
+        and "[AUTO DIP] Enabled"
+        or "[AUTO DIP] Disabled"
+    )
 end)
 
 AutoFilterButton.MouseButton1Click:Connect(function()
@@ -854,8 +893,13 @@ AutoToggleConnection = AutoToggle.MouseButton1Click:Connect(function()
 
     AutoStatus.Text =
         enabled
-        and "Auto Status: Enabled"
-        or "Auto Status: Disabled"
+        and "● Active"
+        or "● Inactive"
+    
+    AutoStatus.TextColor3 =
+        enabled
+        and Color3.fromRGB(130, 180, 140)
+        or Color3.fromRGB(150, 150, 158)
 
     AutoInfo.Text =
         enabled
