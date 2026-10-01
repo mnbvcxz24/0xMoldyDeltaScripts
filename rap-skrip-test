@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -377,20 +377,28 @@ local AutoPickupDepositConfirmed = false
 local EggPickupEvent
 local EggArrivalClaimEvent
 local TeleportToPlotEvent
-local AutoDipEnabled = false
+
+local AutoDipWaitingForResult = false
+local AutoDipResult = nil
+
+local VolcanoDipEvent
+local VolcanoDipResultEvent
+
+local VolcanoDropPosition = Vector3.new(
+    -5067.05859375,
+    41406.12890625,
+    -3471.73583984375
+)
 
 pcall(function()
     local Remotes = ReplicatedStorage:WaitForChild("Remotes")
     local GameRemotes = Remotes:WaitForChild("Game")
 
-    EggPickupEvent =
-        GameRemotes:WaitForChild("EggPickup")
-
-    EggArrivalClaimEvent =
-        GameRemotes:WaitForChild("EggArrivalClaim")
-
-    TeleportToPlotEvent =
-        GameRemotes:FindFirstChild("TeleportToPlot")
+    EggPickupEvent = GameRemotes:WaitForChild("EggPickup")
+    EggArrivalClaimEvent = GameRemotes:WaitForChild("EggArrivalClaim")
+    TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
+    VolcanoDipEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDip"]
+    VolcanoDipResultEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDipResult"]
 end)
 
 local AutoTitle = Instance.new("TextLabel")
@@ -1716,6 +1724,111 @@ local function tryAutoPickup()
                 return
             end
 
+            if AutoDipEnabled then
+                AddDebug(
+                    "[AUTO DIP] Teleporting to volcano..."
+                )
+
+                local character =
+                    game:GetService("Players").LocalPlayer.Character
+
+                if not character then
+                    AddDebug(
+                        "[AUTO DIP ERROR] Character not found"
+                    )
+
+                    AutoPickupBusy = false
+                    return
+                end
+
+                character:PivotTo(
+                    CFrame.new(
+                        VolcanoDropPosition
+                    )
+                )
+
+                task.wait(0.25)
+
+                if not AutoPickupRunning then
+                    AutoPickupBusy = false
+                    return
+                end
+
+                AddDebug(
+                    "[AUTO DIP] Firing VolcanoDip..."
+                )
+
+                AutoDipResult = nil
+                AutoDipWaitingForResult = true
+
+                local dipSuccess, dipErr =
+                    pcall(function()
+                        VolcanoDipEvent:FireServer()
+                    end)
+
+                if not dipSuccess then
+                    AutoDipWaitingForResult = false
+
+                    AddDebug(
+                        "[AUTO DIP ERROR] " ..
+                        tostring(dipErr)
+                    )
+
+                    AutoPickupBusy = false
+                    return
+                end
+
+                AddDebug(
+                    "[AUTO DIP] Waiting for result..."
+                )
+
+                local dipStart =
+                    os.clock()
+
+                while
+                    AutoDipWaitingForResult
+                    and AutoPickupRunning
+                    and os.clock() - dipStart < 15
+                do
+                    task.wait(0.1)
+                end
+
+                if not AutoPickupRunning then
+                    AutoDipWaitingForResult = false
+                    AutoPickupBusy = false
+                    return
+                end
+
+                if AutoDipWaitingForResult then
+                    AutoDipWaitingForResult = false
+
+                    AddDebug(
+                        "[AUTO DIP ERROR] Result timeout"
+                    )
+
+                    AutoPickupBusy = false
+                    return
+                end
+
+                if not AutoDipResult then
+                    AddDebug(
+                        "[AUTO DIP ERROR] No result received"
+                    )
+
+                    AutoPickupBusy = false
+                    return
+                end
+
+                AddDebug(
+                    "[AUTO DIP] Result received: " ..
+                    tostring(AutoDipResult.Success)
+                )
+
+                AddDebug(
+                    "[AUTO DIP] Returning to plot..."
+                )
+            end
+
             if not teleportToMyPlot() then
                 AutoPickupBusy = false
                 return
@@ -1803,6 +1916,15 @@ local function tryAutoPickup()
 
     AutoPickupBusy = false
 end
+
+VolcanoDipResultEvent.OnClientEvent:Connect(function(result)
+    if not AutoDipWaitingForResult then
+        return
+    end
+
+    AutoDipResult = result
+    AutoDipWaitingForResult = false
+end)
 
 local function getSelectedEggNames()
     local names = {}
