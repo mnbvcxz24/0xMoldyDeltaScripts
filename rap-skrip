@@ -97,7 +97,7 @@ end
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(350, 300)
+Main.Size = UDim2.fromOffset(350, 345)
 Main.Position = UDim2.new(0.5, -175, 0.5, -150)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -362,9 +362,14 @@ local FilterButtons = {}
 
 local AutoSelectedEggs = {}
 local AutoPickupRunning = false
+local AutoPickupBusy = false
 local AutoPickupDistance = math.huge
+local AutoPickupMovementMode = "Teleport"
+local AutoPickupClaimDelay = 3
+local AutoPickupNextEggDelay = 3
 
 local EggPickupEvent
+local TeleportToPlotEvent
 
 pcall(function()
     EggPickupEvent =
@@ -372,6 +377,12 @@ pcall(function()
         :WaitForChild("Remotes")
         :WaitForChild("Game")
         :WaitForChild("EggPickup")
+
+    TeleportToPlotEvent =
+        ReplicatedStorage
+        :WaitForChild("Remotes")
+        :WaitForChild("Game")
+        :WaitForChild("TeleportToPlot")
 end)
 
 local AutoTitle = Instance.new("TextLabel")
@@ -471,6 +482,171 @@ local AutoFilterFrameCorner = Instance.new("UICorner")
 AutoFilterFrameCorner.CornerRadius = UDim.new(0, 7)
 AutoFilterFrameCorner.Parent = AutoFilterFrame
 
+local AutoMovementLabel = Instance.new("TextLabel")
+AutoMovementLabel.Size = UDim2.new(1, -10, 0, 20)
+AutoMovementLabel.Position = UDim2.fromOffset(5, 198)
+AutoMovementLabel.BackgroundTransparency = 1
+AutoMovementLabel.Text = "Movement"
+AutoMovementLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoMovementLabel.TextSize = textSize(11)
+AutoMovementLabel.Font = Enum.Font.GothamMedium
+AutoMovementLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoMovementLabel.Parent = AutoPage
+
+local AutoMovementButton = Instance.new("TextButton")
+AutoMovementButton.Size = UDim2.new(1, -10, 0, 28)
+AutoMovementButton.Position = UDim2.fromOffset(5, 218)
+AutoMovementButton.BackgroundColor3 = Color3.fromRGB(55, 85, 60)
+AutoMovementButton.Text = "Teleport"
+AutoMovementButton.TextColor3 = Color3.fromRGB(225, 225, 230)
+AutoMovementButton.TextSize = textSize(11)
+AutoMovementButton.Font = Enum.Font.GothamMedium
+AutoMovementButton.AutoButtonColor = false
+AutoMovementButton.Parent = AutoPage
+
+local AutoMovementCorner = Instance.new("UICorner")
+AutoMovementCorner.CornerRadius = UDim.new(0, 6)
+AutoMovementCorner.Parent = AutoMovementButton
+
+local AutoMovementInfo = Instance.new("TextLabel")
+AutoMovementInfo.Size = UDim2.new(1, -10, 0, 18)
+AutoMovementInfo.Position = UDim2.fromOffset(5, 248)
+AutoMovementInfo.BackgroundTransparency = 1
+AutoMovementInfo.Text = "Teleport active • Glide reserved"
+AutoMovementInfo.TextColor3 = Color3.fromRGB(130, 180, 140)
+AutoMovementInfo.TextSize = textSize(9)
+AutoMovementInfo.Font = Enum.Font.Gotham
+AutoMovementInfo.TextXAlignment = Enum.TextXAlignment.Left
+AutoMovementInfo.Parent = AutoPage
+
+local AutoClaimLabel = Instance.new("TextLabel")
+AutoClaimLabel.Size = UDim2.new(1, -10, 0, 20)
+AutoClaimLabel.Position = UDim2.fromOffset(5, 270)
+AutoClaimLabel.BackgroundTransparency = 1
+AutoClaimLabel.Text = "Claim Delay: 3.0s"
+AutoClaimLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoClaimLabel.TextSize = textSize(11)
+AutoClaimLabel.Font = Enum.Font.GothamMedium
+AutoClaimLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoClaimLabel.Parent = AutoPage
+
+local AutoClaimBar = Instance.new("Frame")
+AutoClaimBar.Size = UDim2.new(1, -10, 0, 6)
+AutoClaimBar.Position = UDim2.fromOffset(5, 294)
+AutoClaimBar.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoClaimBar.BorderSizePixel = 0
+AutoClaimBar.Parent = AutoPage
+
+local AutoClaimBarCorner = Instance.new("UICorner")
+AutoClaimBarCorner.CornerRadius = UDim.new(1, 0)
+AutoClaimBarCorner.Parent = AutoClaimBar
+
+local AutoClaimFill = Instance.new("Frame")
+AutoClaimFill.Size = UDim2.new(0.5, 0, 1, 0)
+AutoClaimFill.BackgroundColor3 = Color3.fromRGB(75, 130, 85)
+AutoClaimFill.BorderSizePixel = 0
+AutoClaimFill.Parent = AutoClaimBar
+
+local AutoClaimFillCorner = Instance.new("UICorner")
+AutoClaimFillCorner.CornerRadius = UDim.new(1, 0)
+AutoClaimFillCorner.Parent = AutoClaimFill
+
+local AutoClaimKnob = Instance.new("TextButton")
+AutoClaimKnob.Size = UDim2.fromOffset(14, 14)
+AutoClaimKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+AutoClaimKnob.Position = UDim2.new(0.5, 0, 0.5, 0)
+AutoClaimKnob.BackgroundColor3 = Color3.fromRGB(220, 220, 225)
+AutoClaimKnob.Text = ""
+AutoClaimKnob.AutoButtonColor = false
+AutoClaimKnob.Parent = AutoClaimBar
+
+local AutoClaimKnobCorner = Instance.new("UICorner")
+AutoClaimKnobCorner.CornerRadius = UDim.new(1, 0)
+AutoClaimKnobCorner.Parent = AutoClaimKnob
+
+local claimDragging = false
+
+local function updateClaimDelayFromX(x)
+    local width = AutoClaimBar.AbsoluteSize.X
+
+    if width <= 0 then
+        return
+    end
+
+    local relative = math.clamp(
+        (x - AutoClaimBar.AbsolutePosition.X) / width,
+        0,
+        1
+    )
+
+    AutoPickupClaimDelay =
+        math.floor((1 + relative * 4) * 10 + 0.5) / 10
+
+    local alpha =
+        (AutoPickupClaimDelay - 1) / 4
+
+    AutoClaimFill.Size =
+        UDim2.new(alpha, 0, 1, 0)
+
+    AutoClaimKnob.Position =
+        UDim2.new(alpha, 0, 0.5, 0)
+
+    AutoClaimLabel.Text =
+        string.format(
+            "Claim Delay: %.1fs",
+            AutoPickupClaimDelay
+        )
+end
+
+AutoClaimKnob.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        claimDragging = true
+    end
+end)
+
+AutoClaimBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        claimDragging = true
+        updateClaimDelayFromX(input.Position.X)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if claimDragging
+        and (
+            input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch
+        ) then
+
+        updateClaimDelayFromX(input.Position.X)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        claimDragging = false
+    end
+end)
+
+AutoMovementButton.MouseButton1Click:Connect(function()
+    AutoPickupMovementMode = "Teleport"
+
+    AutoMovementButton.Text = "Teleport"
+    AutoMovementButton.BackgroundColor3 =
+        Color3.fromRGB(55, 85, 60)
+
+    AutoMovementInfo.Text =
+        "Teleport active • Glide reserved"
+
+    AddDebug("[AUTO] Movement mode: Teleport")
+end)
+
 local AutoFilterButtons = {}
 
 local function refreshAutoFilterText()
@@ -554,13 +730,18 @@ createAutoFilterButtons()
 refreshAutoFilterText()
 
 AutoToggle.MouseButton1Click:Connect(function()
-    local enabled = AutoToggle.Text == "OFF"
+    local enabled =
+        AutoToggle.Text == "OFF"
+
     AutoPickupRunning = enabled
-    AutoPickupClaimed = {}
+
     if not enabled then
-        AutoPickupClaimed = {}
+        AutoPickupBusy = false
     end
-    AutoToggle.Text = enabled and "ON" or "OFF"
+
+    AutoToggle.Text =
+        enabled and "ON" or "OFF"
+
     AutoToggle.BackgroundColor3 =
         enabled
         and Color3.fromRGB(55, 120, 75)
@@ -573,7 +754,7 @@ AutoToggle.MouseButton1Click:Connect(function()
 
     AutoInfo.Text =
         enabled
-        and "Automation is active.\n\nScanning selected eggs and sending pickup requests."
+        and "Automation is active.\n\nTeleporting to selected eggs and returning to your plot."
         or "Automation is currently inactive.\n\nSelect an egg and enable Auto Pickup."
 
     AddDebug(
@@ -581,6 +762,24 @@ AutoToggle.MouseButton1Click:Connect(function()
         and "[AUTO] Enabled"
         or "[AUTO] Disabled"
     )
+
+    if enabled then
+        AddDebug(
+            "[AUTO] Movement: " ..
+            AutoPickupMovementMode
+        )
+
+        AddDebug(
+            string.format(
+                "[AUTO] Claim Delay: %.1fs",
+                AutoPickupClaimDelay
+            )
+        )
+
+        AddDebug(
+            "[AUTO] Next Egg Delay: 3.0s"
+        )
+    end
 end)
 
 local CONFIG_FOLDER = "RAPSkrip"
@@ -833,8 +1032,116 @@ local function isAutoPickupEggSelected(eggName)
     return AutoSelectedEggs[eggName] == true
 end
 
+local function getCharacterRoot()
+    local character = player.Character
+
+    if not character then
+        return nil
+    end
+
+    return character:FindFirstChild("HumanoidRootPart")
+end
+
+local function teleportToEgg(egg)
+    if AutoPickupMovementMode ~= "Teleport" then
+        AddDebug("[AUTO ERROR] Glide is not implemented yet")
+        return false
+    end
+
+    local position = getEggPosition(egg)
+
+    if not position then
+        AddDebug("[AUTO ERROR] Egg has no usable Position")
+        return false
+    end
+
+    local root = getCharacterRoot()
+
+    if not root then
+        AddDebug("[AUTO ERROR] HumanoidRootPart not found")
+        return false
+    end
+
+    local targetPosition =
+        position + Vector3.new(0, 3, 0)
+
+    local success, err = pcall(function()
+        root.CFrame = CFrame.new(targetPosition)
+    end)
+
+    if not success then
+        AddDebug(
+            "[AUTO ERROR] Teleport failed: " ..
+            tostring(err)
+        )
+
+        return false
+    end
+
+    AddDebug(
+        "[AUTO] Teleported to " ..
+        tostring(egg:GetAttribute("Egg"))
+    )
+
+    return true
+end
+
+local function returnToPlot()
+    if not TeleportToPlotEvent then
+        AddDebug("[AUTO ERROR] TeleportToPlot remote not found")
+        return false
+    end
+
+    local success, err = pcall(function()
+        TeleportToPlotEvent:FireServer()
+    end)
+
+    if not success then
+        AddDebug(
+            "[AUTO ERROR] Return to plot failed: " ..
+            tostring(err)
+        )
+
+        return false
+    end
+
+    AddDebug("[AUTO] Returned to plot")
+
+    return true
+end
+
+local function findNextAutoPickupEgg()
+    local ActiveEggs = getActiveEggs()
+
+    if not ActiveEggs then
+        AddDebug("[AUTO ERROR] ActiveEggs not found")
+        return nil
+    end
+
+    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        local eggName = egg:GetAttribute("Egg")
+
+        if eggName
+            and isAutoPickupEggSelected(eggName) then
+
+            local uuid = getEggUUID(egg)
+            local position = getEggPosition(egg)
+
+            if uuid and position then
+                return egg, uuid
+            end
+        end
+    end
+
+    return nil
+end
+
 local function tryAutoPickup()
     if not AutoPickupRunning then
+        return
+    end
+
+    if AutoPickupBusy then
         return
     end
 
@@ -843,64 +1150,94 @@ local function tryAutoPickup()
         return
     end
 
-    local ActiveEggs = getActiveEggs()
+    AutoPickupBusy = true
 
-    if not ActiveEggs then
-        AddDebug("[AUTO ERROR] ActiveEggs not found")
-        return
-    end
+    local success, err = pcall(function()
+        local egg, uuid = findNextAutoPickupEgg()
 
-    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        if not egg or not uuid then
+            AutoPickupBusy = false
+            return
+        end
+
+        local eggName =
+            egg:GetAttribute("Egg")
+
+        AddDebug(
+            "[AUTO] Target: " ..
+            tostring(eggName)
+        )
+
+        AddDebug(
+            "[AUTO] UUID: " ..
+            tostring(uuid)
+        )
+
+        AddDebug("[AUTO] Distance: Unlimited")
+
+        if not teleportToEgg(egg) then
+            AutoPickupBusy = false
+            return
+        end
+
         if not AutoPickupRunning then
-            break
+            AutoPickupBusy = false
+            return
         end
 
-        local eggName = egg:GetAttribute("Egg")
+        task.wait(0.15)
 
-        if eggName and isAutoPickupEggSelected(eggName) then
-            local uuid = getEggUUID(egg)
+        local pickupSuccess, pickupErr =
+            pcall(function()
+                EggPickupEvent:FireServer(uuid)
+            end)
 
-            if uuid and not AutoPickupClaimed[uuid] then
-                AutoPickupClaimed[uuid] = true
+        if not pickupSuccess then
+            AddDebug(
+                "[AUTO ERROR] Pickup failed: " ..
+                tostring(pickupErr)
+            )
 
-                AddDebug(
-                    "[AUTO] Target: " ..
-                    tostring(eggName)
-                )
-
-                AddDebug(
-                    "[AUTO] UUID: " ..
-                    tostring(uuid)
-                )
-
-                AddDebug(
-                    "[AUTO] Distance: Unlimited"
-                )
-
-                local success, err = pcall(function()
-                    EggPickupEvent:FireServer(uuid)
-                end)
-
-                if success then
-                    AddDebug(
-                        "[AUTO] Pickup request sent: " ..
-                        tostring(eggName)
-                    )
-                else
-                    AutoPickupClaimed[uuid] = nil
-
-                    AddDebug(
-                        "[AUTO ERROR] Pickup failed: " ..
-                        tostring(err)
-                    )
-                end
-
-                return egg, uuid
-            end
+            AutoPickupBusy = false
+            return
         end
+
+        AddDebug(
+            "[AUTO] Pickup request sent: " ..
+            tostring(eggName)
+        )
+
+        AddDebug(
+            string.format(
+                "[AUTO] Claim delay: %.1fs",
+                AutoPickupClaimDelay
+            )
+        )
+
+        task.wait(AutoPickupClaimDelay)
+
+        if not AutoPickupRunning then
+            AutoPickupBusy = false
+            return
+        end
+
+        returnToPlot()
+
+        AddDebug(
+            "[AUTO] Next egg delay: 3.0s"
+        )
+
+        task.wait(AutoPickupNextEggDelay)
+    end)
+
+    if not success then
+        AddDebug(
+            "[AUTO ERROR] " ..
+            tostring(err)
+        )
     end
 
-    return nil
+    AutoPickupBusy = false
 end
 
 local function getSelectedEggNames()
@@ -1561,13 +1898,13 @@ end)
 
 task.spawn(function()
     while Gui.Parent do
-        if AutoPickupRunning then
+        if AutoPickupRunning and not AutoPickupBusy then
             pcall(function()
                 tryAutoPickup()
             end)
         end
 
-        task.wait(0.5)
+        task.wait(0.25)
     end
 end)
 
@@ -1604,7 +1941,7 @@ local AutoExecuteStatus = Instance.new("TextLabel")
 AutoExecuteStatus.Size = UDim2.new(1, -10, 0, 35)
 AutoExecuteStatus.Position = UDim2.fromOffset(5, 88)
 AutoExecuteStatus.BackgroundTransparency = 1
-AutoExecuteStatus.Text = "Creates rap_esp_egg.txt"
+AutoExecuteStatus.Text = "Creates rap_skrip_test.txt"
 AutoExecuteStatus.TextColor3 = Color3.fromRGB(145, 145, 155)
 AutoExecuteStatus.TextSize = textSize(10)
 AutoExecuteStatus.Font = Enum.Font.Gotham
@@ -1613,25 +1950,25 @@ AutoExecuteStatus.Parent = SettingsPage
 
 AutoExecuteButton.MouseButton1Click:Connect(function()
     local content =
-        'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-esp-egg"))()'
+        'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-skrip"))()'
 
     local success, err = pcall(function()
-        if makefolder and isfolder and not isfolder("RAP") then
-            makefolder("RAP")
+        if makefolder and isfolder and not isfolder("RAPSkrip") then
+            makefolder("RAPSkrip")
         end
 
         writefile(
-            "RAP/rap_esp_egg.txt",
+            "RAPSkrip/rap_skrip_test.txt",
             content
         )
     end)
 
     if success then
         AutoExecuteStatus.Text =
-            "Created: rap_esp_egg.txt"
+            "Created: rap_skrip_test.txt"
 
         AddDebug(
-            "[AUTOEXEC] rap_esp_egg.txt created"
+            "[AUTOEXEC] rap_skrip_test.txt created"
         )
     else
         AutoExecuteStatus.Text =
