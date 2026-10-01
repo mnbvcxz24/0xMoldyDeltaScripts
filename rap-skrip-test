@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -378,8 +378,12 @@ local EggPickupEvent
 local EggArrivalClaimEvent
 local TeleportToPlotEvent
 
-local AutoDipWaitingForResult = false
-local AutoDipResult = nil
+AutoDipResult = nil
+AutoDipWaitingForResult = true
+AutoVolcanoMessageReceived = false
+AutoVolcanoMessageText = nil
+local AutoVolcanoMessageReceived = false
+local AutoVolcanoMessageText = nil
 
 local VolcanoDipEvent
 local VolcanoDipResultEvent
@@ -453,9 +457,9 @@ AutoToggleCorner.Parent = AutoToggle
 
 local AutoDipTitle = Instance.new("TextLabel")
 AutoDipTitle.Size = UDim2.new(1, -85, 0, 19)
-AutoDipTitle.Position = UDim2.fromOffset(5, 58)
+AutoDipTitle.Position = UDim2.fromOffset(5, 72)
 AutoDipTitle.BackgroundTransparency = 1
-AutoDipTitle.Text = "Auto DIP"
+AutoDipTitle.Text = "Auto Volcano DIP"
 AutoDipTitle.TextColor3 = Color3.fromRGB(210, 210, 218)
 AutoDipTitle.TextSize = textSize(10)
 AutoDipTitle.Font = Enum.Font.GothamMedium
@@ -464,7 +468,7 @@ AutoDipTitle.Parent = AutoPage
 
 local AutoDipStatus = Instance.new("TextLabel")
 AutoDipStatus.Size = UDim2.new(1, -85, 0, 18)
-AutoDipStatus.Position = UDim2.fromOffset(5, 76)
+AutoDipStatus.Position = UDim2.fromOffset(5, 90)
 AutoDipStatus.BackgroundTransparency = 1
 AutoDipStatus.Text = "● Inactive"
 AutoDipStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
@@ -475,7 +479,7 @@ AutoDipStatus.Parent = AutoPage
 
 local AutoDipButton = Instance.new("TextButton")
 AutoDipButton.Size = UDim2.fromOffset(62, 27)
-AutoDipButton.Position = UDim2.new(1, -67, 0, 58)
+AutoDipButton.Position = UDim2.new(1, -67, 0, 72)
 AutoDipButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
 AutoDipButton.Text = "OFF"
 AutoDipButton.TextColor3 = Color3.fromRGB(220, 220, 225)
@@ -1814,16 +1818,52 @@ local function tryAutoPickup()
                     AddDebug(
                         "[AUTO DIP ERROR] No result received"
                     )
-
+                
                     AutoPickupBusy = false
                     return
                 end
-
+                
                 AddDebug(
                     "[AUTO DIP] Result received: " ..
                     tostring(AutoDipResult.Success)
                 )
+                
+                AddDebug(
+                    "[AUTO DIP] Waiting for mutation message..."
+                )
+                
+                local messageStart =
+                    os.clock()
+                
+                while
+                    not AutoVolcanoMessageReceived
+                    and AutoPickupRunning
+                    and os.clock() - messageStart < 10
+                do
+                    task.wait(0.1)
+                end
+                
+                if not AutoPickupRunning then
+                    AutoDipWaitingForResult = false
+                    AutoPickupBusy = false
+                    return
+                end
 
+                if not AutoVolcanoMessageReceived then
+                    AutoDipWaitingForResult = false
+                
+                    AddDebug(
+                        "[AUTO DIP ERROR] Mutation message timeout"
+                    )
+                
+                    AutoPickupBusy = false
+                    return
+                end
+                
+                AddDebug(
+                    "[AUTO DIP] Mutation process completed"
+                )
+                
                 AddDebug(
                     "[AUTO DIP] Returning to plot..."
                 )
@@ -1916,6 +1956,55 @@ local function tryAutoPickup()
 
     AutoPickupBusy = false
 end
+
+local GameMessageEvent =
+    game:GetService("ReplicatedStorage")
+    .Remotes.Reusable.GameMessage
+
+GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
+    if not AutoDipWaitingForResult then
+        return
+    end
+
+    if typeof(message) ~= "string" then
+        return
+    end
+
+    if string.find(
+        message,
+        " Egg Mutated Into ",
+        1,
+        true
+    ) then
+        AutoVolcanoMessageReceived = true
+        AutoVolcanoMessageText = message
+
+        AddDebug(
+            "[AUTO DIP] Mutation successful"
+        )
+
+        AddDebug(
+            "[AUTO DIP] " .. message
+        )
+
+    elseif string.find(
+        message,
+        " Egg Didn't Mutate",
+        1,
+        true
+    ) then
+        AutoVolcanoMessageReceived = true
+        AutoVolcanoMessageText = message
+
+        AddDebug(
+            "[AUTO DIP] Mutation failed"
+        )
+
+        AddDebug(
+            "[AUTO DIP] " .. message
+        )
+    end
+end)
 
 VolcanoDipResultEvent.OnClientEvent:Connect(function(result)
     if not AutoDipWaitingForResult then
