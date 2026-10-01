@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.1"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.2"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -364,6 +364,16 @@ local AutoSelectedEggs = {}
 local AutoPickupRunning = false
 local AutoPickupDistance = math.huge
 
+local EggPickupEvent
+
+pcall(function()
+    EggPickupEvent =
+        ReplicatedStorage
+        :WaitForChild("Remotes")
+        :WaitForChild("Game")
+        :WaitForChild("EggPickup")
+end)
+
 local AutoTitle = Instance.new("TextLabel")
 AutoTitle.Size = UDim2.new(1, -10, 0, 30)
 AutoTitle.Position = UDim2.fromOffset(5, 5)
@@ -546,6 +556,8 @@ refreshAutoFilterText()
 AutoToggle.MouseButton1Click:Connect(function()
     local enabled = AutoToggle.Text == "OFF"
 
+    AutoPickupRunning = enabled
+
     AutoToggle.Text = enabled and "ON" or "OFF"
 
     AutoToggle.BackgroundColor3 =
@@ -558,7 +570,10 @@ AutoToggle.MouseButton1Click:Connect(function()
         and "Auto Status: Enabled"
         or "Auto Status: Disabled"
 
-    AutoPickupRunning = enabled
+    AutoInfo.Text =
+        enabled
+        and "Automation is active.\n\nScanning selected eggs and sending pickup requests."
+        or "Automation is currently inactive.\n\nSelect an egg and enable Auto Pickup."
 
     AddDebug(
         enabled
@@ -822,9 +837,15 @@ local function tryAutoPickup()
         return
     end
 
+    if not EggPickupEvent then
+        AddDebug("[AUTO ERROR] EggPickup remote not found")
+        return
+    end
+
     local ActiveEggs = getActiveEggs()
 
     if not ActiveEggs then
+        AddDebug("[AUTO ERROR] ActiveEggs not found")
         return
     end
 
@@ -839,24 +860,35 @@ local function tryAutoPickup()
             local uuid = getEggUUID(egg)
 
             if uuid then
-                local details = {
-                    "[AUTO] Target: " .. tostring(eggName),
-                    "[AUTO] UUID: " .. tostring(uuid),
-                    "[AUTO] Class: " .. egg.ClassName
-                }
+                AddDebug(
+                    "[AUTO] Target: " ..
+                    tostring(eggName)
+                )
 
-                for _, child in ipairs(egg:GetChildren()) do
-                    table.insert(
-                        details,
-                        "[AUTO] Child: " ..
-                        child.Name ..
-                        " [" ..
-                        child.ClassName ..
-                        "]"
+                AddDebug(
+                    "[AUTO] UUID: " ..
+                    tostring(uuid)
+                )
+
+                AddDebug(
+                    "[AUTO] Distance: Unlimited"
+                )
+
+                local success, err = pcall(function()
+                    EggPickupEvent:FireServer(uuid)
+                end)
+
+                if success then
+                    AddDebug(
+                        "[AUTO] Pickup request sent: " ..
+                        tostring(eggName)
+                    )
+                else
+                    AddDebug(
+                        "[AUTO ERROR] Pickup failed: " ..
+                        tostring(err)
                     )
                 end
-
-                AddDebug(table.concat(details, "\n"))
 
                 return egg, uuid
             end
@@ -1519,6 +1551,18 @@ task.spawn(function()
         end
 
         task.wait(1)
+    end
+end)
+
+task.spawn(function()
+    while Gui.Parent do
+        if AutoPickupRunning then
+            pcall(function()
+                tryAutoPickup()
+            end)
+        end
+
+        task.wait(0.5)
     end
 end)
 
