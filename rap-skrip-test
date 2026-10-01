@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.5"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -390,7 +390,7 @@ local VolcanoDipResultEvent
 
 local VolcanoDropPosition = Vector3.new(
     -5067.05859375,
-    41406.12890625,
+    41409.12890625,
     -3471.73583984375
 )
 
@@ -537,7 +537,7 @@ AutoSelectedLabel.Parent = AutoPage
 
 local AutoFilterFrame = Instance.new("ScrollingFrame")
 AutoFilterFrame.Size = UDim2.new(1, -10, 0, 102)
-AutoFilterFrame.Position = UDim2.fromOffset(5, 163)
+AutoFilterFrame.Position = UDim2.fromOffset(5, 185)
 AutoFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 AutoFilterFrame.BorderSizePixel = 0
 AutoFilterFrame.Visible = false
@@ -555,7 +555,7 @@ AutoFilterFrameCorner.Parent = AutoFilterFrame
 
 local AutoMovementLabel = Instance.new("TextLabel")
 AutoMovementLabel.Size = UDim2.new(1, -10, 0, 18)
-AutoMovementLabel.Position = UDim2.fromOffset(5, 164)
+AutoMovementLabel.Position = UDim2.fromOffset(5, 214)
 AutoMovementLabel.BackgroundTransparency = 1
 AutoMovementLabel.Text = "Movement"
 AutoMovementLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -566,7 +566,7 @@ AutoMovementLabel.Parent = AutoPage
 
 local AutoMovementButton = Instance.new("TextButton")
 AutoMovementButton.Size = UDim2.new(1, -10, 0, 27)
-AutoMovementButton.Position = UDim2.fromOffset(5, 183)
+AutoMovementButton.Position = UDim2.fromOffset(5, 233)
 AutoMovementButton.BackgroundColor3 = Color3.fromRGB(55, 85, 60)
 AutoMovementButton.Text = "Teleport"
 AutoMovementButton.TextColor3 = Color3.fromRGB(225, 225, 230)
@@ -583,7 +583,7 @@ AutoMovementCorner.Parent = AutoMovementButton
 
 local AutoMovementInfo = Instance.new("TextLabel")
 AutoMovementInfo.Size = UDim2.new(1, -10, 0, 16)
-AutoMovementInfo.Position = UDim2.fromOffset(5, 212)
+AutoMovementInfo.Position = UDim2.fromOffset(5, 262)
 AutoMovementInfo.BackgroundTransparency = 1
 AutoMovementInfo.Text = "Teleport active"
 AutoMovementInfo.TextColor3 = Color3.fromRGB(130, 180, 140)
@@ -594,9 +594,9 @@ AutoMovementInfo.Parent = AutoPage
 
 local AutoClaimLabel = Instance.new("TextLabel")
 AutoClaimLabel.Size = UDim2.new(1, -10, 0, 18)
-AutoClaimLabel.Position = UDim2.fromOffset(5, 231)
+AutoClaimLabel.Position = UDim2.fromOffset(5, 383)
 AutoClaimLabel.BackgroundTransparency = 1
-AutoClaimLabel.Text = "Claim Delay: 3.0s"
+AutoClaimLabel.Text = "Claim Delay: 1.0s"
 AutoClaimLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
 AutoClaimLabel.TextSize = textSize(10)
 AutoClaimLabel.Font = Enum.Font.GothamMedium
@@ -605,7 +605,7 @@ AutoClaimLabel.Parent = AutoPage
 
 local AutoClaimBar = Instance.new("Frame")
 AutoClaimBar.Size = UDim2.new(1, -10, 0, 6)
-AutoClaimBar.Position = UDim2.fromOffset(5, 251)
+AutoClaimBar.Position = UDim2.fromOffset(5, 403)
 AutoClaimBar.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
 AutoClaimBar.BorderSizePixel = 0
 AutoClaimBar.Parent = AutoPage
