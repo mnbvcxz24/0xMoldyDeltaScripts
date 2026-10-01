@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.4"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -1137,6 +1137,26 @@ local function findNextAutoPickupEgg()
 end
 
 local function tryAutoPickup()
+    AddDebug(
+        "[AUTO CHECK] getActiveEggs=" ..
+        tostring(type(getActiveEggs))
+    )
+    
+    AddDebug(
+        "[AUTO CHECK] getEggPosition=" ..
+        tostring(type(getEggPosition))
+    )
+    
+    AddDebug(
+        "[AUTO CHECK] getEggUUID=" ..
+        tostring(type(getEggUUID))
+    )
+    
+    AddDebug(
+        "[AUTO CHECK] isAutoPickupEggSelected=" ..
+        tostring(type(isAutoPickupEggSelected))
+    )
+
     if not AutoPickupRunning then
         return
     end
@@ -1179,7 +1199,7 @@ local function tryAutoPickup()
             AutoPickupBusy = false
             return
         end
-
+    
         if not AutoPickupRunning then
             AutoPickupBusy = false
             return
@@ -1897,11 +1917,31 @@ task.spawn(function()
 end)
 
 task.spawn(function()
+    local lastAutoError = ""
+    local lastAutoErrorTime = 0
+
     while Gui.Parent do
         if AutoPickupRunning and not AutoPickupBusy then
-            pcall(function()
+            local success, err = pcall(function()
                 tryAutoPickup()
             end)
+
+            if not success then
+                local errorText = tostring(err)
+                local now = os.clock()
+
+                if errorText ~= lastAutoError
+                    or now - lastAutoErrorTime >= 5 then
+
+                    AddDebug("[AUTO ERROR] " .. errorText)
+
+                    lastAutoError = errorText
+                    lastAutoErrorTime = now
+                end
+
+                AutoPickupBusy = false
+                task.wait(1)
+            end
         end
 
         task.wait(0.25)
