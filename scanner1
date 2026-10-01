@@ -1,0 +1,372 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
+
+local old = CoreGui:FindFirstChild("RAP_PlotScanner")
+if old then
+    old:Destroy()
+end
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "RAP_PlotScanner"
+Gui.ResetOnSpawn = false
+Gui.Parent = CoreGui
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(430, 360)
+Main.Position = UDim2.new(0.5, -215, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+Main.BorderSizePixel = 0
+Main.Parent = Gui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 10)
+Corner.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -20, 0, 35)
+Title.Position = UDim2.fromOffset(10, 8)
+Title.BackgroundTransparency = 1
+Title.Text = "RAP Plot Scanner"
+Title.TextColor3 = Color3.fromRGB(235, 235, 240)
+Title.TextSize = 17
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1, -20, 0, 22)
+Subtitle.Position = UDim2.fromOffset(10, 40)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "Workspace.Plots inspection"
+Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
+Subtitle.TextSize = 11
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+Subtitle.Parent = Main
+
+local Output = Instance.new("ScrollingFrame")
+Output.Size = UDim2.new(1, -20, 1, -115)
+Output.Position = UDim2.fromOffset(10, 68)
+Output.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Output.BorderSizePixel = 0
+Output.ScrollBarThickness = 5
+Output.CanvasSize = UDim2.new(0, 0, 0, 0)
+Output.Parent = Main
+
+local OutputCorner = Instance.new("UICorner")
+OutputCorner.CornerRadius = UDim.new(0, 7)
+OutputCorner.Parent = Output
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0, 3)
+Layout.Parent = Output
+
+local function AddDebug(text)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -12, 0, 20)
+    Label.BackgroundTransparency = 1
+    Label.Text = tostring(text)
+    Label.TextColor3 = Color3.fromRGB(205, 205, 215)
+    Label.TextSize = 11
+    Label.Font = Enum.Font.Code
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.TextYAlignment = Enum.TextYAlignment.Center
+    Label.TextWrapped = true
+    Label.AutomaticSize = Enum.AutomaticSize.Y
+    Label.Parent = Output
+
+    task.defer(function()
+        Output.CanvasSize = UDim2.new(
+            0,
+            0,
+            0,
+            Layout.AbsoluteContentSize.Y + 10
+        )
+
+        Output.CanvasPosition = Vector2.new(
+            0,
+            math.max(0, Layout.AbsoluteContentSize.Y)
+        )
+    end)
+end
+
+local ScanButton = Instance.new("TextButton")
+ScanButton.Size = UDim2.fromOffset(195, 38)
+ScanButton.Position = UDim2.fromOffset(10, 313)
+ScanButton.BackgroundColor3 = Color3.fromRGB(55, 100, 65)
+ScanButton.Text = "Scan My Plot"
+ScanButton.TextColor3 = Color3.fromRGB(235, 235, 240)
+ScanButton.TextSize = 12
+ScanButton.Font = Enum.Font.GothamMedium
+ScanButton.AutoButtonColor = false
+ScanButton.Parent = Main
+
+local ScanCorner = Instance.new("UICorner")
+ScanCorner.CornerRadius = UDim.new(0, 7)
+ScanCorner.Parent = ScanButton
+
+local ClearButton = Instance.new("TextButton")
+ClearButton.Size = UDim2.fromOffset(195, 38)
+ClearButton.Position = UDim2.fromOffset(220, 313)
+ClearButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+ClearButton.Text = "Clear"
+ClearButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+ClearButton.TextSize = 12
+ClearButton.Font = Enum.Font.GothamMedium
+ClearButton.AutoButtonColor = false
+ClearButton.Parent = Main
+
+local ClearCorner = Instance.new("UICorner")
+ClearCorner.CornerRadius = UDim.new(0, 7)
+ClearCorner.Parent = ClearButton
+
+local function ClearOutput()
+    for _, child in ipairs(Output:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+
+    Output.CanvasSize = UDim2.new(0, 0, 0, 0)
+end
+
+local function ScanPlot()
+    ClearOutput()
+
+    AddDebug("=== RAP PLOT SCANNER ===")
+    AddDebug("Player: " .. player.Name)
+
+    local plots = workspace:FindFirstChild("Plots")
+
+    if not plots then
+        AddDebug("[ERROR] Workspace.Plots not found")
+        return
+    end
+
+    AddDebug("Plots found: " .. tostring(#plots:GetChildren()))
+    AddDebug("")
+
+    local myPlot = nil
+
+    for _, plot in ipairs(plots:GetChildren()) do
+        if plot:IsA("Model") then
+            AddDebug("[PLOT] " .. plot.Name)
+
+            local data = plot:FindFirstChild("Data")
+
+            if data then
+                local owner = data:FindFirstChild("Owner")
+
+                if owner then
+                    AddDebug(
+                        "  Owner: " ..
+                        tostring(owner.Value)
+                    )
+
+                    if tostring(owner.Value) == player.Name then
+                        myPlot = plot
+                        AddDebug("  >>> YOUR PLOT <<<")
+                    end
+                else
+                    AddDebug("  Owner: not found")
+                end
+            else
+                AddDebug("  Data: not found")
+            end
+        end
+    end
+
+    AddDebug("")
+
+    if not myPlot then
+        AddDebug("[ERROR] Your plot was not found")
+        return
+    end
+
+    AddDebug("=== YOUR PLOT ===")
+    AddDebug("Plot: " .. myPlot:GetFullName())
+
+    local baseplate = myPlot:FindFirstChild("Baseplate")
+
+    if not baseplate then
+        AddDebug("[ERROR] Baseplate not found")
+        return
+    end
+
+    AddDebug("")
+    AddDebug("=== BASEPLATE ===")
+    AddDebug("Class: " .. baseplate.ClassName)
+    AddDebug("Position:")
+    AddDebug(tostring(baseplate.Position))
+
+    AddDebug("")
+    AddDebug("Size:")
+    AddDebug(tostring(baseplate.Size))
+
+    AddDebug("")
+    AddDebug("CFrame:")
+    AddDebug(tostring(baseplate.CFrame))
+
+    AddDebug("")
+    AddDebug("=== OTHER PARTS ===")
+
+    for _, child in ipairs(myPlot:GetChildren()) do
+        AddDebug(
+            child.Name ..
+            " [" ..
+            child.ClassName ..
+            "]"
+        )
+    end
+
+    AddDebug("")
+    AddDebug("Scan complete.")
+end
+
+local function ScanPlot2()
+    ClearOutput()
+
+    AddDebug("=== PLOT POSITION SCANNER ===")
+
+    local plots = workspace:FindFirstChild("Plots")
+
+    if not plots then
+        AddDebug("[ERROR] Workspace.Plots not found")
+        return
+    end
+
+    local myPlot
+
+    for _, plot in ipairs(plots:GetChildren()) do
+        local data = plot:FindFirstChild("Data")
+
+        if data then
+            local owner = data:FindFirstChild("Owner")
+
+            if owner and tostring(owner.Value) == player.Name then
+                myPlot = plot
+                break
+            end
+        end
+    end
+
+    if not myPlot then
+        AddDebug("[ERROR] Your plot was not found")
+        return
+    end
+
+    AddDebug("Plot: " .. myPlot:GetFullName())
+    AddDebug("")
+
+    local function ScanContainer(container)
+        AddDebug("[" .. container.Name .. "]")
+
+        for _, obj in ipairs(container:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                AddDebug(
+                    obj:GetFullName() ..
+                    " | Position: " ..
+                    tostring(obj.Position) ..
+                    " | Size: " ..
+                    tostring(obj.Size)
+                )
+            elseif obj:IsA("SpawnLocation") then
+                AddDebug(
+                    obj:GetFullName() ..
+                    " | Spawn: " ..
+                    tostring(obj.Position)
+                )
+            elseif obj:IsA("Attachment") then
+                AddDebug(
+                    obj:GetFullName() ..
+                    " | Attachment: " ..
+                    tostring(obj.WorldPosition)
+                )
+            end
+        end
+    end
+
+    local data = myPlot:FindFirstChild("Data")
+    local eggs = myPlot:FindFirstChild("Eggs")
+    local nests = myPlot:FindFirstChild("Nests")
+    local pets = myPlot:FindFirstChild("Pets")
+    local hatch = myPlot:FindFirstChild("HatchUpgrade")
+
+    if data then
+        ScanContainer(data)
+    end
+
+    if nests then
+        ScanContainer(nests)
+    end
+
+    if hatch then
+        ScanContainer(hatch)
+    end
+
+    if eggs then
+        ScanContainer(eggs)
+    end
+
+    if pets then
+        ScanContainer(pets)
+    end
+
+    AddDebug("")
+    AddDebug("=== COMPLETE ===")
+end
+
+ScanButton.MouseButton1Click:Connect(function()
+    ScanPlot()
+end)
+
+ClearButton.MouseButton1Click:Connect(function()
+    ClearOutput()
+end)
+
+local dragging = false
+local dragStart
+local startPosition
+
+Title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = true
+        dragStart = input.Position
+        startPosition = Main.Position
+    end
+end)
+
+Title.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = false
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if not dragging then
+        return
+    end
+
+    if input.UserInputType ~= Enum.UserInputType.MouseMovement
+        and input.UserInputType ~= Enum.UserInputType.Touch then
+
+        return
+    end
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPosition.X.Scale,
+        startPosition.X.Offset + delta.X,
+        startPosition.Y.Scale,
+        startPosition.Y.Offset + delta.Y
+    )
+end)
+
+ScanPlot()
