@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.1"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -393,34 +393,34 @@ pcall(function()
 end)
 
 local AutoTitle = Instance.new("TextLabel")
-AutoTitle.Size = UDim2.new(1, -10, 0, 30)
-AutoTitle.Position = UDim2.fromOffset(5, 5)
+AutoTitle.Size = UDim2.new(1, -10, 0, 25)
+AutoTitle.Position = UDim2.fromOffset(5, 3)
 AutoTitle.BackgroundTransparency = 1
 AutoTitle.Text = "Automation"
 AutoTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
-AutoTitle.TextSize = textSize(16)
+AutoTitle.TextSize = textSize(15)
 AutoTitle.Font = Enum.Font.GothamBold
 AutoTitle.TextXAlignment = Enum.TextXAlignment.Left
 AutoTitle.Parent = AutoPage
 
 local AutoStatus = Instance.new("TextLabel")
-AutoStatus.Size = UDim2.new(1, -10, 0, 25)
-AutoStatus.Position = UDim2.fromOffset(5, 42)
+AutoStatus.Size = UDim2.new(1, -85, 0, 22)
+AutoStatus.Position = UDim2.fromOffset(5, 30)
 AutoStatus.BackgroundTransparency = 1
 AutoStatus.Text = "Auto Status: Disabled"
 AutoStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
-AutoStatus.TextSize = textSize(12)
+AutoStatus.TextSize = textSize(11)
 AutoStatus.Font = Enum.Font.Gotham
 AutoStatus.TextXAlignment = Enum.TextXAlignment.Left
 AutoStatus.Parent = AutoPage
 
 local AutoToggle = Instance.new("TextButton")
-AutoToggle.Size = UDim2.fromOffset(70, 32)
-AutoToggle.Position = UDim2.new(1, -75, 0, 38)
+AutoToggle.Size = UDim2.fromOffset(62, 27)
+AutoToggle.Position = UDim2.new(1, -67, 0, 27)
 AutoToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
 AutoToggle.Text = "OFF"
 AutoToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
-AutoToggle.TextSize = textSize(11)
+AutoToggle.TextSize = textSize(10)
 AutoToggle.Font = Enum.Font.GothamBold
 AutoToggle.AutoButtonColor = false
 AutoToggle.Active = true
@@ -428,40 +428,44 @@ AutoToggle.Selectable = true
 AutoToggle.Parent = AutoPage
 
 local AutoToggleCorner = Instance.new("UICorner")
-AutoToggleCorner.CornerRadius = UDim.new(0, 7)
+AutoToggleCorner.CornerRadius = UDim.new(0, 6)
 AutoToggleCorner.Parent = AutoToggle
 
-local AutoInfo = Instance.new("TextLabel")
-AutoInfo.Size = UDim2.new(1, -10, 0, 45)
-AutoInfo.Position = UDim2.fromOffset(5, 82)
-AutoInfo.BackgroundTransparency = 1
-AutoInfo.Text = "Select the eggs you want Auto Pickup to target."
-AutoInfo.TextColor3 = Color3.fromRGB(175, 175, 185)
-AutoInfo.TextSize = textSize(11)
-AutoInfo.Font = Enum.Font.Gotham
-AutoInfo.TextXAlignment = Enum.TextXAlignment.Left
-AutoInfo.TextYAlignment = Enum.TextYAlignment.Top
-AutoInfo.TextWrapped = true
-AutoInfo.Parent = AutoPage
+local AutoDipButton = Instance.new("TextButton")
+AutoDipButton.Size = UDim2.new(1, -10, 0, 27)
+AutoDipButton.Position = UDim2.fromOffset(5, 57)
+AutoDipButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+AutoDipButton.Text = "Auto DIP"
+AutoDipButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoDipButton.TextSize = textSize(10)
+AutoDipButton.Font = Enum.Font.GothamMedium
+AutoDipButton.AutoButtonColor = false
+AutoDipButton.Active = true
+AutoDipButton.Selectable = true
+AutoDipButton.Parent = AutoPage
+
+local AutoDipCorner = Instance.new("UICorner")
+AutoDipCorner.CornerRadius = UDim.new(0, 6)
+AutoDipCorner.Parent = AutoDipButton
 
 local AutoFilterLabel = Instance.new("TextLabel")
-AutoFilterLabel.Size = UDim2.new(1, -10, 0, 25)
-AutoFilterLabel.Position = UDim2.fromOffset(5, 130)
+AutoFilterLabel.Size = UDim2.new(1, -10, 0, 19)
+AutoFilterLabel.Position = UDim2.fromOffset(5, 89)
 AutoFilterLabel.BackgroundTransparency = 1
 AutoFilterLabel.Text = "Auto Pickup Egg Filter"
 AutoFilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
-AutoFilterLabel.TextSize = textSize(12)
+AutoFilterLabel.TextSize = textSize(10)
 AutoFilterLabel.Font = Enum.Font.GothamMedium
 AutoFilterLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoFilterLabel.Parent = AutoPage
 
 local AutoFilterButton = Instance.new("TextButton")
-AutoFilterButton.Size = UDim2.new(1, -10, 0, 32)
-AutoFilterButton.Position = UDim2.fromOffset(5, 153)
+AutoFilterButton.Size = UDim2.new(1, -10, 0, 27)
+AutoFilterButton.Position = UDim2.fromOffset(5, 108)
 AutoFilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 AutoFilterButton.Text = "-- ▼"
 AutoFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
-AutoFilterButton.TextSize = textSize(11)
+AutoFilterButton.TextSize = textSize(10)
 AutoFilterButton.Font = Enum.Font.Gotham
 AutoFilterButton.AutoButtonColor = false
 AutoFilterButton.Active = true
@@ -470,12 +474,24 @@ AutoFilterButton.ZIndex = 25
 AutoFilterButton.Parent = AutoPage
 
 local AutoFilterCorner = Instance.new("UICorner")
-AutoFilterCorner.CornerRadius = UDim.new(0, 7)
+AutoFilterCorner.CornerRadius = UDim.new(0, 6)
 AutoFilterCorner.Parent = AutoFilterButton
 
+local AutoSelectedLabel = Instance.new("TextLabel")
+AutoSelectedLabel.Size = UDim2.new(1, -10, 0, 22)
+AutoSelectedLabel.Position = UDim2.fromOffset(5, 137)
+AutoSelectedLabel.BackgroundTransparency = 1
+AutoSelectedLabel.Text = "Selected: None"
+AutoSelectedLabel.TextColor3 = Color3.fromRGB(145, 145, 155)
+AutoSelectedLabel.TextSize = textSize(9)
+AutoSelectedLabel.Font = Enum.Font.Gotham
+AutoSelectedLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoSelectedLabel.TextTruncate = Enum.TextTruncate.AtEnd
+AutoSelectedLabel.Parent = AutoPage
+
 local AutoFilterFrame = Instance.new("ScrollingFrame")
-AutoFilterFrame.Size = UDim2.new(1, -10, 0, 105)
-AutoFilterFrame.Position = UDim2.fromOffset(5, 153)
+AutoFilterFrame.Size = UDim2.new(1, -10, 0, 102)
+AutoFilterFrame.Position = UDim2.fromOffset(5, 137)
 AutoFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 AutoFilterFrame.BorderSizePixel = 0
 AutoFilterFrame.Visible = false
@@ -492,23 +508,23 @@ AutoFilterFrameCorner.CornerRadius = UDim.new(0, 7)
 AutoFilterFrameCorner.Parent = AutoFilterFrame
 
 local AutoMovementLabel = Instance.new("TextLabel")
-AutoMovementLabel.Size = UDim2.new(1, -10, 0, 20)
-AutoMovementLabel.Position = UDim2.fromOffset(5, 198)
+AutoMovementLabel.Size = UDim2.new(1, -10, 0, 18)
+AutoMovementLabel.Position = UDim2.fromOffset(5, 164)
 AutoMovementLabel.BackgroundTransparency = 1
 AutoMovementLabel.Text = "Movement"
 AutoMovementLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
-AutoMovementLabel.TextSize = textSize(11)
+AutoMovementLabel.TextSize = textSize(10)
 AutoMovementLabel.Font = Enum.Font.GothamMedium
 AutoMovementLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoMovementLabel.Parent = AutoPage
 
 local AutoMovementButton = Instance.new("TextButton")
-AutoMovementButton.Size = UDim2.new(1, -10, 0, 28)
-AutoMovementButton.Position = UDim2.fromOffset(5, 218)
+AutoMovementButton.Size = UDim2.new(1, -10, 0, 27)
+AutoMovementButton.Position = UDim2.fromOffset(5, 183)
 AutoMovementButton.BackgroundColor3 = Color3.fromRGB(55, 85, 60)
 AutoMovementButton.Text = "Teleport"
 AutoMovementButton.TextColor3 = Color3.fromRGB(225, 225, 230)
-AutoMovementButton.TextSize = textSize(11)
+AutoMovementButton.TextSize = textSize(10)
 AutoMovementButton.Font = Enum.Font.GothamMedium
 AutoMovementButton.AutoButtonColor = false
 AutoMovementButton.Active = true
@@ -520,30 +536,30 @@ AutoMovementCorner.CornerRadius = UDim.new(0, 6)
 AutoMovementCorner.Parent = AutoMovementButton
 
 local AutoMovementInfo = Instance.new("TextLabel")
-AutoMovementInfo.Size = UDim2.new(1, -10, 0, 18)
-AutoMovementInfo.Position = UDim2.fromOffset(5, 248)
+AutoMovementInfo.Size = UDim2.new(1, -10, 0, 16)
+AutoMovementInfo.Position = UDim2.fromOffset(5, 212)
 AutoMovementInfo.BackgroundTransparency = 1
-AutoMovementInfo.Text = "Teleport active • Glide reserved"
+AutoMovementInfo.Text = "Teleport active"
 AutoMovementInfo.TextColor3 = Color3.fromRGB(130, 180, 140)
-AutoMovementInfo.TextSize = textSize(9)
+AutoMovementInfo.TextSize = textSize(8)
 AutoMovementInfo.Font = Enum.Font.Gotham
 AutoMovementInfo.TextXAlignment = Enum.TextXAlignment.Left
 AutoMovementInfo.Parent = AutoPage
 
 local AutoClaimLabel = Instance.new("TextLabel")
-AutoClaimLabel.Size = UDim2.new(1, -10, 0, 20)
-AutoClaimLabel.Position = UDim2.fromOffset(5, 270)
+AutoClaimLabel.Size = UDim2.new(1, -10, 0, 18)
+AutoClaimLabel.Position = UDim2.fromOffset(5, 231)
 AutoClaimLabel.BackgroundTransparency = 1
 AutoClaimLabel.Text = "Claim Delay: 3.0s"
 AutoClaimLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
-AutoClaimLabel.TextSize = textSize(11)
+AutoClaimLabel.TextSize = textSize(10)
 AutoClaimLabel.Font = Enum.Font.GothamMedium
 AutoClaimLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoClaimLabel.Parent = AutoPage
 
 local AutoClaimBar = Instance.new("Frame")
 AutoClaimBar.Size = UDim2.new(1, -10, 0, 6)
-AutoClaimBar.Position = UDim2.fromOffset(5, 294)
+AutoClaimBar.Position = UDim2.fromOffset(5, 251)
 AutoClaimBar.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
 AutoClaimBar.BorderSizePixel = 0
 AutoClaimBar.Parent = AutoPage
@@ -675,8 +691,11 @@ local function refreshAutoFilterText()
 
     if #selected == 0 then
         AutoFilterButton.Text = "-- ▼"
+        AutoSelectedLabel.Text = "Selected: None"
     else
-        AutoFilterButton.Text = table.concat(selected, ", ") .. " ▼"
+        AutoFilterButton.Text = "Select Eggs ▼"
+        AutoSelectedLabel.Text =
+            "Selected: " .. table.concat(selected, ", ")
     end
 end
 
@@ -733,11 +752,28 @@ local function createAutoFilterButtons()
     end
 end
 
+AutoDipButton.MouseButton1Click:Connect(function()
+    if AutoDipButton.Text == "Auto DIP" then
+        AutoDipButton.Text = "Auto DIP: OFF"
+        AutoDipButton.BackgroundColor3 =
+            Color3.fromRGB(45, 45, 53)
+    else
+        AutoDipButton.Text = "Auto DIP"
+        AutoDipButton.BackgroundColor3 =
+            Color3.fromRGB(35, 35, 42)
+    end
+end)
+
 AutoFilterButton.MouseButton1Click:Connect(function()
     AutoFilterFrame.Visible = not AutoFilterFrame.Visible
 
     if AutoFilterFrame.Visible then
+        AutoSelectedLabel.Visible = false
+        AutoFilterButton.Text = "Select Eggs ▲"
         createAutoFilterButtons()
+    else
+        AutoSelectedLabel.Visible = true
+        refreshAutoFilterText()
     end
 end)
 
