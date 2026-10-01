@@ -3,7 +3,7 @@ local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
-
+local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
 
 pcall(function()
@@ -70,6 +70,19 @@ local function AddDebug(message)
         end)
     end
 end
+
+player.Idled:Connect(function()
+    if not AntiAFKEnabled then
+        return
+    end
+
+    pcall(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new(0, 0))
+    end)
+
+    AddDebug("[ANTI AFK] Idle activity sent")
+end)
 
 local function formatKG(kg)
     if not kg then
@@ -366,8 +379,9 @@ local AutoDipEnabled = false
 local AutoPickupBusy = false
 local AutoPickupDistance = math.huge
 local AutoPickupMovementMode = "Teleport"
-local AutoPickupClaimDelay = 3
+local AutoPickupClaimDelay = 2
 local AutoPickupNextEggDelay = 3
+local AntiAFKEnabled = false
 
 local AutoPickupAwaitingUUID = nil
 local AutoPickupAwaitingPickup = false
@@ -537,7 +551,7 @@ AutoSelectedLabel.Parent = AutoPage
 
 local AutoFilterFrame = Instance.new("ScrollingFrame")
 AutoFilterFrame.Size = UDim2.new(1, -10, 0, 102)
-AutoFilterFrame.Position = UDim2.fromOffset(5, 185)
+AutoFilterFrame.Position = UDim2.fromOffset(5, 173)
 AutoFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 AutoFilterFrame.BorderSizePixel = 0
 AutoFilterFrame.Visible = false
@@ -596,7 +610,7 @@ local AutoClaimLabel = Instance.new("TextLabel")
 AutoClaimLabel.Size = UDim2.new(1, -10, 0, 18)
 AutoClaimLabel.Position = UDim2.fromOffset(5, 383)
 AutoClaimLabel.BackgroundTransparency = 1
-AutoClaimLabel.Text = "Claim Delay: 1.0s"
+AutoClaimLabel.Text = "Claim Delay: 2.0s"
 AutoClaimLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
 AutoClaimLabel.TextSize = textSize(10)
 AutoClaimLabel.Font = Enum.Font.GothamMedium
@@ -976,17 +990,30 @@ local function saveConfig()
 
         table.sort(selected)
 
+        local autoSelected = {}
+
+        for eggName, enabled in pairs(AutoSelectedEggs) do
+            if enabled then
+                table.insert(autoSelected, eggName)
+            end
+        end
+
+        table.sort(autoSelected)
+
         writefile(
             CONFIG_FILE,
             HttpService:JSONEncode({
-                selectedEggs = selected
+                selectedEggs = selected,
+                autoSelectedEggs = autoSelected,
+                autoDipEnabled = AutoDipEnabled,
+                movementMode = AutoPickupMovementMode,
+                claimDelay = AutoPickupClaimDelay,
+                antiAFK = AntiAFKEnabled
             })
         )
 
         AddDebug(
-            "[CONFIG] Saved " ..
-            tostring(#selected) ..
-            " selected eggs"
+            "[CONFIG] Saved successfully"
         )
     end)
 
@@ -997,7 +1024,6 @@ local function saveConfig()
         )
     end
 end
-
 local function loadConfig()
     if not isfile or not readfile then
         AddDebug("[CONFIG] File functions unavailable")
@@ -1028,22 +1054,53 @@ local function loadConfig()
 
     SelectedEggs = {}
 
-    local count = 0
-
     if type(data.selectedEggs) == "table" then
         for _, eggName in ipairs(data.selectedEggs) do
-            if type(eggName) == "string" and eggName ~= "--" then
+            if type(eggName) == "string"
+                and eggName ~= "--" then
+
                 SelectedEggs[eggName] = true
-                count = count + 1
             end
         end
     end
 
-    AddDebug(
-        "[CONFIG] Loaded " ..
-        tostring(count) ..
-        " selected eggs"
-    )
+    AutoSelectedEggs = {}
+
+    if type(data.autoSelectedEggs) == "table" then
+        for _, eggName in ipairs(data.autoSelectedEggs) do
+            if type(eggName) == "string"
+                and eggName ~= "--" then
+
+                AutoSelectedEggs[eggName] = true
+            end
+        end
+    end
+
+    if type(data.autoDipEnabled) == "boolean" then
+        AutoDipEnabled = data.autoDipEnabled
+    end
+
+    if type(data.movementMode) == "string"
+        and data.movementMode == "Teleport" then
+
+        AutoPickupMovementMode =
+            data.movementMode
+    end
+
+    if type(data.claimDelay) == "number" then
+        AutoPickupClaimDelay =
+            math.clamp(
+                data.claimDelay,
+                1,
+                5
+            )
+    end
+
+    if type(data.antiAFK) == "boolean" then
+        AntiAFKEnabled = data.antiAFK
+    end
+
+    AddDebug("[CONFIG] Loaded saved config")
 end
 
 local function getRanchLuckText()
@@ -3063,6 +3120,101 @@ SettingsTitle.Font = Enum.Font.GothamBold
 SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 SettingsTitle.Parent = SettingsPage
 
+local AntiAFKLabel = Instance.new("TextLabel")
+AntiAFKLabel.Size = UDim2.new(1, -85, 0, 22)
+AntiAFKLabel.Position = UDim2.fromOffset(5, 45)
+AntiAFKLabel.BackgroundTransparency = 1
+AntiAFKLabel.Text = "Anti AFK"
+AntiAFKLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AntiAFKLabel.TextSize = textSize(10)
+AntiAFKLabel.Font = Enum.Font.GothamMedium
+AntiAFKLabel.TextXAlignment = Enum.TextXAlignment.Left
+AntiAFKLabel.Parent = SettingsPage
+
+local AntiAFKButton = Instance.new("TextButton")
+AntiAFKButton.Size = UDim2.fromOffset(62, 27)
+AntiAFKButton.Position = UDim2.new(1, -67, 0, 42)
+AntiAFKButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AntiAFKButton.Text = "OFF"
+AntiAFKButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AntiAFKButton.TextSize = textSize(10)
+AntiAFKButton.Font = Enum.Font.GothamBold
+AntiAFKButton.AutoButtonColor = false
+AntiAFKButton.Active = true
+AntiAFKButton.Selectable = true
+AntiAFKButton.Parent = SettingsPage
+
+local AntiAFKCorner = Instance.new("UICorner")
+AntiAFKCorner.CornerRadius = UDim.new(0, 6)
+AntiAFKCorner.Parent = AntiAFKButton
+
+local ConfigLabel = Instance.new("TextLabel")
+ConfigLabel.Size = UDim2.new(1, -85, 0, 22)
+ConfigLabel.Position = UDim2.fromOffset(5, 78)
+ConfigLabel.BackgroundTransparency = 1
+ConfigLabel.Text = "Config"
+ConfigLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+ConfigLabel.TextSize = textSize(10)
+ConfigLabel.Font = Enum.Font.GothamMedium
+ConfigLabel.TextXAlignment = Enum.TextXAlignment.Left
+ConfigLabel.Parent = SettingsPage
+
+local ConfigSaveButton = Instance.new("TextButton")
+ConfigSaveButton.Size = UDim2.fromOffset(62, 27)
+ConfigSaveButton.Position = UDim2.new(1, -67, 0, 75)
+ConfigSaveButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+ConfigSaveButton.Text = "SAVE"
+ConfigSaveButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+ConfigSaveButton.TextSize = textSize(10)
+ConfigSaveButton.Font = Enum.Font.GothamBold
+ConfigSaveButton.AutoButtonColor = false
+ConfigSaveButton.Active = true
+ConfigSaveButton.Selectable = true
+ConfigSaveButton.Parent = SettingsPage
+
+local ConfigSaveCorner = Instance.new("UICorner")
+ConfigSaveCorner.CornerRadius = UDim.new(0, 6)
+ConfigSaveCorner.Parent = ConfigSaveButton
+
+local function updateAntiAFKButton()
+    AntiAFKButton.Text =
+        AntiAFKEnabled and "ON" or "OFF"
+
+    AntiAFKButton.BackgroundColor3 =
+        AntiAFKEnabled
+        and Color3.fromRGB(55, 120, 75)
+        or Color3.fromRGB(45, 45, 53)
+end
+
+AntiAFKButton.MouseButton1Click:Connect(function()
+    AntiAFKEnabled =
+        not AntiAFKEnabled
+
+    updateAntiAFKButton()
+
+    AddDebug(
+        AntiAFKEnabled
+        and "[ANTI AFK] Enabled"
+        or "[ANTI AFK] Disabled"
+    )
+end)
+
+ConfigSaveButton.MouseButton1Click:Connect(function()
+    saveConfig()
+
+    ConfigSaveButton.Text = "SAVED"
+    ConfigSaveButton.BackgroundColor3 =
+        Color3.fromRGB(55, 120, 75)
+
+    task.delay(1.5, function()
+        if ConfigSaveButton then
+            ConfigSaveButton.Text = "SAVE"
+            ConfigSaveButton.BackgroundColor3 =
+                Color3.fromRGB(45, 45, 53)
+        end
+    end)
+end)
+
 local AutoExecuteButton = Instance.new("TextButton")
 AutoExecuteButton.Size = UDim2.new(1, -10, 0, 38)
 AutoExecuteButton.Position = UDim2.fromOffset(5, 45)
@@ -3134,6 +3286,8 @@ AutoExecuteButton.MouseButton1Click:Connect(function()
         )
     end
 end)
+
+updateAntiAFKButton()
 
 local Minimized =
     Instance.new("TextButton")
