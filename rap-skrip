@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -555,11 +555,12 @@ refreshAutoFilterText()
 
 AutoToggle.MouseButton1Click:Connect(function()
     local enabled = AutoToggle.Text == "OFF"
-
     AutoPickupRunning = enabled
-
+    AutoPickupClaimed = {}
+    if not enabled then
+        AutoPickupClaimed = {}
+    end
     AutoToggle.Text = enabled and "ON" or "OFF"
-
     AutoToggle.BackgroundColor3 =
         enabled
         and Color3.fromRGB(55, 120, 75)
@@ -859,7 +860,9 @@ local function tryAutoPickup()
         if eggName and isAutoPickupEggSelected(eggName) then
             local uuid = getEggUUID(egg)
 
-            if uuid then
+            if uuid and not AutoPickupClaimed[uuid] then
+                AutoPickupClaimed[uuid] = true
+
                 AddDebug(
                     "[AUTO] Target: " ..
                     tostring(eggName)
@@ -884,6 +887,8 @@ local function tryAutoPickup()
                         tostring(eggName)
                     )
                 else
+                    AutoPickupClaimed[uuid] = nil
+
                     AddDebug(
                         "[AUTO ERROR] Pickup failed: " ..
                         tostring(err)
