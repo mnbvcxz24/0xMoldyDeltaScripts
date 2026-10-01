@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.5"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -994,6 +994,40 @@ local function getActiveEggs()
     return ServerData:FindFirstChild("ActiveEggs")
 end
 
+local function getEggPosition(egg)
+    if not egg then
+        return nil
+    end
+
+    local position = egg:GetAttribute("Position")
+
+    if typeof(position) == "Vector3" then
+        return position
+    end
+
+    if typeof(position) == "CFrame" then
+        return position.Position
+    end
+
+    local primaryPart = egg:IsA("Model") and egg.PrimaryPart
+
+    if primaryPart then
+        return primaryPart.Position
+    end
+
+    if egg:IsA("BasePart") then
+        return egg.Position
+    end
+
+    local part = egg:FindFirstChildWhichIsA("BasePart", true)
+
+    if part then
+        return part.Position
+    end
+
+    return nil
+end
+
 local function getEggUUID(egg)
     if not egg then
         return nil
@@ -1137,26 +1171,6 @@ local function findNextAutoPickupEgg()
 end
 
 local function tryAutoPickup()
-    AddDebug(
-        "[AUTO CHECK] getActiveEggs=" ..
-        tostring(type(getActiveEggs))
-    )
-    
-    AddDebug(
-        "[AUTO CHECK] getEggPosition=" ..
-        tostring(type(getEggPosition))
-    )
-    
-    AddDebug(
-        "[AUTO CHECK] getEggUUID=" ..
-        tostring(type(getEggUUID))
-    )
-    
-    AddDebug(
-        "[AUTO CHECK] isAutoPickupEggSelected=" ..
-        tostring(type(isAutoPickupEggSelected))
-    )
-
     if not AutoPickupRunning then
         return
     end
