@@ -142,7 +142,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -3120,37 +3120,48 @@ SettingsTitle.Font = Enum.Font.GothamBold
 SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 SettingsTitle.Parent = SettingsPage
 
-local AntiAFKLabel = Instance.new("TextLabel")
-AntiAFKLabel.Size = UDim2.new(1, -85, 0, 22)
-AntiAFKLabel.Position = UDim2.fromOffset(5, 45)
-AntiAFKLabel.BackgroundTransparency = 1
-AntiAFKLabel.Text = "Anti AFK"
-AntiAFKLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
-AntiAFKLabel.TextSize = textSize(10)
-AntiAFKLabel.Font = Enum.Font.GothamMedium
-AntiAFKLabel.TextXAlignment = Enum.TextXAlignment.Left
-AntiAFKLabel.Parent = SettingsPage
+local AutoExecuteLabel = Instance.new("TextLabel")
+AutoExecuteLabel.Size = UDim2.new(1, -85, 0, 22)
+AutoExecuteLabel.Position = UDim2.fromOffset(5, 45)
+AutoExecuteLabel.BackgroundTransparency = 1
+AutoExecuteLabel.Text = "Create Auto Execute"
+AutoExecuteLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoExecuteLabel.TextSize = textSize(10)
+AutoExecuteLabel.Font = Enum.Font.GothamMedium
+AutoExecuteLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoExecuteLabel.Parent = SettingsPage
 
-local AntiAFKButton = Instance.new("TextButton")
-AntiAFKButton.Size = UDim2.fromOffset(62, 27)
-AntiAFKButton.Position = UDim2.new(1, -67, 0, 42)
-AntiAFKButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
-AntiAFKButton.Text = "OFF"
-AntiAFKButton.TextColor3 = Color3.fromRGB(220, 220, 225)
-AntiAFKButton.TextSize = textSize(10)
-AntiAFKButton.Font = Enum.Font.GothamBold
-AntiAFKButton.AutoButtonColor = false
-AntiAFKButton.Active = true
-AntiAFKButton.Selectable = true
-AntiAFKButton.Parent = SettingsPage
+local AutoExecuteButton = Instance.new("TextButton")
+AutoExecuteButton.Size = UDim2.fromOffset(62, 27)
+AutoExecuteButton.Position = UDim2.new(1, -67, 0, 42)
+AutoExecuteButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoExecuteButton.Text = "CREATE"
+AutoExecuteButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoExecuteButton.TextSize = textSize(10)
+AutoExecuteButton.Font = Enum.Font.GothamBold
+AutoExecuteButton.AutoButtonColor = false
+AutoExecuteButton.Active = true
+AutoExecuteButton.Selectable = true
+AutoExecuteButton.Parent = SettingsPage
 
-local AntiAFKCorner = Instance.new("UICorner")
-AntiAFKCorner.CornerRadius = UDim.new(0, 6)
-AntiAFKCorner.Parent = AntiAFKButton
+local AutoExecuteCorner = Instance.new("UICorner")
+AutoExecuteCorner.CornerRadius = UDim.new(0, 6)
+AutoExecuteCorner.Parent = AutoExecuteButton
+
+local AutoExecuteStatus = Instance.new("TextLabel")
+AutoExecuteStatus.Size = UDim2.new(1, -10, 0, 25)
+AutoExecuteStatus.Position = UDim2.fromOffset(5, 70)
+AutoExecuteStatus.BackgroundTransparency = 1
+AutoExecuteStatus.Text = "Creates rap_skrip_test.txt"
+AutoExecuteStatus.TextColor3 = Color3.fromRGB(145, 145, 155)
+AutoExecuteStatus.TextSize = textSize(9)
+AutoExecuteStatus.Font = Enum.Font.Gotham
+AutoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoExecuteStatus.Parent = SettingsPage
 
 local ConfigLabel = Instance.new("TextLabel")
 ConfigLabel.Size = UDim2.new(1, -85, 0, 22)
-ConfigLabel.Position = UDim2.fromOffset(5, 78)
+ConfigLabel.Position = UDim2.fromOffset(5, 105)
 ConfigLabel.BackgroundTransparency = 1
 ConfigLabel.Text = "Config"
 ConfigLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -3161,7 +3172,7 @@ ConfigLabel.Parent = SettingsPage
 
 local ConfigSaveButton = Instance.new("TextButton")
 ConfigSaveButton.Size = UDim2.fromOffset(62, 27)
-ConfigSaveButton.Position = UDim2.new(1, -67, 0, 75)
+ConfigSaveButton.Position = UDim2.new(1, -67, 0, 102)
 ConfigSaveButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
 ConfigSaveButton.Text = "SAVE"
 ConfigSaveButton.TextColor3 = Color3.fromRGB(220, 220, 225)
@@ -3175,6 +3186,34 @@ ConfigSaveButton.Parent = SettingsPage
 local ConfigSaveCorner = Instance.new("UICorner")
 ConfigSaveCorner.CornerRadius = UDim.new(0, 6)
 ConfigSaveCorner.Parent = ConfigSaveButton
+
+local AntiAFKLabel = Instance.new("TextLabel")
+AntiAFKLabel.Size = UDim2.new(1, -85, 0, 22)
+AntiAFKLabel.Position = UDim2.fromOffset(5, 138)
+AntiAFKLabel.BackgroundTransparency = 1
+AntiAFKLabel.Text = "Anti AFK"
+AntiAFKLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AntiAFKLabel.TextSize = textSize(10)
+AntiAFKLabel.Font = Enum.Font.GothamMedium
+AntiAFKLabel.TextXAlignment = Enum.TextXAlignment.Left
+AntiAFKLabel.Parent = SettingsPage
+
+local AntiAFKButton = Instance.new("TextButton")
+AntiAFKButton.Size = UDim2.fromOffset(62, 27)
+AntiAFKButton.Position = UDim2.new(1, -67, 0, 135)
+AntiAFKButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AntiAFKButton.Text = "OFF"
+AntiAFKButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AntiAFKButton.TextSize = textSize(10)
+AntiAFKButton.Font = Enum.Font.GothamBold
+AntiAFKButton.AutoButtonColor = false
+AntiAFKButton.Active = true
+AntiAFKButton.Selectable = true
+AntiAFKButton.Parent = SettingsPage
+
+local AntiAFKCorner = Instance.new("UICorner")
+AntiAFKCorner.CornerRadius = UDim.new(0, 6)
+AntiAFKCorner.Parent = AntiAFKButton
 
 local function updateAntiAFKButton()
     AntiAFKButton.Text =
@@ -3214,35 +3253,6 @@ ConfigSaveButton.MouseButton1Click:Connect(function()
         end
     end)
 end)
-
-local AutoExecuteButton = Instance.new("TextButton")
-AutoExecuteButton.Size = UDim2.new(1, -10, 0, 38)
-AutoExecuteButton.Position = UDim2.fromOffset(5, 45)
-AutoExecuteButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
-AutoExecuteButton.Text = "Create Auto Execute"
-AutoExecuteButton.TextColor3 = Color3.fromRGB(220, 220, 225)
-AutoExecuteButton.TextSize = textSize(11)
-AutoExecuteButton.Font = Enum.Font.GothamMedium
-AutoExecuteButton.AutoButtonColor = false
-AutoExecuteButton.Active = true
-AutoExecuteButton.Selectable = true
-AutoExecuteButton.ZIndex = 10
-AutoExecuteButton.Parent = SettingsPage
-
-local AutoExecuteCorner = Instance.new("UICorner")
-AutoExecuteCorner.CornerRadius = UDim.new(0, 7)
-AutoExecuteCorner.Parent = AutoExecuteButton
-
-local AutoExecuteStatus = Instance.new("TextLabel")
-AutoExecuteStatus.Size = UDim2.new(1, -10, 0, 35)
-AutoExecuteStatus.Position = UDim2.fromOffset(5, 88)
-AutoExecuteStatus.BackgroundTransparency = 1
-AutoExecuteStatus.Text = "Creates rap_skrip_test.txt"
-AutoExecuteStatus.TextColor3 = Color3.fromRGB(145, 145, 155)
-AutoExecuteStatus.TextSize = textSize(10)
-AutoExecuteStatus.Font = Enum.Font.Gotham
-AutoExecuteStatus.TextXAlignment = Enum.TextXAlignment.Left
-AutoExecuteStatus.Parent = SettingsPage
 
 AutoExecuteButton.MouseButton1Click:Connect(function()
     local content =
