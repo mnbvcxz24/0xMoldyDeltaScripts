@@ -60,14 +60,14 @@ Main.Size = UDim2.fromOffset(350, 345)
 Main.Position = UDim2.new(0.5, -175, 0.5, -172)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
-Main.Active = true
+Main.Active = false
 Main.Parent = Gui
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
 
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1, 0, 0, 55)
 Header.BackgroundTransparency = 1
-Header.Active = true
+Header.Active = false
 Header.Parent = Main
 
 local Title = Instance.new("TextLabel")
@@ -85,7 +85,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.8"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v1.9"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -110,8 +110,8 @@ Sidebar.Size = UDim2.fromOffset(105, 192)
 Sidebar.Position = UDim2.fromOffset(10, 45)
 Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 Sidebar.BorderSizePixel = 0
-Sidebar.Active = true
-Sidebar.ZIndex = 5
+Sidebar.Active = false
+Sidebar.ZIndex = 50
 Sidebar.Parent = Main
 Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
 
@@ -148,7 +148,7 @@ local function createSidebarButton(text, y)
     button.TextSize = textSize(12)
     button.Font = Enum.Font.GothamMedium
     button.AutoButtonColor = false
-    button.ZIndex = 10
+    button.ZIndex = 51
     button.Parent = Sidebar
     Instance.new("UICorner", button).CornerRadius = UDim.new(0, 7)
     return button
