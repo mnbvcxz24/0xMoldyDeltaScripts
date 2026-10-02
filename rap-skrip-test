@@ -171,7 +171,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.4"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -433,16 +433,34 @@ local AutoVolcanoWaitingForMessage = false
 local VolcanoDipEvent
 local VolcanoDipResultEvent
 
-local VolcanoOutsidePosition = Vector3.new(
+local VolcanoEntrance1Position = Vector3.new(
     -4918.390625,
     41274.457031,
     -3673.695312
 )
 
-local VolcanoInsidePosition = Vector3.new(
+local VolcanoEntrance2Position = Vector3.new(
+    -4933.537109,
+    41275.101562,
+    -3672.198486
+)
+
+local VolcanoInside1Position = Vector3.new(
     -4958.368164,
     41277.191406,
     -3669.209473
+)
+
+local VolcanoInside2Position = Vector3.new(
+    -5085.847656,
+    41253.742188,
+    -3509.459473
+)
+
+local VolcanoEggPosition = Vector3.new(
+    -5330.669922,
+    40912.410156,
+    -3575.845215
 )
 
 local VolcanoDropPosition = Vector3.new(
@@ -1586,35 +1604,22 @@ end
 
 local function enterVolcanicEgg(egg)
     if not egg then
-        AddDebug(
-            "[AUTO VOLCANO ERROR] Egg not found"
-        )
+        AddDebug("[AUTO VOLCANO ERROR] Egg not found")
         return false
     end
-
-    local eggPosition = Vector3.new(
-        -5330.669922,
-        40912.410156,
-        -3575.845215
-    )
 
     local root = getCharacterRoot()
 
     if not root then
-        AddDebug(
-            "[AUTO VOLCANO ERROR] HumanoidRootPart not found"
-        )
+        AddDebug("[AUTO VOLCANO ERROR] HumanoidRootPart not found")
         return false
     end
 
-    AddDebug(
-        "[AUTO VOLCANO] Outside entrance"
-    )
+    AddDebug("[AUTO VOLCANO] Entrance 1")
 
-    root.CFrame =
-        CFrame.new(
-            VolcanoOutsidePosition
-        )
+    root.CFrame = CFrame.new(
+        VolcanoEntrance1Position
+    )
 
     task.wait(1)
 
@@ -1622,14 +1627,11 @@ local function enterVolcanicEgg(egg)
         return false
     end
 
-    AddDebug(
-        "[AUTO VOLCANO] Entering volcano"
-    )
+    AddDebug("[AUTO VOLCANO] Entrance 2")
 
-    root.CFrame =
-        CFrame.new(
-            VolcanoInsidePosition
-        )
+    root.CFrame = CFrame.new(
+        VolcanoEntrance2Position
+    )
 
     task.wait(1)
 
@@ -1637,37 +1639,52 @@ local function enterVolcanicEgg(egg)
         return false
     end
 
-    AddDebug(
-        "[AUTO VOLCANO] Moving to Volcanic Egg"
+    AddDebug("[AUTO VOLCANO] Inside 1")
+
+    root.CFrame = CFrame.new(
+        VolcanoInside1Position
     )
 
-    root.CFrame =
-        CFrame.new(
-            eggPosition
-        )
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug("[AUTO VOLCANO] Inside 2")
+
+    root.CFrame = CFrame.new(
+        VolcanoInside2Position
+    )
+
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug("[AUTO VOLCANO] Moving to Volcanic Egg")
+
+    root.CFrame = CFrame.new(
+        VolcanoEggPosition
+    )
 
     return true
 end
 
 local function exitVolcanicEgg()
-    local root =
-        getCharacterRoot()
+    local root = getCharacterRoot()
 
     if not root then
-        AddDebug(
-            "[AUTO VOLCANO ERROR] HumanoidRootPart not found"
-        )
+        AddDebug("[AUTO VOLCANO ERROR] HumanoidRootPart not found")
         return false
     end
 
-    AddDebug(
-        "[AUTO VOLCANO] Returning inside entrance"
-    )
+    AddDebug("[AUTO VOLCANO] Returning to Inside 2")
 
-    root.CFrame =
-        CFrame.new(
-            VolcanoInsidePosition
-        )
+    root.CFrame = CFrame.new(
+        VolcanoInside2Position
+    )
 
     task.wait(1)
 
@@ -1675,20 +1692,40 @@ local function exitVolcanicEgg()
         return false
     end
 
-    AddDebug(
-        "[AUTO VOLCANO] Exiting volcano"
+    AddDebug("[AUTO VOLCANO] Returning to Inside 1")
+
+    root.CFrame = CFrame.new(
+        VolcanoInside1Position
     )
 
-    root.CFrame =
-        CFrame.new(
-            VolcanoOutsidePosition
-        )
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug("[AUTO VOLCANO] Returning to Entrance 2")
+
+    root.CFrame = CFrame.new(
+        VolcanoEntrance2Position
+    )
+
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug("[AUTO VOLCANO] Exiting through Entrance 1")
+
+    root.CFrame = CFrame.new(
+        VolcanoEntrance1Position
+    )
 
     task.wait(1)
 
     return true
 end
-
 local function findMyPlot()
     local plots =
         workspace:FindFirstChild("Plots")
