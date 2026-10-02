@@ -524,7 +524,6 @@ AutoToggle.Font = Enum.Font.GothamBold
 AutoToggle.AutoButtonColor = false
 AutoToggle.Active = true
 AutoToggle.Selectable = true
-AutoToggle.ZIndex = 50
 AutoToggle.Parent = AutoPage
 
 local AutoToggleCorner = Instance.new("UICorner")
@@ -965,8 +964,6 @@ if EggPickupEvent then
 else
     AddDebug("[AUTO ERROR] EggPickup remote not found")
 end
-
-local AutoToggleConnection
 
 AutoToggleConnection = AutoToggle.MouseButton1Click:Connect(function()
     local enabled =
