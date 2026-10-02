@@ -142,7 +142,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.4"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -382,6 +382,8 @@ local AutoPickupMovementMode = "Teleport"
 local AutoPickupClaimDelay = 1.5
 local AutoPickupNextEggDelay = 3
 local AntiAFKEnabled = false
+local AutoPickupFloatHeight = 5
+local AutoPickupFloating = false
 
 local AutoPickupAwaitingUUID = nil
 local AutoPickupAwaitingPickup = false
@@ -404,7 +406,7 @@ local VolcanoDipResultEvent
 
 local VolcanoDropPosition = Vector3.new(
     -5067.05859375,
-    41409.12890625,
+    414013.12890625,
     -3471.73583984375
 )
 
@@ -1338,6 +1340,74 @@ local function getCharacterRoot()
     )
 end
 
+local function startAutoPickupFloat(position)
+    local character = player.Character
+
+    if not character then
+        return false
+    end
+
+    local root =
+        character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not root then
+        return false
+    end
+
+    AutoPickupFloating = true
+
+    root.CFrame =
+        CFrame.new(
+            position +
+            Vector3.new(
+                0,
+                AutoPickupFloatHeight,
+                0
+            )
+        )
+
+    root.AssemblyLinearVelocity =
+        Vector3.zero
+
+    root.AssemblyAngularVelocity =
+        Vector3.zero
+
+    root.Anchored = true
+
+    return true
+end
+
+local function stopAutoPickupFloat()
+    local character = player.Character
+
+    if not character then
+        AutoPickupFloating = false
+        return
+    end
+
+    local root =
+        character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not root then
+        AutoPickupFloating = false
+        return
+    end
+
+    AutoPickupFloating = false
+
+    root.Anchored = false
+
+    root.AssemblyLinearVelocity =
+        Vector3.zero
+
+    root.AssemblyAngularVelocity =
+        Vector3.zero
+end
+
 local function teleportToEgg(egg)
     if AutoPickupMovementMode ~= "Teleport" then
         AddDebug(
@@ -1369,14 +1439,13 @@ local function teleportToEgg(egg)
         return false
     end
 
-    local targetPosition =
-        position +
-        Vector3.new(0, 3, 0)
-
     local success, err =
         pcall(function()
-            root.CFrame =
-                CFrame.new(targetPosition)
+            if not startAutoPickupFloat(position) then
+                error(
+                    "Unable to start floating at egg"
+                )
+            end
         end)
 
     if not success then
@@ -1803,11 +1872,16 @@ local function tryAutoPickup()
                     return
                 end
 
-                character:PivotTo(
-                    CFrame.new(
-                        VolcanoDropPosition
+                if not startAutoPickupFloat(
+                    VolcanoDropPosition
+                ) then
+                    AddDebug(
+                        "[AUTO DIP ERROR] Unable to float at volcano"
                     )
-                )
+                
+                    AutoPickupBusy = false
+                    return
+                end
 
                 task.wait(0.25)
 
@@ -1938,6 +2012,8 @@ local function tryAutoPickup()
                     AutoPickupBusy = false
                     return
                 end
+                
+                stopAutoPickupFloat()
                 
                 AddDebug(
                     "[AUTO DIP] Returning to plot..."
