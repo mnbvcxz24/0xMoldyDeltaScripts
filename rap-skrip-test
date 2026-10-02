@@ -171,7 +171,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -410,7 +410,6 @@ local AutoPickupDistance = math.huge
 local AutoPickupMovementMode = "Teleport"
 local AutoPickupClaimDelay = 1.5
 local AutoPickupNextEggDelay = 3
-local AntiAFKEnabled = false
 local AutoPickupFloatHeight = 3
 local AutoPickupFloating = false
 local AutoPickupFloatForce = nil
@@ -1593,18 +1592,13 @@ local function enterVolcanicEgg(egg)
         return false
     end
 
-    local eggPosition =
-        getEggPosition(egg)
+    local eggPosition = Vector3.new(
+        -5330.669922,
+        40912.410156,
+        -3575.845215
+    )
 
-    if not eggPosition then
-        AddDebug(
-            "[AUTO VOLCANO ERROR] Egg position not found"
-        )
-        return false
-    end
-
-    local root =
-        getCharacterRoot()
+    local root = getCharacterRoot()
 
     if not root then
         AddDebug(
