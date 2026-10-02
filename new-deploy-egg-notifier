@@ -240,7 +240,7 @@ local subtitle = Instance.new("TextLabel", window)
 subtitle.Size = UDim2.new(1, -55, 0, 25)
 subtitle.Position = UDim2.new(0, 10, 0, 30)
 subtitle.BackgroundTransparency = 1
-subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.4"
+subtitle.Text = "Ride a Pet • Notifier • DEPLOY V2.4 | 0xMoldy"
 subtitle.TextSize = 10
 subtitle.Font = Enum.Font.Gotham
 subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
@@ -880,7 +880,7 @@ local function buildWeatherHistoryPayload(weatherName, history)
 
     return {
         embeds = {{
-            title = info.emoji .. " " .. string.upper(weatherName) .. " WEATHER — SPAWN HISTORY",
+            title = info.emoji .. " " .. string.upper(weatherName) .. "\n WEATHER — SPAWN HISTORY",
             description =
                 "📅 **" .. os.date("%B %d, %Y", os.time({
                     year = tonumber(string.sub(history.date, 1, 4)),
@@ -893,7 +893,7 @@ local function buildWeatherHistoryPayload(weatherName, history)
                 .. (#lines > 0 and table.concat(lines, "\n") or "No spawns recorded."),
             color = weatherEmbedColors[weatherName] or 0x5865F2,
             footer = {
-                text = "Ride a Pet • Weather Spawn History"
+                text = "Ride a Pet • Weather Spawn History | 👾 0xMoldy"
             }
         }}
     }
@@ -1201,7 +1201,7 @@ local function buildEggHistoryPayload(eggName, history)
         color = eggEmbedColors[eggName] or 0x5865F2,
 
         footer = {
-            text = "Ride a Pet • Egg Spawn History",
+            text = "Ride a Pet • Egg Spawn History | 👾 0xMoldy",
         },
     }
 
@@ -1387,7 +1387,7 @@ local function sendDiscordEgg(eggName, stock, spawnTime)
         color = eggEmbedColors[eggName] or 0x5865F2,
         fields = fields,
         footer = {
-            text = "Ride a Pet • Egg Stock Notifier",
+            text = "Ride a Pet • Egg Stock Notifier | 👾 0xMoldy",
         },
     }
 
@@ -1438,7 +1438,7 @@ local function sendDiscordWeather(info)
             }
         },
         footer = {
-            text = "Ride a Pet • Weather Notifier",
+            text = "Ride a Pet • Weather Notifier | 👾 0xMoldy",
         },
     }
 
@@ -1748,7 +1748,7 @@ discordEggTest.MouseButton1Click:Connect(function()
                         url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
                     },
                     footer = {
-                        text = "Ride a Pet • Egg Stock Notifier",
+                        text = "Ride a Pet • Egg Stock Notifier | 👾 0xMoldy",
                     },
                 },
             },
@@ -1783,7 +1783,7 @@ discordWeatherTest.MouseButton1Click:Connect(function()
                         url = "https://static2.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/ac/b9/xiNADSvrNgvXn.gif"
                     },
                     footer = {
-                        text = "Ride a Pet • Weather Notifier",
+                        text = "Ride a Pet • Weather Notifier | 👾 0xMoldy",
                     },
                 },
             },
