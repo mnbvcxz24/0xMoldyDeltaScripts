@@ -17,18 +17,14 @@ local LocalPlayer = Players.LocalPlayer
 --========================================================--
 
 local UIConfig = {
-    Title = "SCRIPT HUB",
+    Title = "SCRIPT HUB v1",
     Subtitle = "Minimal UI Template",
 
-    Width = 400,
-    Height = 350,
+    Width = 650,
+    Height = 400,
 
-    SidebarWidth = 175,
+    SidebarWidth = 135,
 
-    -- Number of sidebar pages
-    PageCount = 5,
-
-    -- Sidebar names
     SidebarNames = {
         "Sidebar 1",
         "Sidebar 2",
