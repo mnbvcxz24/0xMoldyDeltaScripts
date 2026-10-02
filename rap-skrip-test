@@ -142,7 +142,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.7"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -404,6 +404,18 @@ local AutoVolcanoWaitingForMessage = false
 
 local VolcanoDipEvent
 local VolcanoDipResultEvent
+
+local VolcanoOutsidePosition = Vector3.new(
+    -4918.390625,
+    41274.457031,
+    -3673.695312
+)
+
+local VolcanoInsidePosition = Vector3.new(
+    -4958.368164,
+    41277.191406,
+    -3669.209473
+)
 
 local VolcanoDropPosition = Vector3.new(
     -5067.05859375,
@@ -1544,6 +1556,116 @@ local function teleportToEgg(egg)
     return true
 end
 
+local function enterVolcanicEgg(egg)
+    if not egg then
+        AddDebug(
+            "[AUTO VOLCANO ERROR] Egg not found"
+        )
+        return false
+    end
+
+    local eggPosition =
+        getEggPosition(egg)
+
+    if not eggPosition then
+        AddDebug(
+            "[AUTO VOLCANO ERROR] Egg position not found"
+        )
+        return false
+    end
+
+    local root =
+        getCharacterRoot()
+
+    if not root then
+        AddDebug(
+            "[AUTO VOLCANO ERROR] HumanoidRootPart not found"
+        )
+        return false
+    end
+
+    AddDebug(
+        "[AUTO VOLCANO] Outside entrance"
+    )
+
+    root.CFrame =
+        CFrame.new(
+            VolcanoOutsidePosition
+        )
+
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug(
+        "[AUTO VOLCANO] Entering volcano"
+    )
+
+    root.CFrame =
+        CFrame.new(
+            VolcanoInsidePosition
+        )
+
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug(
+        "[AUTO VOLCANO] Moving to Volcanic Egg"
+    )
+
+    root.CFrame =
+        CFrame.new(
+            eggPosition
+        )
+
+    return true
+end
+
+local function exitVolcanicEgg()
+    local root =
+        getCharacterRoot()
+
+    if not root then
+        AddDebug(
+            "[AUTO VOLCANO ERROR] HumanoidRootPart not found"
+        )
+        return false
+    end
+
+    AddDebug(
+        "[AUTO VOLCANO] Returning inside entrance"
+    )
+
+    root.CFrame =
+        CFrame.new(
+            VolcanoInsidePosition
+        )
+
+    task.wait(1)
+
+    if not AutoPickupRunning then
+        return false
+    end
+
+    AddDebug(
+        "[AUTO VOLCANO] Exiting volcano"
+    )
+
+    root.CFrame =
+        CFrame.new(
+            VolcanoOutsidePosition
+        )
+
+    task.wait(1)
+
+    return true
+end
+
 local function findMyPlot()
     local plots =
         workspace:FindFirstChild("Plots")
@@ -1841,9 +1963,19 @@ local function tryAutoPickup()
                 "[AUTO] Distance: Unlimited"
             )
 
-            if not teleportToEgg(egg) then
-                AutoPickupBusy = false
-                return
+            local volcanicRoute =
+                eggName == "Volcanic Egg"
+            
+            if volcanicRoute then
+                if not enterVolcanicEgg(egg) then
+                    AutoPickupBusy = false
+                    return
+                end
+            else
+                if not teleportToEgg(egg) then
+                    AutoPickupBusy = false
+                    return
+                end
             end
 
             if not AutoPickupRunning then
@@ -1916,6 +2048,24 @@ local function tryAutoPickup()
                 "[AUTO] Carrying " ..
                 tostring(eggName)
             )
+
+            if volcanicRoute then
+                AddDebug(
+                    "[AUTO VOLCANO] Pickup confirmed"
+                )
+            
+                task.wait(1)
+            
+                if not AutoPickupRunning then
+                    AutoPickupBusy = false
+                    return
+                end
+            
+                if not exitVolcanicEgg() then
+                    AutoPickupBusy = false
+                    return
+                end
+            end
 
             AddDebug(
                 string.format(
