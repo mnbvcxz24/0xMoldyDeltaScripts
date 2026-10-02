@@ -382,7 +382,7 @@ local AutoPickupMovementMode = "Teleport"
 local AutoPickupClaimDelay = 1.5
 local AutoPickupNextEggDelay = 3
 local AntiAFKEnabled = false
-local AutoPickupFloatHeight = 5
+local AutoPickupFloatHeight = 3
 local AutoPickupFloating = false
 
 local AutoPickupAwaitingUUID = nil
