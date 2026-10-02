@@ -73,44 +73,19 @@ end
 
 local AntiAFKEnabled = false
 
-task.spawn(function()
-    while Gui.Parent do
-        if AntiAFKEnabled then
-            local character = player.Character
-            local humanoid =
-                character and
-                character:FindFirstChildOfClass("Humanoid")
+local VirtualUser = game:GetService("VirtualUser")
 
-            if humanoid then
-                pcall(function()
-                    humanoid:Move(
-                        Vector3.new(0, 0, -1),
-                        true
-                    )
-
-                    task.wait(0.15)
-
-                    humanoid:Move(
-                        Vector3.new(0, 0, 1),
-                        true
-                    )
-
-                    task.wait(0.15)
-
-                    humanoid:Move(
-                        Vector3.zero,
-                        true
-                    )
-                end)
-
-                AddDebug(
-                    "[ANTI AFK] Small movement sent"
-                )
-            end
-        end
-
-        task.wait(25)
+player.Idled:Connect(function()
+    if not AntiAFKEnabled then
+        return
     end
+
+    pcall(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new(0, 0))
+    end)
+
+    AddDebug("[ANTI AFK] Idle activity sent")
 end)
 
 local function formatKG(kg)
@@ -171,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.7"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.8"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
