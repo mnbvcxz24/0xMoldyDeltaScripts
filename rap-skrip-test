@@ -171,7 +171,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.6"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.7"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -524,6 +524,7 @@ AutoToggle.Font = Enum.Font.GothamBold
 AutoToggle.AutoButtonColor = false
 AutoToggle.Active = true
 AutoToggle.Selectable = true
+AutoToggle.ZIndex = 10
 AutoToggle.Parent = AutoPage
 
 local AutoToggleCorner = Instance.new("UICorner")
@@ -965,32 +966,15 @@ else
     AddDebug("[AUTO ERROR] EggPickup remote not found")
 end
 
-AutoToggleConnection = AutoToggle.MouseButton1Click:Connect(function()
+local AutoToggleConnection
+
+AutoToggleConnection =
+    AutoToggle.MouseButton1Click:Connect(function()
+
     local enabled =
-        AutoToggle.Text == "OFF"
+        not AutoPickupRunning
 
     AutoPickupRunning = enabled
-
-    if not enabled then
-        stopAutoPickupFloat()
-    
-        AutoPickupBusy = false
-        AutoPickupAwaitingUUID = nil
-        AutoPickupAwaitingPickup = false
-        AutoPickupAwaitingDeposit = false
-        AutoPickupPickupConfirmed = false
-        AutoPickupDepositConfirmed = false
-    
-        local root = getCharacterRoot()
-    
-        if root then
-            root.Anchored = false
-            root.AssemblyLinearVelocity = Vector3.zero
-            root.AssemblyAngularVelocity = Vector3.zero
-        end
-    
-        AddDebug("[AUTO] Movement reset")
-    end
 
     AutoToggle.Text =
         enabled and "ON" or "OFF"
@@ -1004,7 +988,7 @@ AutoToggleConnection = AutoToggle.MouseButton1Click:Connect(function()
         enabled
         and "● Active"
         or "● Inactive"
-    
+
     AutoStatus.TextColor3 =
         enabled
         and Color3.fromRGB(130, 180, 140)
@@ -1021,23 +1005,58 @@ AutoToggleConnection = AutoToggle.MouseButton1Click:Connect(function()
         or "[AUTO] Disabled"
     )
 
-    if enabled then
-        AddDebug(
-            "[AUTO] Movement: " ..
-            AutoPickupMovementMode
-        )
+    if not enabled then
+        task.spawn(function()
 
-        AddDebug(
-            string.format(
-                "[AUTO] Claim Delay: %.1fs",
-                AutoPickupClaimDelay
+            pcall(function()
+                stopAutoPickupFloat()
+            end)
+
+            AutoPickupBusy = false
+            AutoPickupAwaitingUUID = nil
+            AutoPickupAwaitingPickup = false
+            AutoPickupAwaitingDeposit = false
+            AutoPickupPickupConfirmed = false
+            AutoPickupDepositConfirmed = false
+            AutoDipWaitingForResult = false
+            AutoVolcanoWaitingForMessage = false
+
+            local root =
+                getCharacterRoot()
+
+            if root then
+                pcall(function()
+                    root.Anchored = false
+                    root.AssemblyLinearVelocity =
+                        Vector3.zero
+                    root.AssemblyAngularVelocity =
+                        Vector3.zero
+                end)
+            end
+
+            AddDebug(
+                "[AUTO] Movement reset"
             )
-        )
+        end)
 
-        AddDebug(
-            "[AUTO] Next Egg Delay: 3.0s"
-        )
+        return
     end
+
+    AddDebug(
+        "[AUTO] Movement: " ..
+        AutoPickupMovementMode
+    )
+
+    AddDebug(
+        string.format(
+            "[AUTO] Claim Delay: %.1fs",
+            AutoPickupClaimDelay
+        )
+    )
+
+    AddDebug(
+        "[AUTO] Next Egg Delay: 3.0s"
+    )
 end)
 
 local CONFIG_FOLDER = "RAPSkrip"
