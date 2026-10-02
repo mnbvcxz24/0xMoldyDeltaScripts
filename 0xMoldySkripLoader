@@ -20,8 +20,8 @@ local UIConfig = {
     Title = "SCRIPT HUB v1",
     Subtitle = "Minimal UI Template",
 
-    Width = 650,
-    Height = 400,
+    Width = 450,
+    Height = 300,
 
     SidebarWidth = 135,
 
@@ -40,21 +40,21 @@ local UIConfig = {
 --========================================================--
 
 local Theme = {
-    Background = Color3.fromRGB(248, 248, 248),
-    Sidebar = Color3.fromRGB(242, 242, 242),
+    Background = Color3.fromRGB(20, 20, 24),
+    Sidebar = Color3.fromRGB(25, 25, 30),
 
-    Card = Color3.fromRGB(255, 255, 255),
-    Border = Color3.fromRGB(220, 220, 220),
+    Card = Color3.fromRGB(30, 30, 36),
+    Border = Color3.fromRGB(55, 55, 62),
 
-    Black = Color3.fromRGB(20, 20, 20),
-    DarkGray = Color3.fromRGB(70, 70, 70),
-    Gray = Color3.fromRGB(120, 120, 120),
-    LightGray = Color3.fromRGB(235, 235, 235),
+    Black = Color3.fromRGB(255, 255, 255),
+    DarkGray = Color3.fromRGB(210, 210, 215),
+    Gray = Color3.fromRGB(160, 160, 165),
+    LightGray = Color3.fromRGB(45, 45, 52),
 
     White = Color3.fromRGB(255, 255, 255),
 
-    Accent = Color3.fromRGB(20, 20, 20),
-    AccentText = Color3.fromRGB(255, 255, 255)
+    Accent = Color3.fromRGB(255, 255, 255),
+    AccentText = Color3.fromRGB(20, 20, 24)
 }
 
 --========================================================--
