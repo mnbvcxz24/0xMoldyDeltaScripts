@@ -142,7 +142,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.5"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -384,6 +384,7 @@ local AutoPickupNextEggDelay = 3
 local AntiAFKEnabled = false
 local AutoPickupFloatHeight = 3
 local AutoPickupFloating = false
+local AutoPickupFloatForce = nil
 
 local AutoPickupAwaitingUUID = nil
 local AutoPickupAwaitingPickup = false
@@ -1356,7 +1357,47 @@ local function startAutoPickupFloat(position)
         return false
     end
 
+    local attachment =
+        root:FindFirstChild(
+            "AutoPickupFloatAttachment"
+        )
+
+    if not attachment then
+        attachment =
+            Instance.new("Attachment")
+
+        attachment.Name =
+            "AutoPickupFloatAttachment"
+
+        attachment.Parent = root
+    end
+
+    local force =
+        root:FindFirstChild(
+            "AutoPickupFloatForce"
+        )
+
+    if not force then
+        force =
+            Instance.new("VectorForce")
+
+        force.Name =
+            "AutoPickupFloatForce"
+
+        force.Attachment0 =
+            attachment
+
+        force.RelativeTo =
+            Enum.ActuatorRelativeTo.World
+
+        force.ApplyAtCenterOfMass =
+            true
+
+        force.Parent = root
+    end
+
     AutoPickupFloating = true
+    AutoPickupFloatForce = force
 
     root.CFrame =
         CFrame.new(
@@ -1374,16 +1415,35 @@ local function startAutoPickupFloat(position)
     root.AssemblyAngularVelocity =
         Vector3.zero
 
-    root.Anchored = true
+    force.Force =
+        Vector3.new(
+            0,
+            root.AssemblyMass *
+                workspace.Gravity,
+            0
+        )
 
     return true
 end
 
 local function stopAutoPickupFloat()
-    local character = player.Character
+    AutoPickupFloating = false
+
+    local force =
+        AutoPickupFloatForce
+
+    AutoPickupFloatForce = nil
+
+    if force then
+        pcall(function()
+            force:Destroy()
+        end)
+    end
+
+    local character =
+        player.Character
 
     if not character then
-        AutoPickupFloating = false
         return
     end
 
@@ -1393,13 +1453,19 @@ local function stopAutoPickupFloat()
         )
 
     if not root then
-        AutoPickupFloating = false
         return
     end
 
-    AutoPickupFloating = false
+    local attachment =
+        root:FindFirstChild(
+            "AutoPickupFloatAttachment"
+        )
 
-    root.Anchored = false
+    if attachment then
+        pcall(function()
+            attachment:Destroy()
+        end)
+    end
 
     root.AssemblyLinearVelocity =
         Vector3.zero
@@ -1407,7 +1473,6 @@ local function stopAutoPickupFloat()
     root.AssemblyAngularVelocity =
         Vector3.zero
 end
-
 local function teleportToEgg(egg)
     if AutoPickupMovementMode ~= "Teleport" then
         AddDebug(
@@ -1770,6 +1835,7 @@ local function tryAutoPickup()
             end
 
             if not AutoPickupRunning then
+                stopAutoPickupFloat()
                 AutoPickupBusy = false
                 return
             end
