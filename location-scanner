@@ -1,0 +1,104 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
+
+local oldGui = CoreGui:FindFirstChild("LocationScanner")
+if oldGui then
+    oldGui:Destroy()
+end
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "LocationScanner"
+Gui.ResetOnSpawn = false
+Gui.Parent = CoreGui
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(300, 180)
+Main.Position = UDim2.new(0.5, -150, 0.5, -90)
+Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
+Main.BorderSizePixel = 0
+Main.Parent = Gui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 10)
+Corner.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -20, 0, 30)
+Title.Position = UDim2.fromOffset(10, 8)
+Title.BackgroundTransparency = 1
+Title.Text = "Location Scanner"
+Title.TextColor3 = Color3.fromRGB(240, 240, 245)
+Title.TextSize = 14
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+local LocationText = Instance.new("TextLabel")
+LocationText.Size = UDim2.new(1, -20, 0, 75)
+LocationText.Position = UDim2.fromOffset(10, 45)
+LocationText.BackgroundColor3 = Color3.fromRGB(29, 29, 35)
+LocationText.BorderSizePixel = 0
+LocationText.Text = "X: --\nY: --\nZ: --"
+LocationText.TextColor3 = Color3.fromRGB(190, 190, 200)
+LocationText.TextSize = 12
+LocationText.Font = Enum.Font.Code
+LocationText.TextXAlignment = Enum.TextXAlignment.Left
+LocationText.TextYAlignment = Enum.TextYAlignment.Center
+LocationText.Parent = Main
+
+local LocationCorner = Instance.new("UICorner")
+LocationCorner.CornerRadius = UDim.new(0, 7)
+LocationCorner.Parent = LocationText
+
+local ScanButton = Instance.new("TextButton")
+ScanButton.Size = UDim2.fromOffset(120, 32)
+ScanButton.Position = UDim2.new(0.5, -60, 1, -45)
+ScanButton.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+ScanButton.BorderSizePixel = 0
+ScanButton.Text = "SCAN"
+ScanButton.TextColor3 = Color3.fromRGB(230, 230, 235)
+ScanButton.TextSize = 11
+ScanButton.Font = Enum.Font.GothamBold
+ScanButton.AutoButtonColor = true
+ScanButton.Parent = Main
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 7)
+ButtonCorner.Parent = ScanButton
+
+ScanButton.MouseButton1Click:Connect(function()
+    local character = player.Character
+
+    if not character then
+        LocationText.Text = "Character not found"
+        return
+    end
+
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if not root then
+        LocationText.Text = "HumanoidRootPart not found"
+        return
+    end
+
+    local position = root.Position
+
+    LocationText.Text = string.format(
+        "X: %.6f\nY: %.6f\nZ: %.6f",
+        position.X,
+        position.Y,
+        position.Z
+    )
+
+    LocationText:SetAttribute(
+        "Vector3",
+        string.format(
+            "Vector3.new(%.6f, %.6f, %.6f)",
+            position.X,
+            position.Y,
+            position.Z
+        )
+    )
+end)
