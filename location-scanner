@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
@@ -25,7 +26,7 @@ Corner.CornerRadius = UDim.new(0, 10)
 Corner.Parent = Main
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -20, 0, 30)
+Title.Size = UDim2.new(1, -50, 0, 30)
 Title.Position = UDim2.fromOffset(10, 8)
 Title.BackgroundTransparency = 1
 Title.Text = "Location Scanner"
@@ -34,6 +35,21 @@ Title.TextSize = 14
 Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = Main
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.fromOffset(28, 28)
+CloseButton.Position = UDim2.new(1, -36, 0, 6)
+CloseButton.BackgroundTransparency = 1
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+CloseButton.TextSize = 20
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.AutoButtonColor = false
+CloseButton.Parent = Main
+
+CloseButton.MouseButton1Click:Connect(function()
+    Gui:Destroy()
+end)
 
 local LocationText = Instance.new("TextLabel")
 LocationText.Size = UDim2.new(1, -20, 0, 75)
@@ -100,5 +116,42 @@ ScanButton.MouseButton1Click:Connect(function()
             position.Y,
             position.Z
         )
+    )
+end)
+
+local dragging = false
+local dragStart
+local startPosition
+
+Main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPosition = Main.Position
+    end
+end)
+
+Main.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if not dragging then
+        return
+    end
+
+    if input.UserInputType ~= Enum.UserInputType.MouseMovement then
+        return
+    end
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPosition.X.Scale,
+        startPosition.X.Offset + delta.X,
+        startPosition.Y.Scale,
+        startPosition.Y.Offset + delta.Y
     )
 end)
