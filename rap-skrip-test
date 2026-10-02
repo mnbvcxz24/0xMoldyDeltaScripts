@@ -142,7 +142,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.6"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v2.7"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -916,12 +916,24 @@ AutoToggleConnection = AutoToggle.MouseButton1Click:Connect(function()
     AutoPickupRunning = enabled
 
     if not enabled then
+        stopAutoPickupFloat()
+    
         AutoPickupBusy = false
         AutoPickupAwaitingUUID = nil
         AutoPickupAwaitingPickup = false
         AutoPickupAwaitingDeposit = false
         AutoPickupPickupConfirmed = false
         AutoPickupDepositConfirmed = false
+    
+        local root = getCharacterRoot()
+    
+        if root then
+            root.Anchored = false
+            root.AssemblyLinearVelocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+        end
+    
+        AddDebug("[AUTO] Movement reset")
     end
 
     AutoToggle.Text =
