@@ -71,17 +71,19 @@ local function AddDebug(message)
     end
 end
 
-player.Idled:Connect(function()
-    if not AntiAFKEnabled then
-        return
+task.spawn(function()
+    while task.wait(30) do
+        if not AntiAFKEnabled then
+            continue
+        end
+
+        pcall(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new(0, 0))
+        end)
+
+        AddDebug("[ANTI AFK] Activity sent")
     end
-
-    pcall(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new(0, 0))
-    end)
-
-    AddDebug("[ANTI AFK] Idle activity sent")
 end)
 
 local function formatKG(kg)
@@ -142,7 +144,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.1"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
