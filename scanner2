@@ -1,0 +1,347 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "FormatLuckInspector"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = game:GetService("CoreGui")
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(480, 500)
+Main.Position = UDim2.new(0.5, -240, 0.5, -250)
+Main.BackgroundColor3 = Color3.fromRGB(24, 24, 29)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+Main.Parent = gui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 0, 36)
+Title.Position = UDim2.fromOffset(12, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "FormatLuck Inspector"
+Title.TextColor3 = Color3.fromRGB(235, 235, 240)
+Title.TextSize = 14
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.fromOffset(30, 30)
+Close.Position = UDim2.new(1, -35, 0, 3)
+Close.BackgroundTransparency = 1
+Close.Text = "×"
+Close.TextColor3 = Color3.fromRGB(190, 190, 195)
+Close.TextSize = 20
+Close.Font = Enum.Font.GothamBold
+Close.Parent = Main
+
+Close.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+local Info = Instance.new("TextLabel")
+Info.Size = UDim2.new(1, -24, 0, 75)
+Info.Position = UDim2.fromOffset(12, 40)
+Info.BackgroundColor3 = Color3.fromRGB(31, 31, 38)
+Info.Text = "Loading..."
+Info.TextColor3 = Color3.fromRGB(180, 180, 190)
+Info.TextSize = 10
+Info.Font = Enum.Font.Gotham
+Info.TextWrapped = true
+Info.TextXAlignment = Enum.TextXAlignment.Left
+Info.TextYAlignment = Enum.TextYAlignment.Top
+Info.Parent = Main
+
+local InfoPadding = Instance.new("UIPadding")
+InfoPadding.PaddingTop = UDim.new(0, 8)
+InfoPadding.PaddingLeft = UDim.new(0, 8)
+InfoPadding.PaddingRight = UDim.new(0, 8)
+InfoPadding.Parent = Info
+
+local InfoCorner = Instance.new("UICorner")
+InfoCorner.CornerRadius = UDim.new(0, 6)
+InfoCorner.Parent = Info
+
+local TestButton = Instance.new("TextButton")
+TestButton.Size = UDim2.new(1, -24, 0, 30)
+TestButton.Position = UDim2.fromOffset(12, 123)
+TestButton.BackgroundColor3 = Color3.fromRGB(55, 85, 60)
+TestButton.Text = "Run Controlled Tests"
+TestButton.TextColor3 = Color3.fromRGB(230, 230, 235)
+TestButton.TextSize = 10
+TestButton.Font = Enum.Font.GothamMedium
+TestButton.AutoButtonColor = false
+TestButton.Active = true
+TestButton.Selectable = true
+TestButton.Parent = Main
+
+local TestCorner = Instance.new("UICorner")
+TestCorner.CornerRadius = UDim.new(0, 6)
+TestCorner.Parent = TestButton
+
+local Results = Instance.new("ScrollingFrame")
+Results.Size = UDim2.new(1, -24, 1, -170)
+Results.Position = UDim2.fromOffset(12, 160)
+Results.BackgroundColor3 = Color3.fromRGB(29, 29, 35)
+Results.BorderSizePixel = 0
+Results.ScrollBarThickness = 4
+Results.CanvasSize = UDim2.fromOffset(0, 0)
+Results.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Results.Parent = Main
+
+local ResultsCorner = Instance.new("UICorner")
+ResultsCorner.CornerRadius = UDim.new(0, 6)
+ResultsCorner.Parent = Results
+
+local ResultsPadding = Instance.new("UIPadding")
+ResultsPadding.PaddingTop = UDim.new(0, 7)
+ResultsPadding.PaddingBottom = UDim.new(0, 7)
+ResultsPadding.PaddingLeft = UDim.new(0, 7)
+ResultsPadding.PaddingRight = UDim.new(0, 7)
+ResultsPadding.Parent = Results
+
+local ResultsLayout = Instance.new("UIListLayout")
+ResultsLayout.Padding = UDim.new(0, 5)
+ResultsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ResultsLayout.Parent = Results
+
+local function clearResults()
+    for _, child in ipairs(Results:GetChildren()) do
+        if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+            child:Destroy()
+        end
+    end
+end
+
+local function safeValue(value)
+    if value == nil then
+        return "nil"
+    end
+
+    local valueType = typeof(value)
+
+    if valueType == "string" then
+        return '"' .. value .. '"'
+    end
+
+    if valueType == "Instance" then
+        return value:GetFullName()
+    end
+
+    if valueType == "table" then
+        local count = 0
+
+        for _ in pairs(value) do
+            count += 1
+        end
+
+        return "table (" .. tostring(count) .. " entries)"
+    end
+
+    local success, result = pcall(function()
+        return tostring(value)
+    end)
+
+    if success then
+        return result
+    end
+
+    return "<unprintable>"
+end
+
+local function addResult(title, value, detail)
+    local height = detail and 58 or 40
+
+    local Row = Instance.new("Frame")
+    Row.Size = UDim2.new(1, -4, 0, height)
+    Row.BackgroundColor3 = Color3.fromRGB(36, 36, 43)
+    Row.BorderSizePixel = 0
+    Row.Parent = Results
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 5)
+    Corner.Parent = Row
+
+    local Name = Instance.new("TextLabel")
+    Name.Size = UDim2.new(0.42, -8, 0, 20)
+    Name.Position = UDim2.fromOffset(8, 4)
+    Name.BackgroundTransparency = 1
+    Name.Text = title
+    Name.TextColor3 = Color3.fromRGB(225, 225, 230)
+    Name.TextSize = 10
+    Name.Font = Enum.Font.GothamMedium
+    Name.TextXAlignment = Enum.TextXAlignment.Left
+    Name.Parent = Row
+
+    local Value = Instance.new("TextLabel")
+    Value.Size = UDim2.new(0.58, -8, 0, 20)
+    Value.Position = UDim2.new(0.42, 0, 0, 4)
+    Value.BackgroundTransparency = 1
+    Value.Text = value
+    Value.TextColor3 = Color3.fromRGB(145, 190, 155)
+    Value.TextSize = 9
+    Value.Font = Enum.Font.Gotham
+    Value.TextXAlignment = Enum.TextXAlignment.Right
+    Value.TextTruncate = Enum.TextTruncate.AtEnd
+    Value.Parent = Row
+
+    if detail then
+        local Detail = Instance.new("TextLabel")
+        Detail.Size = UDim2.new(1, -16, 0, 27)
+        Detail.Position = UDim2.fromOffset(8, 27)
+        Detail.BackgroundTransparency = 1
+        Detail.Text = detail
+        Detail.TextColor3 = Color3.fromRGB(140, 140, 150)
+        Detail.TextSize = 9
+        Detail.Font = Enum.Font.Gotham
+        Detail.TextWrapped = true
+        Detail.TextXAlignment = Enum.TextXAlignment.Left
+        Detail.Parent = Row
+    end
+end
+
+local function testFunction(fn, label, ...)
+    local arguments = {...}
+
+    local success, a, b, c, d, e = pcall(function()
+        return fn(table.unpack(arguments))
+    end)
+
+    if not success then
+        addResult(
+            label,
+            "ERROR",
+            tostring(a)
+        )
+        return
+    end
+
+    local values = {a, b, c, d, e}
+
+    local returned = {}
+
+    for i, value in ipairs(values) do
+        if value ~= nil then
+            table.insert(
+                returned,
+                "#" .. tostring(i) ..
+                " [" .. typeof(value) .. "] " ..
+                safeValue(value)
+            )
+        end
+    end
+
+    if #returned == 0 then
+        addResult(
+            label,
+            "nil / no values",
+            "Function completed without an observable return value."
+        )
+    else
+        addResult(
+            label,
+            tostring(#returned) .. " return(s)",
+            table.concat(returned, " | ")
+        )
+    end
+end
+
+local function inspect()
+    local gameServices = ReplicatedStorage:FindFirstChild("GameServices")
+
+    if not gameServices then
+        Info.Text = "GameServices not found."
+        return
+    end
+
+    local module = gameServices:FindFirstChild("EggLuckBillboard")
+
+    if not module or not module:IsA("ModuleScript") then
+        Info.Text = "EggLuckBillboard ModuleScript not found."
+        return
+    end
+
+    local required, moduleResult = pcall(require, module)
+
+    if not required then
+        Info.Text = "require() failed:\n" .. tostring(moduleResult)
+        return
+    end
+
+    if type(moduleResult) ~= "table" then
+        Info.Text =
+            "Module returned: " ..
+            typeof(moduleResult) ..
+            "\nExpected a table."
+        return
+    end
+
+    local formatLuck = moduleResult.FormatLuck
+
+    if type(formatLuck) ~= "function" then
+        Info.Text = "FormatLuck was not found or is not a function."
+        return
+    end
+
+    local source
+    local line
+    local name
+    local parameterCount
+    local variadic
+
+    pcall(function()
+        source, line, name, parameterCount, variadic =
+            debug.info(formatLuck, "slna")
+    end)
+
+    Info.Text =
+        "Function: " .. tostring(name or "unknown") ..
+        "\nParameters: " .. tostring(parameterCount or "unknown") ..
+        " | Variadic: " .. tostring(variadic or false) ..
+        "\nSource: " .. tostring(source or "unknown") ..
+        "\nDefined line: " .. tostring(line or "unknown")
+
+    TestButton.MouseButton1Click:Connect(function()
+        clearResults()
+
+        addResult(
+            "Function",
+            "FormatLuck",
+            "Controlled invocation tests. No Attach call."
+        )
+
+        testFunction(
+            formatLuck,
+            "No arguments"
+        )
+
+        testFunction(formatLuck, "Number: 0", 0)
+        testFunction(formatLuck, "Number: 0.1", 0.1)
+        testFunction(formatLuck, "Number: 0.25", 0.25)
+        testFunction(formatLuck, "Number: 0.5", 0.5)
+        testFunction(formatLuck, "Number: 0.75", 0.75)
+        testFunction(formatLuck, "Number: 0.99", 0.99)
+        testFunction(formatLuck, "Number: 1", 1)
+        testFunction(formatLuck, "Number: 1.01", 1.01)
+        testFunction(formatLuck, "Number: 1.25", 1.25)
+        testFunction(formatLuck, "Number: 1.5", 1.5)
+        testFunction(formatLuck, "Number: 1.75", 1.75)
+        testFunction(formatLuck, "Number: 2", 2)
+        testFunction(formatLuck, "Number: 2.5", 2.5)
+        testFunction(formatLuck, "Number: 3", 3)
+        testFunction(formatLuck, "Number: 4", 4)
+        testFunction(formatLuck, "Number: 5", 5)
+        testFunction(formatLuck, "Number: 10", 10)
+        testFunction(formatLuck, "Number: 100", 100)
+    end)
+end
+
+inspect()
