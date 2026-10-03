@@ -114,8 +114,8 @@ end
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(350, 345)
-Main.Position = UDim2.new(0.5, -175, 0.5, -172.5)
+Main.Size = UDim2.fromOffset(540, 345)
+Main.Position = UDim2.new(0.5, -270, 0.5, -172.5)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
 Main.Active = true
@@ -132,7 +132,7 @@ Header.Active = true
 Header.Parent = Main
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -70, 0, 28)
+Title.Size = UDim2.new(1, -125, 0, 28)
 Title.Position = UDim2.fromOffset(16, 7)
 Title.BackgroundTransparency = 1
 Title.Text = "Ride A Pet"
@@ -143,15 +143,33 @@ Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = Header
 
 local Subtitle = Instance.new("TextLabel")
-Subtitle.Size = UDim2.new(1, -70, 0, 18)
+Subtitle.Size = UDim2.new(1, -125, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v5"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
 Subtitle.TextXAlignment = Enum.TextXAlignment.Left
 Subtitle.Parent = Header
+
+local Minimize = Instance.new("TextButton")
+Minimize.Size = UDim2.fromOffset(32, 32)
+Minimize.Position = UDim2.new(1, -82, 0, 11)
+Minimize.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+Minimize.Text = "—"
+Minimize.TextColor3 = Color3.fromRGB(220, 220, 225)
+Minimize.TextSize = textSize(18)
+Minimize.Font = Enum.Font.Gotham
+Minimize.AutoButtonColor = false
+Minimize.Active = true
+Minimize.Selectable = true
+Minimize.ZIndex = 30
+Minimize.Parent = Header
+
+local MinimizeCorner = Instance.new("UICorner")
+MinimizeCorner.CornerRadius = UDim.new(0, 8)
+MinimizeCorner.Parent = Minimize
 
 local Close = Instance.new("TextButton")
 Close.Size = UDim2.fromOffset(32, 32)
@@ -225,13 +243,63 @@ Content.BackgroundTransparency = 1
 Content.ClipsDescendants = false
 Content.Parent = Main
 
+local Content1 = Instance.new("Frame")
+Content1.Name = "Content1"
+Content1.Size = UDim2.new(0.5, -5, 1, 0)
+Content1.Position = UDim2.fromOffset(0, 0)
+Content1.BackgroundTransparency = 1
+Content1.ClipsDescendants = false
+Content1.Parent = Content
+
+local Content2 = Instance.new("Frame")
+Content2.Name = "Content2"
+Content2.Size = UDim2.new(0.5, -5, 1, 0)
+Content2.Position = UDim2.new(0.5, 5, 0, 0)
+Content2.BackgroundTransparency = 1
+Content2.ClipsDescendants = false
+Content2.Parent = Content
+
+local ContentDivider = Instance.new("Frame")
+ContentDivider.Name = "ContentDivider"
+ContentDivider.Size = UDim2.new(0, 1, 1, -8)
+ContentDivider.Position = UDim2.new(0.5, 0, 0, 4)
+ContentDivider.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+ContentDivider.BorderSizePixel = 0
+ContentDivider.Parent = Content
+
+local Content2Title = Instance.new("TextLabel")
+Content2Title.Name = "Content2Title"
+Content2Title.Size = UDim2.new(1, -10, 0, 24)
+Content2Title.Position = UDim2.fromOffset(5, 5)
+Content2Title.BackgroundTransparency = 1
+Content2Title.Text = "Content 2"
+Content2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
+Content2Title.TextSize = textSize(13)
+Content2Title.Font = Enum.Font.GothamBold
+Content2Title.TextXAlignment = Enum.TextXAlignment.Left
+Content2Title.Parent = Content2
+
+local Content2Info = Instance.new("TextLabel")
+Content2Info.Name = "Content2Info"
+Content2Info.Size = UDim2.new(1, -10, 0, 40)
+Content2Info.Position = UDim2.fromOffset(5, 32)
+Content2Info.BackgroundTransparency = 1
+Content2Info.Text = "Additional content can be added here."
+Content2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
+Content2Info.TextSize = textSize(11)
+Content2Info.Font = Enum.Font.Gotham
+Content2Info.TextWrapped = true
+Content2Info.TextXAlignment = Enum.TextXAlignment.Left
+Content2Info.TextYAlignment = Enum.TextYAlignment.Top
+Content2Info.Parent = Content2
+
 local function createPage()
     local page = Instance.new("Frame")
     page.Size = UDim2.fromScale(1, 1)
     page.BackgroundTransparency = 1
     page.Visible = false
     page.ClipsDescendants = false
-    page.Parent = Content
+    page.Parent = Content1
     return page
 end
 
@@ -4039,7 +4107,7 @@ SettingsButton.MouseButton1Click:Connect(function()
     showPage(SettingsPage)
 end)
 
-Close.MouseButton1Click:Connect(function()
+Minimize.MouseButton1Click:Connect(function()
     Main.Visible = false
     Minimized.Visible = true
 end)
@@ -4047,6 +4115,34 @@ end)
 Minimized.MouseButton1Click:Connect(function()
     Main.Visible = true
     Minimized.Visible = false
+end)
+
+Close.MouseButton1Click:Connect(function()
+    AutoPickupRunning = false
+    AutoPickupBusy = false
+    AutoDipEnabled = false
+    AutoPickupFloating = false
+    AntiAFKEnabled = false
+
+    pcall(function()
+        clearESP()
+    end)
+
+    pcall(function()
+        if AutoPickupFloatForce then
+            AutoPickupFloatForce:Destroy()
+            AutoPickupFloatForce = nil
+        end
+    end)
+
+    pcall(function()
+        local oldESP = workspace:FindFirstChild("RAPGUIskrip")
+        if oldESP then
+            oldESP:Destroy()
+        end
+    end)
+
+    Gui:Destroy()
 end)
 
 AddDebug("[SYSTEM] Ready")
