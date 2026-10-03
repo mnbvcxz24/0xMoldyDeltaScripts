@@ -97,8 +97,8 @@ end
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.fromOffset(350, 300)
-Main.Position = UDim2.new(0.5, -175, 0.5, -150)
+Main.Size = UDim2.fromOffset(350, 350)
+Main.Position = UDim2.new(0.5, -175, 0.5, -175)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
 Main.Active = true
@@ -269,7 +269,7 @@ EggCount.Parent = ESPPage
 
 local FilterLabel = Instance.new("TextLabel")
 FilterLabel.Size = UDim2.new(1, -10, 0, 25)
-FilterLabel.Position = UDim2.fromOffset(5, 100)
+FilterLabel.Position = UDim2.fromOffset(5, 110)
 FilterLabel.BackgroundTransparency = 1
 FilterLabel.Text = "Egg Filter"
 FilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
