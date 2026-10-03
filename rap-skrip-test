@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.8"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.9"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -316,7 +316,7 @@ FilterCorner.CornerRadius = UDim.new(0, 7)
 FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
-FilterCount.Size = UDim2.new(1, -10, 0, 70)
+FilterCount.Size = UDim2.new(1, -10, 0, 24)
 FilterCount.Position = UDim2.fromOffset(5, 160)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Detected eggs: 0"
@@ -324,8 +324,56 @@ FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
 FilterCount.TextSize = textSize(11)
 FilterCount.Font = Enum.Font.Gotham
 FilterCount.TextXAlignment = Enum.TextXAlignment.Left
-FilterCount.TextYAlignment = Enum.TextYAlignment.Top
+FilterCount.TextYAlignment = Enum.TextYAlignment.Center
 FilterCount.Parent = ESPPage
+updateDetectedEggList({})
+
+local DetectedEggFrame = Instance.new("ScrollingFrame")
+DetectedEggFrame.Size = UDim2.new(1, -10, 0, 115)
+DetectedEggFrame.Position = UDim2.fromOffset(5, 184)
+DetectedEggFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
+DetectedEggFrame.BorderSizePixel = 0
+DetectedEggFrame.ScrollBarThickness = 3
+DetectedEggFrame.ScrollBarImageTransparency = 0.3
+DetectedEggFrame.CanvasSize = UDim2.fromOffset(0, 0)
+DetectedEggFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+DetectedEggFrame.Active = true
+DetectedEggFrame.Parent = ESPPage
+
+local DetectedEggCorner = Instance.new("UICorner")
+DetectedEggCorner.CornerRadius = UDim.new(0, 7)
+DetectedEggCorner.Parent = DetectedEggFrame
+
+local DetectedEggLayout = Instance.new("UIListLayout")
+DetectedEggLayout.Padding = UDim.new(0, 2)
+DetectedEggLayout.SortOrder = Enum.SortOrder.LayoutOrder
+DetectedEggLayout.Parent = DetectedEggFrame
+
+local function updateDetectedEggList(lines)
+    for _, child in ipairs(DetectedEggFrame:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child:Destroy()
+        end
+    end
+
+    for index, line in ipairs(lines) do
+        local label = Instance.new("TextLabel")
+
+        label.Size = UDim2.new(1, -10, 0, 20)
+        label.BackgroundTransparency = 1
+        label.Text = line
+        label.TextColor3 = Color3.fromRGB(190, 190, 198)
+        label.TextSize = textSize(9)
+        label.Font = Enum.Font.Gotham
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.TextYAlignment = Enum.TextYAlignment.Center
+        label.LayoutOrder = index
+        label.Parent = DetectedEggFrame
+    end
+
+    DetectedEggFrame.CanvasPosition =
+        Vector2.new(0, 0)
+end
 
 local FilterFrame = Instance.new("ScrollingFrame")
 FilterFrame.Size = UDim2.new(1, -10, 0, 155)
@@ -3023,16 +3071,8 @@ function updateESP()
     FilterCount.Text =
         "Detected eggs: " ..
         tostring(totalSelected)
-
-    if #detectedLines > 0 then
-        FilterCount.Text =
-            FilterCount.Text ..
-            "\n" ..
-            table.concat(
-                detectedLines,
-                "\n"
-            )
-    end
+    
+    updateDetectedEggList(detectedLines)
 end
 
 loadConfig()
