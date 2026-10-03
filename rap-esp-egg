@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V3.2"
+Subtitle.Text = "Egg ESP TEST V3.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -155,7 +155,7 @@ CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = Close
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.fromOffset(105, 145)
+Sidebar.Size = UDim2.fromOffset(105, 0)
 Sidebar.Position = UDim2.fromOffset(10, 45)
 Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 Sidebar.BorderSizePixel = 0
@@ -166,6 +166,29 @@ Sidebar.Parent = Main
 local SidebarCorner = Instance.new("UICorner")
 SidebarCorner.CornerRadius = UDim.new(0, 8)
 SidebarCorner.Parent = Sidebar
+
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.Padding = UDim.new(0, 7)
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SidebarLayout.Parent = Sidebar
+
+local SidebarPadding = Instance.new("UIPadding")
+SidebarPadding.PaddingTop = UDim.new(0, 8)
+SidebarPadding.PaddingBottom = UDim.new(0, 8)
+SidebarPadding.PaddingLeft = UDim.new(0, 6)
+SidebarPadding.PaddingRight = UDim.new(0, 6)
+SidebarPadding.Parent = Sidebar
+
+SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    Sidebar.Size = UDim2.new(
+        0,
+        105,
+        0,
+        SidebarLayout.AbsoluteContentSize.Y +
+        SidebarPadding.PaddingTop.Offset +
+        SidebarPadding.PaddingBottom.Offset
+    )
+end)
 
 local Content = Instance.new("Frame")
 Content.Size = UDim2.new(1, -125, 1, -65)
@@ -192,8 +215,7 @@ ESPPage.Visible = true
 
 local function createSidebarButton(text, y)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -12, 0, 40)
-    button.Position = UDim2.fromOffset(6, y)
+    button.Size = UDim2.new(1, 0, 0, 40)
     button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -212,9 +234,9 @@ local function createSidebarButton(text, y)
     return button
 end
 
-local ESPButton = createSidebarButton("ESP", 10)
-local DebugButton = createSidebarButton("Debug", 57)
-local SettingsButton = createSidebarButton("Settings", 104)
+local ESPButton = createSidebarButton("ESP")
+local DebugButton = createSidebarButton("Debug")
+local SettingsButton = createSidebarButton("Settings")
 
 local PageTitle = Instance.new("TextLabel")
 PageTitle.Size = UDim2.new(1, -10, 0, 30)
@@ -309,7 +331,7 @@ FilterCount.TextYAlignment = Enum.TextYAlignment.Center
 FilterCount.Parent = ESPPage
 
 local DetectedEggFrame = Instance.new("ScrollingFrame")
-DetectedEggFrame.Size = UDim2.new(1, -10, 0, 75)
+DetectedEggFrame.Size = UDim2.new(1, -10, 0, 30)
 DetectedEggFrame.Position = UDim2.fromOffset(5, 184)
 DetectedEggFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 DetectedEggFrame.BorderSizePixel = 0
@@ -330,6 +352,22 @@ DetectedEggLayout.Padding = UDim.new(0, 1)
 DetectedEggLayout.SortOrder = Enum.SortOrder.LayoutOrder
 DetectedEggLayout.Parent = DetectedEggFrame
 
+local function updateDetectedEggFrameSize()
+    local contentHeight = DetectedEggLayout.AbsoluteContentSize.Y
+    local visibleHeight = math.clamp(contentHeight + 10, 30, 110)
+
+    DetectedEggFrame.Size = UDim2.new(
+        1,
+        -10,
+        0,
+        visibleHeight
+    )
+end
+
+DetectedEggLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(
+    updateDetectedEggFrameSize
+)
+
 local function updateDetectedEggList(lines)
     for _, child in ipairs(DetectedEggFrame:GetChildren()) do
         if child:IsA("TextLabel") then
@@ -341,6 +379,8 @@ local function updateDetectedEggList(lines)
         local label = Instance.new("TextLabel")
 
         label.Size = UDim2.new(1, -10, 0, 18)
+        label.AutomaticSize = Enum.AutomaticSize.Y
+        label.TextWrapped = true
         label.BackgroundTransparency = 1
         label.Text = line
         label.TextColor3 = Color3.fromRGB(190, 190, 198)
