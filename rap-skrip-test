@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -125, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v5.2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v5.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -267,31 +267,7 @@ ContentDivider.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
 ContentDivider.BorderSizePixel = 0
 ContentDivider.Parent = Content
 
-local Content2Title = Instance.new("TextLabel")
-Content2Title.Name = "Content2Title"
-Content2Title.Size = UDim2.new(1, -10, 0, 24)
-Content2Title.Position = UDim2.fromOffset(5, 5)
-Content2Title.BackgroundTransparency = 1
-Content2Title.Text = "Content 2"
-Content2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
-Content2Title.TextSize = textSize(13)
-Content2Title.Font = Enum.Font.GothamBold
-Content2Title.TextXAlignment = Enum.TextXAlignment.Left
-Content2Title.Parent = Content2
-
-local Content2Info = Instance.new("TextLabel")
-Content2Info.Name = "Content2Info"
-Content2Info.Size = UDim2.new(1, -10, 0, 40)
-Content2Info.Position = UDim2.fromOffset(5, 32)
-Content2Info.BackgroundTransparency = 1
-Content2Info.Text = "Additional content can be added here."
-Content2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
-Content2Info.TextSize = textSize(11)
-Content2Info.Font = Enum.Font.Gotham
-Content2Info.TextWrapped = true
-Content2Info.TextXAlignment = Enum.TextXAlignment.Left
-Content2Info.TextYAlignment = Enum.TextYAlignment.Top
-Content2Info.Parent = Content2
+Content2.Visible = true
 
 local function createPage()
     local page = Instance.new("Frame")
@@ -560,6 +536,245 @@ local SelectedEggs = {}
 local FilterButtons = {}
 
 local AutoSelectedEggs = {}
+local AutoPlaceEnabled = false
+local AutoHatchEnabled = false
+local AutoPlaceSelectedEggs = {}
+
+local AutoPlaceTitle = Instance.new("TextLabel")
+AutoPlaceTitle.Size = UDim2.new(1, -80, 0, 22)
+AutoPlaceTitle.Position = UDim2.fromOffset(5, 5)
+AutoPlaceTitle.BackgroundTransparency = 1
+AutoPlaceTitle.Text = "Auto Place Eggs"
+AutoPlaceTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoPlaceTitle.TextSize = textSize(12)
+AutoPlaceTitle.Font = Enum.Font.GothamBold
+AutoPlaceTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceTitle.Parent = Content2
+
+local AutoPlaceStatus = Instance.new("TextLabel")
+AutoPlaceStatus.Size = UDim2.new(1, -10, 0, 18)
+AutoPlaceStatus.Position = UDim2.fromOffset(5, 29)
+AutoPlaceStatus.BackgroundTransparency = 1
+AutoPlaceStatus.Text = "UI only | Inactive"
+AutoPlaceStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
+AutoPlaceStatus.TextSize = textSize(9)
+AutoPlaceStatus.Font = Enum.Font.Gotham
+AutoPlaceStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceStatus.Parent = Content2
+
+local AutoPlaceToggle = Instance.new("TextButton")
+AutoPlaceToggle.Size = UDim2.fromOffset(58, 26)
+AutoPlaceToggle.Position = UDim2.new(1, -63, 0, 5)
+AutoPlaceToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoPlaceToggle.Text = "OFF"
+AutoPlaceToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoPlaceToggle.TextSize = textSize(10)
+AutoPlaceToggle.Font = Enum.Font.GothamBold
+AutoPlaceToggle.AutoButtonColor = false
+AutoPlaceToggle.Active = true
+AutoPlaceToggle.Selectable = true
+AutoPlaceToggle.Parent = Content2
+
+local AutoPlaceToggleCorner = Instance.new("UICorner")
+AutoPlaceToggleCorner.CornerRadius = UDim.new(0, 6)
+AutoPlaceToggleCorner.Parent = AutoPlaceToggle
+
+local AutoPlaceFilterLabel = Instance.new("TextLabel")
+AutoPlaceFilterLabel.Size = UDim2.new(1, -10, 0, 18)
+AutoPlaceFilterLabel.Position = UDim2.fromOffset(5, 53)
+AutoPlaceFilterLabel.BackgroundTransparency = 1
+AutoPlaceFilterLabel.Text = "Egg Filter"
+AutoPlaceFilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoPlaceFilterLabel.TextSize = textSize(10)
+AutoPlaceFilterLabel.Font = Enum.Font.GothamMedium
+AutoPlaceFilterLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceFilterLabel.Parent = Content2
+
+local AutoPlaceFilterButton = Instance.new("TextButton")
+AutoPlaceFilterButton.Size = UDim2.new(1, -10, 0, 27)
+AutoPlaceFilterButton.Position = UDim2.fromOffset(5, 73)
+AutoPlaceFilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+AutoPlaceFilterButton.Text = "Select eggs  ▼"
+AutoPlaceFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoPlaceFilterButton.TextSize = textSize(10)
+AutoPlaceFilterButton.Font = Enum.Font.Gotham
+AutoPlaceFilterButton.AutoButtonColor = false
+AutoPlaceFilterButton.Active = true
+AutoPlaceFilterButton.Selectable = true
+AutoPlaceFilterButton.ZIndex = 25
+AutoPlaceFilterButton.Parent = Content2
+
+local AutoPlaceFilterCorner = Instance.new("UICorner")
+AutoPlaceFilterCorner.CornerRadius = UDim.new(0, 6)
+AutoPlaceFilterCorner.Parent = AutoPlaceFilterButton
+
+local AutoPlaceSelectedLabel = Instance.new("TextLabel")
+AutoPlaceSelectedLabel.Size = UDim2.new(1, -10, 0, 18)
+AutoPlaceSelectedLabel.Position = UDim2.fromOffset(5, 103)
+AutoPlaceSelectedLabel.BackgroundTransparency = 1
+AutoPlaceSelectedLabel.Text = "Selected: None"
+AutoPlaceSelectedLabel.TextColor3 = Color3.fromRGB(145, 145, 155)
+AutoPlaceSelectedLabel.TextSize = textSize(9)
+AutoPlaceSelectedLabel.Font = Enum.Font.Gotham
+AutoPlaceSelectedLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceSelectedLabel.TextTruncate = Enum.TextTruncate.AtEnd
+AutoPlaceSelectedLabel.Parent = Content2
+
+local AutoPlaceFilterFrame = Instance.new("ScrollingFrame")
+AutoPlaceFilterFrame.Size = UDim2.new(1, -10, 0, 92)
+AutoPlaceFilterFrame.Position = UDim2.fromOffset(5, 123)
+AutoPlaceFilterFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
+AutoPlaceFilterFrame.BorderSizePixel = 0
+AutoPlaceFilterFrame.Visible = false
+AutoPlaceFilterFrame.ZIndex = 30
+AutoPlaceFilterFrame.ScrollBarThickness = 3
+AutoPlaceFilterFrame.ScrollBarImageTransparency = 0.3
+AutoPlaceFilterFrame.CanvasSize = UDim2.fromOffset(0, 0)
+AutoPlaceFilterFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+AutoPlaceFilterFrame.Active = true
+AutoPlaceFilterFrame.Parent = Content2
+
+local AutoPlaceFilterFrameCorner = Instance.new("UICorner")
+AutoPlaceFilterFrameCorner.CornerRadius = UDim.new(0, 6)
+AutoPlaceFilterFrameCorner.Parent = AutoPlaceFilterFrame
+
+local AutoPlaceFilterLayout = Instance.new("UIListLayout")
+AutoPlaceFilterLayout.Padding = UDim.new(0, 1)
+AutoPlaceFilterLayout.SortOrder = Enum.SortOrder.LayoutOrder
+AutoPlaceFilterLayout.Parent = AutoPlaceFilterFrame
+
+local AutoHatchTitle = Instance.new("TextLabel")
+AutoHatchTitle.Size = UDim2.new(1, -80, 0, 22)
+AutoHatchTitle.Position = UDim2.fromOffset(5, 224)
+AutoHatchTitle.BackgroundTransparency = 1
+AutoHatchTitle.Text = "Auto Hatch"
+AutoHatchTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoHatchTitle.TextSize = textSize(12)
+AutoHatchTitle.Font = Enum.Font.GothamBold
+AutoHatchTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoHatchTitle.Parent = Content2
+
+local AutoHatchStatus = Instance.new("TextLabel")
+AutoHatchStatus.Size = UDim2.new(1, -10, 0, 18)
+AutoHatchStatus.Position = UDim2.fromOffset(5, 248)
+AutoHatchStatus.BackgroundTransparency = 1
+AutoHatchStatus.Text = "UI only | Inactive"
+AutoHatchStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
+AutoHatchStatus.TextSize = textSize(9)
+AutoHatchStatus.Font = Enum.Font.Gotham
+AutoHatchStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoHatchStatus.Parent = Content2
+
+local AutoHatchToggle = Instance.new("TextButton")
+AutoHatchToggle.Size = UDim2.fromOffset(58, 26)
+AutoHatchToggle.Position = UDim2.new(1, -63, 0, 224)
+AutoHatchToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoHatchToggle.Text = "OFF"
+AutoHatchToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoHatchToggle.TextSize = textSize(10)
+AutoHatchToggle.Font = Enum.Font.GothamBold
+AutoHatchToggle.AutoButtonColor = false
+AutoHatchToggle.Active = true
+AutoHatchToggle.Selectable = true
+AutoHatchToggle.Parent = Content2
+
+local AutoHatchToggleCorner = Instance.new("UICorner")
+AutoHatchToggleCorner.CornerRadius = UDim.new(0, 6)
+AutoHatchToggleCorner.Parent = AutoHatchToggle
+
+local AutoPlaceFilterButtons = {}
+
+local function updateAutoPlaceFilterDisplay()
+    local selectedNames = {}
+    local selectedCount = 0
+
+    for _, eggName in ipairs(EggTypes) do
+        if eggName ~= "--" and AutoPlaceSelectedEggs[eggName] then
+            table.insert(selectedNames, eggName)
+            selectedCount = selectedCount + 1
+        end
+    end
+
+    AutoPlaceSelectedLabel.Text =
+        selectedCount > 0
+        and ("Selected: " .. table.concat(selectedNames, ", "))
+        or "Selected: None"
+
+    AutoPlaceFilterButton.Text =
+        selectedCount > 0
+        and ("Select eggs (" .. tostring(selectedCount) .. ")  ▼")
+        or "Select eggs  ▼"
+end
+
+for index, eggName in ipairs(EggTypes) do
+    if eggName ~= "--" then
+        local selectedEggName = eggName
+        local option = Instance.new("TextButton")
+        option.Size = UDim2.new(1, -6, 0, 22)
+        option.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+        option.TextColor3 = Color3.fromRGB(220, 220, 225)
+        option.TextSize = textSize(9)
+        option.Font = Enum.Font.Gotham
+        option.TextXAlignment = Enum.TextXAlignment.Left
+        option.AutoButtonColor = false
+        option.Active = true
+        option.Selectable = true
+        option.ZIndex = 31
+        option.LayoutOrder = index
+        option.Parent = AutoPlaceFilterFrame
+        AutoPlaceFilterButtons[selectedEggName] = option
+
+        local optionPadding = Instance.new("UIPadding")
+        optionPadding.PaddingLeft = UDim.new(0, 5)
+        optionPadding.Parent = option
+
+        option.MouseButton1Click:Connect(function()
+            AutoPlaceSelectedEggs[selectedEggName] =
+                not AutoPlaceSelectedEggs[selectedEggName]
+
+            option.Text =
+                (AutoPlaceSelectedEggs[selectedEggName] and "[x] " or "[ ] ") ..
+                selectedEggName
+
+            updateAutoPlaceFilterDisplay()
+        end)
+
+        option.Text = "[ ] " .. selectedEggName
+    end
+end
+
+AutoPlaceFilterButton.MouseButton1Click:Connect(function()
+    AutoPlaceFilterFrame.Visible = not AutoPlaceFilterFrame.Visible
+end)
+
+AutoPlaceToggle.MouseButton1Click:Connect(function()
+    AutoPlaceEnabled = not AutoPlaceEnabled
+    AutoPlaceToggle.Text = AutoPlaceEnabled and "ON" or "OFF"
+    AutoPlaceToggle.BackgroundColor3 = AutoPlaceEnabled
+        and Color3.fromRGB(55, 120, 75)
+        or Color3.fromRGB(45, 45, 53)
+    AutoPlaceStatus.Text = AutoPlaceEnabled
+        and "UI only | On"
+        or "UI only | Inactive"
+    AutoPlaceStatus.TextColor3 = AutoPlaceEnabled
+        and Color3.fromRGB(100, 220, 130)
+        or Color3.fromRGB(150, 150, 158)
+end)
+
+AutoHatchToggle.MouseButton1Click:Connect(function()
+    AutoHatchEnabled = not AutoHatchEnabled
+    AutoHatchToggle.Text = AutoHatchEnabled and "ON" or "OFF"
+    AutoHatchToggle.BackgroundColor3 = AutoHatchEnabled
+        and Color3.fromRGB(55, 120, 75)
+        or Color3.fromRGB(45, 45, 53)
+    AutoHatchStatus.Text = AutoHatchEnabled
+        and "UI only | On"
+        or "UI only | Inactive"
+    AutoHatchStatus.TextColor3 = AutoHatchEnabled
+        and Color3.fromRGB(100, 220, 130)
+        or Color3.fromRGB(150, 150, 158)
+end)
+
 local AutoPickupRunning = false
 local AutoDipEnabled = false
 local AutoPickupBusy = false
@@ -4086,9 +4301,12 @@ local function showPage(page)
     SettingsPage.Visible = false
 
     page.Visible = true
+    Content2.Visible = page == AutoPage
+    ContentDivider.Visible = page == AutoPage
 
     FilterFrame.Visible = false
     AutoFilterFrame.Visible = false
+    AutoPlaceFilterFrame.Visible = false
 end
 
 AutoButton.MouseButton1Click:Connect(function()
