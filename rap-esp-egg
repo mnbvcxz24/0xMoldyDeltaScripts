@@ -320,7 +320,7 @@ FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 22)
-FilterCount.Position = UDim2.fromOffset(5, 160)
+FilterCount.Position = UDim2.fromOffset(5, 175)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Detected eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 185)
@@ -332,7 +332,7 @@ FilterCount.Parent = ESPPage
 
 local DetectedEggFrame = Instance.new("ScrollingFrame")
 DetectedEggFrame.Size = UDim2.new(1, -10, 0, 30)
-DetectedEggFrame.Position = UDim2.fromOffset(5, 184)
+DetectedEggFrame.Position = UDim2.fromOffset(5, 185)
 DetectedEggFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 DetectedEggFrame.BorderSizePixel = 0
 DetectedEggFrame.ScrollBarThickness = 3
