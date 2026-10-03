@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -2325,43 +2325,82 @@ local function tryAutoPickup()
                     "[AUTO DIP] Waiting for result..."
                 )
 
-                local dipStart =
-                    os.clock()
-
-                while
-                    AutoDipWaitingForResult
-                    and AutoPickupRunning
-                    and os.clock() - dipStart < 15
-                do
-                    task.wait(0.1)
-                end
-
-                if not AutoPickupRunning then
+                local dipReceived = false
+                
+                for dipAttempt = 1, 2 do
+                    local dipStart =
+                        os.clock()
+                
+                    while
+                        AutoDipWaitingForResult
+                        and AutoPickupRunning
+                        and os.clock() - dipStart < 10
+                    do
+                        task.wait(0.1)
+                    end
+                
+                    if not AutoPickupRunning then
+                        AutoDipWaitingForResult = false
+                        AutoPickupBusy = false
+                        return
+                    end
+                
+                    if not AutoDipWaitingForResult
+                        and AutoDipResult then
+                
+                        dipReceived = true
+                        break
+                    end
+                
                     AutoDipWaitingForResult = false
-                    AutoPickupBusy = false
-                    return
+                
+                    if dipAttempt == 1 then
+                        AddDebug(
+                            "[AUTO DIP] No result after 10s, refiring VolcanoDip..."
+                        )
+                
+                        AutoDipResult = nil
+                        AutoDipWaitingForResult = true
+                
+                        local retrySuccess, retryErr =
+                            pcall(function()
+                                VolcanoDipEvent:FireServer()
+                            end)
+                
+                        if not retrySuccess then
+                            AutoDipWaitingForResult = false
+                
+                            AddDebug(
+                                "[AUTO DIP ERROR] Retry failed: " ..
+                                tostring(retryErr)
+                            )
+                
+                            break
+                        end
+                
+                        AddDebug(
+                            "[AUTO DIP] VolcanoDip retry sent (2/2)"
+                        )
+                    end
                 end
-
-                if AutoDipWaitingForResult then
-                    AutoDipWaitingForResult = false
-
-                    AddDebug(
-                        "[AUTO DIP ERROR] Result timeout"
-                    )
-
-                    AutoPickupBusy = false
-                    return
-                end
-
-                if not AutoDipResult then
+                
+                if not dipReceived then
                     AutoDipWaitingForResult = false
                 
                     AddDebug(
-                        "[AUTO DIP ERROR] No result received"
+                        "[AUTO DIP ERROR] No result after 2 attempts"
                     )
                 
-                    AutoPickupBusy = false
-                    return
+                    AddDebug(
+                        "[AUTO DIP] Failed deposit, returning to plot..."
+                    )
+                
+                    stopAutoPickupFloat()
+                
+                    if not teleportToMyPlot() then
+                        AutoPickupBusy = false
+                        return
+                    end
                 end
                 
                 AddDebug(
