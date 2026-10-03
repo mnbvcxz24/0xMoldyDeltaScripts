@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.8"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -337,6 +337,7 @@ DetectedEggFrame.ScrollBarImageTransparency = 0.3
 DetectedEggFrame.CanvasSize = UDim2.fromOffset(0, 0)
 DetectedEggFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 DetectedEggFrame.Active = true
+DetectedEggFrame.ZIndex = 5
 DetectedEggFrame.Parent = ESPPage
 
 local DetectedEggCorner = Instance.new("UICorner")
@@ -376,6 +377,7 @@ local function updateDetectedEggList(lines)
         label.TextYAlignment =
             Enum.TextYAlignment.Center
         label.LayoutOrder = index
+        label.ZIndex = 6
         label.Parent = DetectedEggFrame
     end
 end
