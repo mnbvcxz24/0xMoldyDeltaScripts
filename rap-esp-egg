@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V3.3"
+Subtitle.Text = "Egg ESP TEST V3.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -302,7 +302,7 @@ FilterLabel.Parent = ESPPage
 
 local FilterButton = Instance.new("TextButton")
 FilterButton.Size = UDim2.new(1, -10, 0, 32)
-FilterButton.Position = UDim2.fromOffset(5, 125)
+FilterButton.Position = UDim2.fromOffset(5, 135)
 FilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 FilterButton.Text = "-- ▼"
 FilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
@@ -354,7 +354,7 @@ DetectedEggLayout.Parent = DetectedEggFrame
 
 local function updateDetectedEggFrameSize()
     local contentHeight = DetectedEggLayout.AbsoluteContentSize.Y
-    local visibleHeight = math.clamp(contentHeight + 10, 30, 110)
+    local visibleHeight = math.clamp(contentHeight + 10, 30, 90)
 
     DetectedEggFrame.Size = UDim2.new(
         1,
