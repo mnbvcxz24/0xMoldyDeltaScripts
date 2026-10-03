@@ -115,7 +115,7 @@ end
 local Main = Instance.new("Frame")
 Main.Name = "Main"
 Main.Size = UDim2.fromOffset(350, 345)
-Main.Position = UDim2.new(0.5, -175, 0.5, -150)
+Main.Position = UDim2.new(0.5, -175, 0.5, -172.5)
 Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
 Main.BorderSizePixel = 0
 Main.Active = true
@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.1"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.2"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -172,7 +172,7 @@ CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = Close
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.fromOffset(105, 192)
+Sidebar.Size = UDim2.fromOffset(105, 10)
 Sidebar.Position = UDim2.fromOffset(10, 45)
 Sidebar.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 Sidebar.BorderSizePixel = 0
@@ -184,9 +184,36 @@ local SidebarCorner = Instance.new("UICorner")
 SidebarCorner.CornerRadius = UDim.new(0, 8)
 SidebarCorner.Parent = Sidebar
 
+local function updateSidebarSize()
+    local bottom = 0
+
+    for _, child in ipairs(Sidebar:GetChildren()) do
+        if child:IsA("GuiButton") then
+            local childBottom =
+                child.Position.Y.Offset +
+                child.Size.Y.Offset
+
+            bottom = math.max(bottom, childBottom)
+        end
+    end
+
+    Sidebar.Size = UDim2.fromOffset(
+        105,
+        bottom + 10
+    )
+end
+
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -125, 1, -65)
-Content.Position = UDim2.fromOffset(120, 55)
+Content.Size = UDim2.new(
+    1,
+    -(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 15),
+    1,
+    -65
+)
+Content.Position = UDim2.fromOffset(
+    Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 5,
+    55
+)
 Content.BackgroundTransparency = 1
 Content.ClipsDescendants = false
 Content.Parent = Main
@@ -208,10 +235,15 @@ local SettingsPage = createPage()
 
 AutoPage.Visible = true
 
-local function createSidebarButton(text, y)
+local function createSidebarButton(text)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -12, 0, 40)
-    button.Position = UDim2.fromOffset(6, y)
+    button.Size = UDim2.new(
+        1,
+        -10,
+        0,
+        math.max(36, textSize(12) + 24)
+    )
+    button.Position = UDim2.fromOffset(5, 0)
     button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -230,10 +262,22 @@ local function createSidebarButton(text, y)
     return button
 end
 
-local AutoButton = createSidebarButton("Auto", 10)
-local ESPButton = createSidebarButton("ESP", 57)
-local DebugButton = createSidebarButton("Debug", 104)
-local SettingsButton = createSidebarButton("Settings", 151)
+local function updateSidebarButtons()
+    local y = 5
+
+    for _, button in ipairs(SidebarButtons) do
+        button.Position = UDim2.fromOffset(5, y)
+        y += button.Size.Y.Offset + 5
+    end
+
+    Sidebar.Size = UDim2.fromOffset(105, y + 5)
+end
+
+local AutoButton = createSidebarButton("Auto")
+local ESPButton = createSidebarButton("ESP")
+local DebugButton = createSidebarButton("Debug")
+local SettingsButton = createSidebarButton("Settings")
+updateSidebarSize()
 
 local PageTitle = Instance.new("TextLabel")
 PageTitle.Size = UDim2.new(1, -10, 0, 30)
