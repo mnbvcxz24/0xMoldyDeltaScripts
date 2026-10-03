@@ -366,7 +366,7 @@ AutoHatchTitle.Parent = AutoContent2
 
 local AutoHatchStatus = Instance.new("TextLabel")
 AutoHatchStatus.Size = UDim2.new(1, -10, 0, 20)
-AutoHatchStatus.Position = UDim2.fromOffset(5, 170)
+AutoHatchStatus.Position = UDim2.fromOffset(5, 173)
 AutoHatchStatus.BackgroundTransparency = 1
 AutoHatchStatus.Text = "● Inactive"
 AutoHatchStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
