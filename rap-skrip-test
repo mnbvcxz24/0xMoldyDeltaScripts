@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.3"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.4"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -2155,6 +2155,25 @@ local function tryAutoPickup()
             AutoPickupAwaitingUUID =
                 tostring(uuid)
 
+            AddDebug(
+                string.format(
+                    "[AUTO] Claim delay before pickup: %.1fs",
+                    AutoPickupClaimDelay
+                )
+            )
+            
+            task.wait(
+                AutoPickupClaimDelay
+            )
+            
+            if not AutoPickupRunning then
+                AutoPickupBusy = false
+                return
+            end
+            
+            AutoPickupAwaitingUUID =
+                tostring(uuid)
+            
             AutoPickupAwaitingPickup =
                 true
 
@@ -2231,22 +2250,6 @@ local function tryAutoPickup()
                     AutoPickupBusy = false
                     return
                 end
-            end
-
-            AddDebug(
-                string.format(
-                    "[AUTO] Claim delay: %.1fs",
-                    AutoPickupClaimDelay
-                )
-            )
-
-            task.wait(
-                AutoPickupClaimDelay
-            )
-
-            if not AutoPickupRunning then
-                AutoPickupBusy = false
-                return
             end
 
             if AutoDipEnabled then
@@ -2345,6 +2348,8 @@ local function tryAutoPickup()
                 end
 
                 if not AutoDipResult then
+                    AutoDipWaitingForResult = false
+                
                     AddDebug(
                         "[AUTO DIP ERROR] No result received"
                     )
@@ -2356,6 +2361,21 @@ local function tryAutoPickup()
                 AddDebug(
                     "[AUTO DIP] Result received: " ..
                     tostring(AutoDipResult.Success)
+                )
+                
+                if AutoDipResult.Success ~= true then
+                    AutoDipWaitingForResult = false
+                
+                    AddDebug(
+                        "[AUTO DIP ERROR] DIP was not successful"
+                    )
+                
+                    AutoPickupBusy = false
+                    return
+                end
+                
+                AddDebug(
+                    "[AUTO DIP] DIP confirmed successfully"
                 )
                 
                 AddDebug(
