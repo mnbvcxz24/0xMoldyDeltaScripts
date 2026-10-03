@@ -20,7 +20,7 @@ pcall(function()
     end
 end)
 
-local TEXT_SCALE = 1
+local TEXT_SCALE = 0.95
 
 local function textSize(size)
     return math.floor(size * TEXT_SCALE)
@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V3.1"
+Subtitle.Text = "Egg ESP TEST V3.2"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -309,7 +309,7 @@ FilterCount.TextYAlignment = Enum.TextYAlignment.Center
 FilterCount.Parent = ESPPage
 
 local DetectedEggFrame = Instance.new("ScrollingFrame")
-DetectedEggFrame.Size = UDim2.new(1, -10, 0, 85)
+DetectedEggFrame.Size = UDim2.new(1, -10, 0, 75)
 DetectedEggFrame.Position = UDim2.fromOffset(5, 184)
 DetectedEggFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 DetectedEggFrame.BorderSizePixel = 0
