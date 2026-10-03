@@ -366,7 +366,7 @@ AutoHatchTitle.Parent = AutoContent2
 
 local AutoHatchStatus = Instance.new("TextLabel")
 AutoHatchStatus.Size = UDim2.new(1, -10, 0, 20)
-AutoHatchStatus.Position = UDim2.fromOffset(5, 173)
+AutoHatchStatus.Position = UDim2.fromOffset(5, 170)
 AutoHatchStatus.BackgroundTransparency = 1
 AutoHatchStatus.Text = "● Inactive"
 AutoHatchStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
@@ -2723,14 +2723,10 @@ local function tryAutoPickup()
     AutoPickupBusy = false
 end
 
-local GameMessageEvent
-pcall(function()
-    local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
-    local Reusable = Remotes and Remotes:FindFirstChild("Reusable")
-    GameMessageEvent = Reusable and Reusable:FindFirstChild("GameMessage")
-end)
+local GameMessageEvent =
+    game:GetService("ReplicatedStorage")
+    .Remotes.Reusable.GameMessage
 
-if GameMessageEvent and GameMessageEvent:IsA("RemoteEvent") then
 GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
     if not AutoVolcanoWaitingForMessage then
         return
@@ -2779,11 +2775,7 @@ GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
         )
     end
 end)
-else
-    AddDebug("[STARTUP] Remote Remotes/Reusable/GameMessage not found; mutation message detection disabled")
-end
 
-if VolcanoDipResultEvent and VolcanoDipResultEvent:IsA("RemoteEvent") then
 VolcanoDipResultEvent.OnClientEvent:Connect(function(result)
     if not AutoDipWaitingForResult then
         return
@@ -2792,9 +2784,6 @@ VolcanoDipResultEvent.OnClientEvent:Connect(function(result)
     AutoDipResult = result
     AutoDipWaitingForResult = false
 end)
-else
-    AddDebug("[STARTUP] Remote RE/VolcanoDipResult not found; volcano result detection disabled")
-end
 
 local function getSelectedEggNames()
     local names = {}
