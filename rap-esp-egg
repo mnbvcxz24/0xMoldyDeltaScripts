@@ -129,7 +129,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Egg ESP TEST V3.5"
+Subtitle.Text = "Egg ESP TEST V3.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -320,7 +320,7 @@ FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
 FilterCount.Size = UDim2.new(1, -10, 0, 22)
-FilterCount.Position = UDim2.fromOffset(5, 185)
+FilterCount.Position = UDim2.fromOffset(5, 170)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Detected eggs: 0"
 FilterCount.TextColor3 = Color3.fromRGB(175, 175, 175)
@@ -332,7 +332,7 @@ FilterCount.Parent = ESPPage
 
 local DetectedEggFrame = Instance.new("ScrollingFrame")
 DetectedEggFrame.Size = UDim2.new(1, -10, 0, 30)
-DetectedEggFrame.Position = UDim2.fromOffset(5, 185)
+DetectedEggFrame.Position = UDim2.fromOffset(5, 195)
 DetectedEggFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 DetectedEggFrame.BorderSizePixel = 0
 DetectedEggFrame.ScrollBarThickness = 3
@@ -379,8 +379,6 @@ local function updateDetectedEggList(lines)
         local label = Instance.new("TextLabel")
 
         label.Size = UDim2.new(1, -10, 0, 18)
-        label.AutomaticSize = Enum.AutomaticSize.Y
-        label.TextWrapped = true
         label.BackgroundTransparency = 1
         label.Text = line
         label.TextColor3 = Color3.fromRGB(190, 190, 198)
