@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.9"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v3.8"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -316,7 +316,7 @@ FilterCorner.CornerRadius = UDim.new(0, 7)
 FilterCorner.Parent = FilterButton
 
 local FilterCount = Instance.new("TextLabel")
-FilterCount.Size = UDim2.new(1, -10, 0, 24)
+FilterCount.Size = UDim2.new(1, -10, 0, 22)
 FilterCount.Position = UDim2.fromOffset(5, 160)
 FilterCount.BackgroundTransparency = 1
 FilterCount.Text = "Detected eggs: 0"
@@ -326,10 +326,9 @@ FilterCount.Font = Enum.Font.Gotham
 FilterCount.TextXAlignment = Enum.TextXAlignment.Left
 FilterCount.TextYAlignment = Enum.TextYAlignment.Center
 FilterCount.Parent = ESPPage
-updateDetectedEggList({})
 
 local DetectedEggFrame = Instance.new("ScrollingFrame")
-DetectedEggFrame.Size = UDim2.new(1, -10, 0, 115)
+DetectedEggFrame.Size = UDim2.new(1, -10, 0, 75)
 DetectedEggFrame.Position = UDim2.fromOffset(5, 184)
 DetectedEggFrame.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
 DetectedEggFrame.BorderSizePixel = 0
@@ -345,12 +344,14 @@ DetectedEggCorner.CornerRadius = UDim.new(0, 7)
 DetectedEggCorner.Parent = DetectedEggFrame
 
 local DetectedEggLayout = Instance.new("UIListLayout")
-DetectedEggLayout.Padding = UDim.new(0, 2)
+DetectedEggLayout.Padding = UDim.new(0, 1)
 DetectedEggLayout.SortOrder = Enum.SortOrder.LayoutOrder
 DetectedEggLayout.Parent = DetectedEggFrame
 
 local function updateDetectedEggList(lines)
-    for _, child in ipairs(DetectedEggFrame:GetChildren()) do
+    for _, child in ipairs(
+        DetectedEggFrame:GetChildren()
+    ) do
         if child:IsA("TextLabel") then
             child:Destroy()
         end
@@ -359,20 +360,24 @@ local function updateDetectedEggList(lines)
     for index, line in ipairs(lines) do
         local label = Instance.new("TextLabel")
 
-        label.Size = UDim2.new(1, -10, 0, 20)
+        label.Size = UDim2.new(1, -10, 0, 18)
         label.BackgroundTransparency = 1
         label.Text = line
-        label.TextColor3 = Color3.fromRGB(190, 190, 198)
+        label.TextColor3 =
+            Color3.fromRGB(
+                190,
+                190,
+                198
+            )
         label.TextSize = textSize(9)
         label.Font = Enum.Font.Gotham
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.TextYAlignment = Enum.TextYAlignment.Center
+        label.TextXAlignment =
+            Enum.TextXAlignment.Left
+        label.TextYAlignment =
+            Enum.TextYAlignment.Center
         label.LayoutOrder = index
         label.Parent = DetectedEggFrame
     end
-
-    DetectedEggFrame.CanvasPosition =
-        Vector2.new(0, 0)
 end
 
 local FilterFrame = Instance.new("ScrollingFrame")
@@ -2530,7 +2535,7 @@ local function updateFilterText()
         FilterButton.Text = "-- ▼"
         FilterCount.Text =
             "Detected eggs: 0"
-
+        updateDetectedEggList({})
         return
     end
 
@@ -2550,7 +2555,7 @@ local function updateFilterText()
     if not ActiveEggs then
         FilterCount.Text =
             "Detected eggs: 0"
-
+        updateDetectedEggList({})
         return
     end
 
@@ -2629,16 +2634,7 @@ local function updateFilterText()
     FilterCount.Text =
         "Detected eggs: " ..
         tostring(total)
-
-    if #lines > 0 then
-        FilterCount.Text =
-            FilterCount.Text ..
-            "\n" ..
-            table.concat(
-                lines,
-                "\n"
-            )
-    end
+    updateDetectedEggList(lines)
 end
 
 local function refreshFilterButtons()
@@ -2941,7 +2937,7 @@ function updateESP()
 
         FilterCount.Text =
             "Detected eggs: 0"
-
+        updateDetectedEggList({})
         return
     end
 
@@ -2957,7 +2953,7 @@ function updateESP()
 
         FilterCount.Text =
             "Detected eggs: 0"
-
+        updateDetectedEggList({})
         return
     end
 
@@ -3072,7 +3068,9 @@ function updateESP()
         "Detected eggs: " ..
         tostring(totalSelected)
     
-    updateDetectedEggList(detectedLines)
+    updateDetectedEggList(
+        detectedLines
+    )
 end
 
 loadConfig()
