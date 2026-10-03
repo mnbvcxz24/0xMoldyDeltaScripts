@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -70, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.2"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v4.3"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -184,24 +184,31 @@ local SidebarCorner = Instance.new("UICorner")
 SidebarCorner.CornerRadius = UDim.new(0, 8)
 SidebarCorner.Parent = Sidebar
 
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.FillDirection = Enum.FillDirection.Vertical
+SidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SidebarLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SidebarLayout.Padding = UDim.new(0, 5)
+SidebarLayout.Parent = Sidebar
+
+local SidebarPadding = Instance.new("UIPadding")
+SidebarPadding.PaddingTop = UDim.new(0, 5)
+SidebarPadding.PaddingBottom = UDim.new(0, 5)
+SidebarPadding.Parent = Sidebar
+
 local function updateSidebarSize()
-    local bottom = 0
-
-    for _, child in ipairs(Sidebar:GetChildren()) do
-        if child:IsA("GuiButton") then
-            local childBottom =
-                child.Position.Y.Offset +
-                child.Size.Y.Offset
-
-            bottom = math.max(bottom, childBottom)
-        end
-    end
+    local contentHeight = SidebarLayout.AbsoluteContentSize.Y
 
     Sidebar.Size = UDim2.fromOffset(
         105,
-        bottom + 10
+        contentHeight + 10
     )
 end
+
+SidebarLayout:GetPropertyChangedSignal(
+    "AbsoluteContentSize"
+):Connect(updateSidebarSize)
 
 local Content = Instance.new("Frame")
 Content.Size = UDim2.new(
@@ -237,13 +244,14 @@ AutoPage.Visible = true
 
 local function createSidebarButton(text)
     local button = Instance.new("TextButton")
+
     button.Size = UDim2.new(
         1,
         -10,
         0,
         math.max(36, textSize(12) + 24)
     )
-    button.Position = UDim2.fromOffset(5, 0)
+
     button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -262,22 +270,12 @@ local function createSidebarButton(text)
     return button
 end
 
-local function updateSidebarButtons()
-    local y = 5
-
-    for _, button in ipairs(SidebarButtons) do
-        button.Position = UDim2.fromOffset(5, y)
-        y += button.Size.Y.Offset + 5
-    end
-
-    Sidebar.Size = UDim2.fromOffset(105, y + 5)
-end
-
 local AutoButton = createSidebarButton("Auto")
 local ESPButton = createSidebarButton("ESP")
 local DebugButton = createSidebarButton("Debug")
 local SettingsButton = createSidebarButton("Settings")
-updateSidebarSize()
+
+task.defer(updateSidebarSize)
 
 local PageTitle = Instance.new("TextLabel")
 PageTitle.Size = UDim2.new(1, -10, 0, 30)
