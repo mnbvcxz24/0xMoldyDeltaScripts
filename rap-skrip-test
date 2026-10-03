@@ -2723,10 +2723,14 @@ local function tryAutoPickup()
     AutoPickupBusy = false
 end
 
-local GameMessageEvent =
-    game:GetService("ReplicatedStorage")
-    .Remotes.Reusable.GameMessage
+local GameMessageEvent
+pcall(function()
+    local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    local Reusable = Remotes and Remotes:FindFirstChild("Reusable")
+    GameMessageEvent = Reusable and Reusable:FindFirstChild("GameMessage")
+end)
 
+if GameMessageEvent and GameMessageEvent:IsA("RemoteEvent") then
 GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
     if not AutoVolcanoWaitingForMessage then
         return
@@ -2775,7 +2779,11 @@ GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
         )
     end
 end)
+else
+    AddDebug("[STARTUP] Remote Remotes/Reusable/GameMessage not found; mutation message detection disabled")
+end
 
+if VolcanoDipResultEvent and VolcanoDipResultEvent:IsA("RemoteEvent") then
 VolcanoDipResultEvent.OnClientEvent:Connect(function(result)
     if not AutoDipWaitingForResult then
         return
@@ -2784,6 +2792,9 @@ VolcanoDipResultEvent.OnClientEvent:Connect(function(result)
     AutoDipResult = result
     AutoDipWaitingForResult = false
 end)
+else
+    AddDebug("[STARTUP] Remote RE/VolcanoDipResult not found; volcano result detection disabled")
+end
 
 local function getSelectedEggNames()
     local names = {}
