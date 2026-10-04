@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.9"
+local ver = "TEST v11"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -1933,10 +1933,10 @@ local function teleportOutsidePlot(eggPosition)
     if direction.Magnitude==0 then return false end
     direction=direction.Unit
     local edge=(math.abs(direction:Dot(baseplate.CFrame.RightVector))*baseplate.Size.X/2)+(math.abs(direction:Dot(baseplate.CFrame.LookVector))*baseplate.Size.Z/2)
-    local outsidePosition=center-direction*(edge+30)
+    local outsidePosition=center-direction*(edge+35)
     local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
     if not success then return false end
-    AddDebug("[AUTO] TP -> 30 studs outside plot")
+    AddDebug("[AUTO] TP -> 35 studs outside plot")
     return true
 end
 
@@ -2177,6 +2177,7 @@ local function tryAutoPickup(egg)
     local eggName=egg:GetAttribute("Egg")
     local eggPosition=getEggPosition(egg)
     local isVolcanic=eggName=="Volcanic Egg"
+    local shouldAutoDip=(AutoDipEnabled==true and not isVolcanic)
 
     if not eggName or not eggPosition then
         AutoPickupBusy=false
@@ -2217,7 +2218,7 @@ local function tryAutoPickup(egg)
 
     stopAutoPickupFloat()
 
-    if AutoDipEnabled and not isVolcanic then
+    if shouldAutoDip then
         local reachedVolcano=false
 
         while AutoPickupRunning and not reachedVolcano do
