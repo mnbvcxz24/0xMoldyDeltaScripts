@@ -1,8 +1,8 @@
-local ver = "TEST v6"
+local ver = "TEST v6.1"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
-    Duration = 3
+    Duration = 5
 
 })
 local CoreGui = game:GetService("CoreGui")
@@ -2166,6 +2166,95 @@ local function waitForDepositConfirmation()
 
         if AutoPickupDepositConfirmed then
             return true
+        end
+
+        task.wait(0.1)
+    end
+
+    return false
+end
+
+local function getDroppedEggData(uuid)
+    local ActiveEggs = getActiveEggs()
+
+    if not ActiveEggs then
+        AddDebug("[AUTO ERROR] ActiveEggs not found")
+        return nil
+    end
+
+    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        local eggUUID = getEggUUID(egg)
+
+        if eggUUID and tostring(eggUUID) == tostring(uuid) then
+            local eggName = egg:GetAttribute("Egg")
+            local breakRemaining = egg:GetAttribute("BreakRemaining")
+            local dropStartedAt = egg:GetAttribute("DropStartedAt")
+
+            if breakRemaining ~= nil then
+                return {
+                    Instance = egg,
+                    UUID = tostring(eggUUID),
+                    Egg = eggName,
+                    BreakRemaining = tonumber(breakRemaining),
+                    DropStartedAt = dropStartedAt
+                }
+            end
+        end
+    end
+
+    return nil
+end
+
+local function waitForDroppedEgg(uuid, timeout)
+    timeout = timeout or 10
+
+    local start = os.clock()
+
+    while AutoPickupRunning
+        and os.clock() - start < timeout do
+
+        local data = getDroppedEggData(uuid)
+
+        if data and data.BreakRemaining ~= nil then
+            AddDebug(
+                string.format(
+                    "[AUTO] Dropped %s | BreakRemaining: %.2f",
+                    tostring(data.Egg),
+                    data.BreakRemaining
+                )
+            )
+
+            return data
+        end
+
+        task.wait(0.1)
+    end
+
+    AddDebug(
+        "[AUTO ERROR] Dropped egg / BreakRemaining not found"
+    )
+
+    return nil
+end
+
+local function waitForBreakRemaining(uuid)
+    while AutoPickupRunning do
+        local data = getDroppedEggData(uuid)
+
+        if data and data.BreakRemaining ~= nil then
+            local remaining = data.BreakRemaining
+
+            AddDebug(
+                string.format(
+                    "[AUTO TIMER] BreakRemaining: %.2f",
+                    remaining
+                )
+            )
+
+            if remaining <= 2 then
+                AddDebug("[AUTO TIMER] Reached 2 seconds")
+                return true
+            end
         end
 
         task.wait(0.1)
