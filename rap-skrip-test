@@ -39,6 +39,8 @@ Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 Gui.Enabled = true
 Gui.Parent = CoreGui
 
+task.wait()
+
 local DebugLines = {
     "[SYSTEM] ESP UI loaded."
 }
