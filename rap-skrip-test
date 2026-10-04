@@ -1,9 +1,8 @@
-local ver = "TEST v6.2"
+local ver = "TEST v6.3"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
-    Duration = 5
-
+    Duration = 3
 })
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
