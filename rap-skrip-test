@@ -1,4 +1,4 @@
-local ver = "TEST v5.8"
+local ver = "TEST v5.9"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
@@ -259,20 +259,20 @@ Content1.Parent = Content
 local AutoContent2 = Instance.new("Frame")
 AutoContent2.Name = "AutoContent2"
 AutoContent2.Size = UDim2.fromScale(1, 1)
-AutoContent2.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+AutoContent2.Position = UDim2.fromScale(0, 0)
+AutoContent2.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
 AutoContent2.BackgroundTransparency = 0
-AutoContent2.ClipsDescendants = false
 AutoContent2.Visible = true
 AutoContent2.Parent = Content2
 
 local AutoContent2Title = Instance.new("TextLabel")
 AutoContent2Title.Name = "AutoContent2Title"
-AutoContent2Title.Size = UDim2.new(1, -10, 0, 24)
+AutoContent2Title.Size = UDim2.new(1, -10, 0, 30)
 AutoContent2Title.Position = UDim2.fromOffset(5, 5)
 AutoContent2Title.BackgroundTransparency = 1
-AutoContent2Title.Text = "AutoContent2"
-AutoContent2Title.TextColor3 = Color3.fromRGB(240, 240, 245)
-AutoContent2Title.TextSize = textSize(13)
+AutoContent2Title.Text = "AUTOCONTENT2 TEST"
+AutoContent2Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoContent2Title.TextSize = 16
 AutoContent2Title.Font = Enum.Font.GothamBold
 AutoContent2Title.TextXAlignment = Enum.TextXAlignment.Left
 AutoContent2Title.Parent = AutoContent2
