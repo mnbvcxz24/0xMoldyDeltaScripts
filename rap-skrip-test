@@ -327,6 +327,18 @@ local AutoPlaceToggleCorner = Instance.new("UICorner")
 AutoPlaceToggleCorner.CornerRadius = UDim.new(0, 6)
 AutoPlaceToggleCorner.Parent = AutoPlaceToggle
 
+local AutoPlaceFilterLabel = Instance.new("TextLabel")
+AutoPlaceFilterLabel.Name = "AutoPlaceFilterLabel"
+AutoPlaceFilterLabel.Size = UDim2.new(1, -10, 0, 19)
+AutoPlaceFilterLabel.Position = UDim2.fromOffset(5, 72)
+AutoPlaceFilterLabel.BackgroundTransparency = 1
+AutoPlaceFilterLabel.Text = "Egg Filter"
+AutoPlaceFilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoPlaceFilterLabel.TextSize = textSize(10)
+AutoPlaceFilterLabel.Font = Enum.Font.GothamMedium
+AutoPlaceFilterLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceFilterLabel.Parent = AutoContent2
+
 local ESPContent2 = Instance.new("Frame")
 ESPContent2.Name = "ESPContent2"
 ESPContent2.Size = UDim2.fromScale(1, 1)
