@@ -2842,7 +2842,7 @@ local function tryAutoPickup()
                             "[AUTO DIP] Continuing with BreakRemaining check..."
                         )
 
-                        if not waitForBreakRemaining(uuid) then
+                        if not waitForBreakRemaining() then
                             AutoPickupBusy = false
                             return
                         end
@@ -2937,7 +2937,7 @@ local function tryAutoPickup()
                     "[AUTO] Waiting for BreakRemaining <= 2..."
                 )
 
-                if not waitForBreakRemaining(uuid) then
+                if not waitForBreakRemaining() then
                     AutoPickupBusy = false
                     return
                 end
