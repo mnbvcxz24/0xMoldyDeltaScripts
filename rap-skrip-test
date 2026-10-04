@@ -151,7 +151,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -125, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy |" .. ver
+Subtitle.Text = "RAP SKRIP - 0xMoldy | " .. ver
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -271,6 +271,18 @@ AutoContent2.BackgroundTransparency = 1
 AutoContent2.ClipsDescendants = false
 AutoContent2.Visible = true
 AutoContent2.Parent = Content2
+
+local AutoPlaceTitle = Instance.new("TextLabel")
+AutoPlaceTitle.Name = "AutoPlaceTitle"
+AutoPlaceTitle.Size = UDim2.new(1, -10, 0, 24)
+AutoPlaceTitle.Position = UDim2.fromOffset(5, 5)
+AutoPlaceTitle.BackgroundTransparency = 1
+AutoPlaceTitle.Text = "Auto Place Eggs"
+AutoPlaceTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoPlaceTitle.TextSize = textSize(13)
+AutoPlaceTitle.Font = Enum.Font.GothamBold
+AutoPlaceTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceTitle.Parent = AutoContent2
 
 local ESPContent2 = Instance.new("Frame")
 ESPContent2.Name = "ESPContent2"
