@@ -699,14 +699,22 @@ local VolcanoDropPosition = Vector3.new(
 )
 
 pcall(function()
-    local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-    local GameRemotes = Remotes:WaitForChild("Game")
+    local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    local GameRemotes = Remotes and Remotes:FindFirstChild("Game")
 
-    EggPickupEvent = GameRemotes:WaitForChild("EggPickup")
-    EggArrivalClaimEvent = GameRemotes:WaitForChild("EggArrivalClaim")
-    TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
-    VolcanoDipEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDip"]
-    VolcanoDipResultEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDipResult"]
+    if GameRemotes then
+        EggPickupEvent = GameRemotes:FindFirstChild("EggPickup")
+        EggArrivalClaimEvent = GameRemotes:FindFirstChild("EggArrivalClaim")
+        TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
+    end
+
+    local Packages = ReplicatedStorage:FindFirstChild("packages")
+    local Net = Packages and Packages:FindFirstChild("Net")
+
+    if Net then
+        VolcanoDipEvent = Net:FindFirstChild("RE/VolcanoDip")
+        VolcanoDipResultEvent = Net:FindFirstChild("RE/VolcanoDipResult")
+    end
 end)
 
 local AutoTitle = Instance.new("TextLabel")
