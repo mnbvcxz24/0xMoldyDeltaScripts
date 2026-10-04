@@ -1,4 +1,4 @@
-local ver = "TEST v6.8"
+local ver = "TEST v6.9"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
@@ -2639,12 +2639,23 @@ local function tryAutoPickup()
                 AddDebug(
                     "[AUTO ERROR] Dropped egg / BreakRemaining not found"
                 )
-            
                 AutoPickupBusy = false
                 return
             end
-
+            
+            local droppedEggPosition = droppedEgg.Position
+            
+            AddDebug(
+                string.format(
+                    "[AUTO] Dropped position: %.1f, %.1f, %.1f",
+                    droppedEggPosition.X,
+                    droppedEggPosition.Y,
+                    droppedEggPosition.Z
+                )
+            )
+            
             uuid = droppedEgg.UUID
+
             AddDebug(
                 "[AUTO] Dropped egg UUID: " ..
                 tostring(uuid)
