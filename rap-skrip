@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.2"
+local ver = "TEST v10.3"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2315,22 +2315,15 @@ local function tryAutoPickup()
             end
         
             stopAutoPickupFloat()
-        
-            AddDebug("[AUTO DIP] TP -> Static Outside Position")
-        
-            local outsideSuccess,outsideErr=pcall(function()
-                root.CFrame=CFrame.new(AutoPickupOutsidePosition)
-            end)
-        
-            if not outsideSuccess then
-                AddDebug("[AUTO DIP] Outside TP failed: "..tostring(outsideErr))
+            
+            AddDebug("[AUTO DIP] TP -> Outside Plot")
+            if not teleportOutsidePlot(eggPosition) then
+                AddDebug("[AUTO DIP] Outside TP failed")
                 AutoPickupBusy=false
                 return
             end
-        
-            AddDebug("[AUTO DIP] Outside TP complete")
-            AddDebug("[AUTO DIP] Waiting 1 second before drop...")
-            task.wait(1)
+            AddDebug("[AUTO DIP] Outside position reached")
+            task.wait(0.25)
         else
             if isVolcanic then
                 AddDebug("[AUTO] Exiting Volcano")
@@ -2353,21 +2346,16 @@ local function tryAutoPickup()
                 return
             end
 
-            AddDebug("[AUTO] TP -> Static Outside Position")
-
-            local outsideSuccess,outsideErr=pcall(function()
-                root.CFrame=CFrame.new(AutoPickupOutsidePosition)
-            end)
-
-            if not outsideSuccess then
-                AddDebug("[AUTO ERROR] Outside TP failed: "..tostring(outsideErr))
+            stopAutoPickupFloat()
+            
+            AddDebug("[AUTO DIP] TP -> Outside Plot")
+            if not teleportOutsidePlot(eggPosition) then
+                AddDebug("[AUTO DIP] Outside TP failed")
                 AutoPickupBusy=false
                 return
             end
-
-            AddDebug("[AUTO] Outside position reached")
-            AddDebug("[AUTO] Waiting 1 second before drop...")
-            task.wait(1)
+            AddDebug("[AUTO DIP] Outside position reached")
+            task.wait(0.25)
         end
 
         if not AutoPickupRunning then
