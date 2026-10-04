@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.2"
+local ver = "TEST v10.3"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2039,22 +2039,15 @@ local function teleportOutsidePlot(eggPosition)
     if not plot or not eggPosition then return false end
     local baseplate=plot:FindFirstChild("Baseplate")
     if not baseplate or not baseplate:IsA("BasePart") then return false end
-
     local center=baseplate.Position+Vector3.new(0,baseplate.Size.Y/2+3,0)
     local direction=Vector3.new(eggPosition.X-center.X,0,eggPosition.Z-center.Z)
-
     if direction.Magnitude==0 then return false end
     direction=direction.Unit
-
     local edge=(math.abs(direction:Dot(baseplate.CFrame.RightVector))*baseplate.Size.X/2)+(math.abs(direction:Dot(baseplate.CFrame.LookVector))*baseplate.Size.Z/2)
-    local outsidePosition=center-direction*(edge+50)
-
-    local success=pcall(function()
-        root.CFrame=CFrame.new(outsidePosition)
-    end)
-
+    local outsidePosition=center-direction*(edge+35)
+    local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
     if not success then return false end
-    AddDebug("[AUTO] TP -> 50 studs outside plot")
+    AddDebug("[AUTO] TP -> 35 studs outside plot")
     return true
 end
 
@@ -2281,27 +2274,94 @@ local function sendArrivalClaim(uuid)
     return true
 end
 
+local function dropAndRepickEgg(eggName)
+    local BasketDropEvent=ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Game"):WaitForChild("BasketDrop")
+    local previousDroppedUUIDs={}
+    local ActiveEggs=getActiveEggs()
+
+    if ActiveEggs then
+        for _,egg in ipairs(ActiveEggs:GetChildren()) do
+            local uuid=getEggUUID(egg)
+            if uuid then previousDroppedUUIDs[tostring(uuid)]=true end
+        end
+    end
+
+    local root=getCharacterRoot()
+    local dropPosition=root and root.Position
+    if not dropPosition then return nil end
+
+    AddDebug("[AUTO] Dropping original egg...")
+
+    local dropSuccess,dropErr=pcall(function()
+        BasketDropEvent:FireServer()
+    end)
+
+    if not dropSuccess then
+        AddDebug("[AUTO ERROR] Drop failed: "..tostring(dropErr))
+        return nil
+    end
+
+    AddDebug("[AUTO] Drop sent")
+
+    local droppedEgg=waitForDroppedEgg(eggName,previousDroppedUUIDs,dropPosition,10)
+    if not droppedEgg then return nil end
+
+    local droppedUUID=tostring(droppedEgg.UUID)
+    AddDebug("[AUTO] New dropped UUID: "..droppedUUID)
+
+    AutoPickupAwaitingUUID=droppedUUID
+    AutoPickupAwaitingPickup=true
+    AutoPickupPickupConfirmed=false
+
+    local repickupSuccess,repickupErr=pcall(function()
+        EggPickupEvent:FireServer(droppedUUID)
+    end)
+
+    if not repickupSuccess then
+        AutoPickupAwaitingPickup=false
+        AddDebug("[AUTO ERROR] Re-pickup failed: "..tostring(repickupErr))
+        return nil
+    end
+
+    if not waitForPickupConfirmation(droppedUUID) then
+        AutoPickupAwaitingPickup=false
+        AddDebug("[AUTO ERROR] Re-pickup confirmation timeout")
+        return nil
+    end
+
+    AutoPickupAwaitingPickup=false
+    AutoPickupPickupConfirmed=true
+    AddDebug("[AUTO] Dropped egg pickup confirmed")
+
+    return droppedUUID
+end
+
 local function tryAutoPickup()
     if not AutoPickupRunning or AutoPickupBusy or not EggPickupEvent then return end
     AutoPickupBusy=true
 
     local success,err=pcall(function()
         local egg,uuid=findNextAutoPickupEgg()
-
-        if not egg or not uuid then
-            AutoPickupBusy=false
-            return
-        end
+        if not egg or not uuid then AutoPickupBusy=false return end
 
         local eggName=egg:GetAttribute("Egg")
         local eggPosition=getEggPosition(egg)
+        local isVolcanic=eggName=="Volcanic Egg"
+        local isDip=AutoDipEnabled and not isVolcanic
 
         AddDebug("[AUTO] Target: "..tostring(eggName))
         AddDebug("[AUTO] UUID: "..tostring(uuid))
 
-        if not teleportToEgg(egg) then
-            AutoPickupBusy=false
-            return
+        if isVolcanic then
+            if not enterVolcanicEgg(egg) then
+                AutoPickupBusy=false
+                return
+            end
+        else
+            if not teleportToEgg(egg) then
+                AutoPickupBusy=false
+                return
+            end
         end
 
         if not AutoPickupRunning then
@@ -2340,16 +2400,92 @@ local function tryAutoPickup()
 
         AutoPickupAwaitingPickup=false
         AutoPickupPickupConfirmed=true
-
         AddDebug("[AUTO] Original pickup confirmed")
+
         stopAutoPickupFloat()
-        task.wait(1)
-        AddDebug("[AUTO] Waiting 1 sec before moving to drop position...")
 
+        if isDip then
+            local root=getCharacterRoot()
+            if not root then
+                AutoPickupBusy=false
+                return
+            end
 
-        if not teleportOutsidePlot(eggPosition) then
-            AutoPickupBusy=false
-            return
+            local volcanoSuccess=pcall(function()
+                root.CFrame=CFrame.new(VolcanoDropPosition)
+            end)
+
+            if not volcanoSuccess then
+                AutoPickupBusy=false
+                return
+            end
+
+            AddDebug("[AUTO DIP] TP -> Volcano")
+
+            task.wait(0.25)
+
+            AutoDipResult=nil
+            AutoDipWaitingForResult=true
+            AutoVolcanoMessageReceived=false
+            AutoVolcanoMessageText=nil
+            AutoVolcanoWaitingForMessage=true
+
+            AddDebug("[AUTO DIP] Starting Volcano DIP")
+
+            local dipSuccess,dipErr=pcall(function()
+                VolcanoDipEvent:FireServer()
+            end)
+
+            if not dipSuccess then
+                AutoDipWaitingForResult=false
+                AutoVolcanoWaitingForMessage=false
+                AddDebug("[AUTO DIP] Failed to fire VolcanoDip: "..tostring(dipErr))
+                AutoPickupBusy=false
+                return
+            end
+
+            local dipStart=os.clock()
+
+            while AutoPickupRunning and os.clock()-dipStart<10 do
+                if AutoDipResult~=nil then break end
+                if AutoVolcanoMessageReceived then break end
+                task.wait(0.1)
+            end
+
+            AutoDipWaitingForResult=false
+            AutoVolcanoWaitingForMessage=false
+
+            if AutoDipResult~=nil and type(AutoDipResult)=="table" and AutoDipResult.Success==false then
+                AddDebug("[AUTO DIP] Mutation failed")
+                AutoPickupBusy=false
+                return
+            end
+
+            if AutoVolcanoMessageReceived and AutoVolcanoMessageText then
+                AddDebug("[AUTO DIP] "..AutoVolcanoMessageText)
+            end
+
+            AddDebug("[AUTO DIP] Waiting 3 seconds after mutation...")
+            task.wait(3)
+
+            stopAutoPickupFloat()
+
+            if not teleportOutsidePlot(eggPosition) then
+                AutoPickupBusy=false
+                return
+            end
+        else
+            if isVolcanic then
+                if not exitVolcanicEgg() then
+                    AutoPickupBusy=false
+                    return
+                end
+            end
+
+            if not teleportOutsidePlot(eggPosition) then
+                AutoPickupBusy=false
+                return
+            end
         end
 
         if not AutoPickupRunning then
@@ -2357,91 +2493,12 @@ local function tryAutoPickup()
             return
         end
 
-        local BasketDropEvent=ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Game"):WaitForChild("BasketDrop")
+        local droppedUUID=dropAndRepickEgg(eggName)
 
-        local previousDroppedUUIDs={}
-        local activeEggsBeforeDrop=getActiveEggs()
-
-        if activeEggsBeforeDrop then
-            for _,existingEgg in ipairs(activeEggsBeforeDrop:GetChildren()) do
-                local existingUUID=getEggUUID(existingEgg)
-
-                if existingUUID then
-                    previousDroppedUUIDs[tostring(existingUUID)]=true
-                end
-            end
-        end
-
-        local root=getCharacterRoot()
-        local dropPosition=root and root.Position
-
-        if not dropPosition then
-            AddDebug("[AUTO ERROR] Drop position unavailable")
+        if not droppedUUID then
             AutoPickupBusy=false
             return
         end
-
-        AddDebug("[AUTO] ActiveEggs snapshot saved")
-        AddDebug("[AUTO] Dropping original egg...")
-
-        local dropSuccess,dropErr=pcall(function()
-            BasketDropEvent:FireServer()
-        end)
-
-        if not dropSuccess then
-            AddDebug("[AUTO ERROR] Drop failed: "..tostring(dropErr))
-            AutoPickupBusy=false
-            return
-        end
-
-        AddDebug("[AUTO] Drop sent")
-        AddDebug("[AUTO] Waiting for dropped egg...")
-
-        local droppedEgg=waitForDroppedEgg(
-            eggName,
-            previousDroppedUUIDs,
-            dropPosition,
-            10
-        )
-
-        if not droppedEgg then
-            AutoPickupBusy=false
-            return
-        end
-
-        local droppedUUID=tostring(droppedEgg.UUID)
-
-        AddDebug("[AUTO] New dropped UUID: "..droppedUUID)
-        AddDebug("[AUTO] Dropped egg found")
-
-        AddDebug("[AUTO] Picking up dropped egg...")
-
-        AutoPickupAwaitingUUID=droppedUUID
-        AutoPickupAwaitingPickup=true
-        AutoPickupPickupConfirmed=false
-
-        local repickupSuccess,repickupErr=pcall(function()
-            EggPickupEvent:FireServer(droppedUUID)
-        end)
-
-        if not repickupSuccess then
-            AutoPickupAwaitingPickup=false
-            AddDebug("[AUTO ERROR] Re-pickup failed: "..tostring(repickupErr))
-            AutoPickupBusy=false
-            return
-        end
-
-        if not waitForPickupConfirmation(droppedUUID) then
-            AutoPickupAwaitingPickup=false
-            AddDebug("[AUTO ERROR] Re-pickup confirmation timeout")
-            AutoPickupBusy=false
-            return
-        end
-
-        AutoPickupAwaitingPickup=false
-        AutoPickupPickupConfirmed=true
-
-        AddDebug("[AUTO] Dropped egg pickup confirmed")
 
         if not teleportToMyPlot() then
             AutoPickupBusy=false
@@ -2452,9 +2509,6 @@ local function tryAutoPickup()
             AutoPickupBusy=false
             return
         end
-
-        AddDebug("[AUTO] Waiting 1 sec before claim...")
-        task.wait(1)
 
         AutoPickupAwaitingDeposit=true
         AutoPickupDepositConfirmed=false
@@ -2467,20 +2521,12 @@ local function tryAutoPickup()
             return
         end
 
-        AddDebug("[AUTO] Waiting for Deposited...")
-
         if not waitForDepositConfirmation() then
             AutoPickupAwaitingDeposit=false
             AddDebug("[AUTO ERROR] Deposit confirmation timeout")
             AutoPickupBusy=false
             return
         end
-
-        AutoPickupAwaitingUUID=nil
-        AutoPickupAwaitingPickup=false
-        AutoPickupAwaitingDeposit=false
-        AutoPickupPickupConfirmed=false
-        AutoPickupDepositConfirmed=false
 
         AddDebug("[AUTO] "..tostring(eggName).." deposited successfully")
 
@@ -2496,6 +2542,8 @@ local function tryAutoPickup()
     AutoPickupAwaitingDeposit=false
     AutoPickupPickupConfirmed=false
     AutoPickupDepositConfirmed=false
+    AutoDipWaitingForResult=false
+    AutoVolcanoWaitingForMessage=false
     AutoPickupBusy=false
 end
 
