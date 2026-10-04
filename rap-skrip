@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.7"
+local ver = "TEST v10.8"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2351,7 +2351,7 @@ local function tryAutoPickup()
                 return
             end
 
-            task.wait(1)
+            task.wait(.25)
         end
 
         if not AutoPickupRunning then
@@ -2372,10 +2372,8 @@ local function tryAutoPickup()
             AutoPickupBusy=false
             return
         end
-
         AddDebug("[AUTO] Drop sent")
-
-        task.wait(0.25)
+        task.wait(0.50)
 
         if not AutoPickupRunning then
             AutoPickupBusy=false
