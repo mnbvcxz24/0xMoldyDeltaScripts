@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v9.8"
+local ver = "TEST v9.9"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2021,7 +2021,7 @@ local function getMyRanchCFrame()
         )
 end
 
-local function teleportToMyPlot(duration)
+local function teleportToMyPlot()
     local root=getCharacterRoot()
 
     if not root then
@@ -2036,86 +2036,60 @@ local function teleportToMyPlot(duration)
         return false
     end
 
-    if not duration then
-        local success,err=pcall(function()
-            root.CFrame=ranchCFrame
-        end)
-
-        if not success then
-            AddDebug("[AUTO ERROR] Ranch TP failed: "..tostring(err))
-            return false
-        end
-
-        AddDebug("[AUTO] TP -> Your Plot")
-        return true
-    end
-
-    duration=tonumber(duration)
-
-    if not duration then
-        AddDebug("[AUTO ERROR] Invalid movement duration")
-        return false
-    end
-
-    local startPosition=root.Position
-    local targetPosition=ranchCFrame.Position
-    local distance=(targetPosition-startPosition).Magnitude
-
-    if distance<=5 then
+    local success,err=pcall(function()
         root.CFrame=ranchCFrame
-        AddDebug("[AUTO] Already at your plot")
-        return true
-    end
+    end)
 
-    local stepDistance=50
-    local steps=math.max(1,math.ceil(distance/stepDistance))
-    local stepTime=duration/steps
-
-    if stepTime<0.1 then
-        stepTime=0.1
-    end
-    AddDebug(string.format(
-        "[AUTO MOVE] Distance: %.1f | Steps: %d | Duration: %.1fs",
-        distance,
-        steps,
-        duration
-    ))
-
-    for i=1,steps do
-        if not AutoPickupRunning then
-            return false
-        end
-        root=getCharacterRoot()
-        if not root then
-            AddDebug("[AUTO ERROR] HumanoidRootPart lost")
-            return false
-        end
-        local currentPosition=root.Position
-        local remainingDistance=(targetPosition-currentPosition).Magnitude
-        if remainingDistance<=5 then
-            break
-        end
-        local direction=(targetPosition-currentPosition).Unit
-        local moveDistance=math.min(stepDistance,remainingDistance)
-        local nextPosition=currentPosition+direction*moveDistance
-        root.CFrame=CFrame.new(nextPosition)
-        AddDebug(string.format(
-            "[AUTO MOVE] Step %d/%d | %.1f studs",
-            i,
-            steps,
-            remainingDistance
-        ))
-        task.wait(stepTime)
-    end
-    if not AutoPickupRunning then
+    if not success then
+        AddDebug("[AUTO ERROR] Ranch TP failed: "..tostring(err))
         return false
     end
-    root=getCharacterRoot()
+
+    AddDebug("[AUTO] TP -> Your Plot")
+    return true
+end
+
+local function teleportOutsidePlot(eggPosition)
+    local root=getCharacterRoot()
+
     if not root then
+        AddDebug("[AUTO ERROR] HumanoidRootPart not found")
         return false
     end
-    root.CFrame=ranchCFrame
-    AddDebug("[AUTO] Reached your plot")
+
+    local ranchCFrame=getMyRanchCFrame()
+
+    if not ranchCFrame then
+        AddDebug("[AUTO ERROR] Your plot/Baseplate was not found")
+        return false
+    end
+
+    if not eggPosition then
+        AddDebug("[AUTO ERROR] Egg position unavailable")
+        return false
+    end
+
+    local ranchPosition=ranchCFrame.Position
+    local direction=ranchPosition-eggPosition
+
+    if direction.Magnitude<=0 then
+        direction=ranchCFrame.LookVector
+    else
+        direction=direction.Unit
+    end
+
+    local outsidePosition=ranchPosition+direction*20
+
+    local success,err=pcall(function()
+        root.CFrame=CFrame.new(outsidePosition)
+    end)
+
+    if not success then
+        AddDebug("[AUTO ERROR] Outside plot TP failed: "..tostring(err))
+        return false
+    end
+
+    AddDebug("[AUTO] TP -> 20 studs outside plot")
     return true
 end
 
@@ -2453,6 +2427,7 @@ local function tryAutoPickup()
         end
 
         local eggName=egg:GetAttribute("Egg")
+        local eggPosition=getEggPosition(egg)
 
         AddDebug("[AUTO] Target: "..tostring(eggName))
         AddDebug("[AUTO] UUID: "..tostring(uuid))
@@ -2500,6 +2475,19 @@ local function tryAutoPickup()
         AutoPickupPickupConfirmed=true
 
         AddDebug("[AUTO] Original pickup confirmed")
+        AddDebug("[AUTO] Waiting 1 sec before moving to drop position...")
+        task.wait(1)
+
+        if not teleportOutsidePlot(eggPosition) then
+            AutoPickupBusy=false
+            return
+        end
+
+        if not AutoPickupRunning then
+            AutoPickupBusy=false
+            return
+        end
+
         AddDebug("[AUTO] Waiting 1 sec before drop...")
         task.wait(1)
 
@@ -2557,25 +2545,15 @@ local function tryAutoPickup()
         end
 
         local droppedUUID=tostring(droppedEgg.UUID)
-        local initialBreakRemaining=tonumber(droppedEgg.BreakRemaining)
-
-        if not initialBreakRemaining then
-            AddDebug("[AUTO ERROR] BreakRemaining unavailable")
-            AutoPickupBusy=false
-            return
-        end
 
         AddDebug("[AUTO] New dropped UUID: "..droppedUUID)
-        AddDebug(string.format("[AUTO] BreakRemaining: %.2f",initialBreakRemaining))
+        AddDebug("[AUTO] Dropped egg found")
 
-        AddDebug("[AUTO] Waiting 1 sec before re-pickup...")
-        task.wait(1)
+        AddDebug("[AUTO] Picking up dropped egg...")
 
         AutoPickupAwaitingUUID=droppedUUID
         AutoPickupAwaitingPickup=true
         AutoPickupPickupConfirmed=false
-
-        AddDebug("[AUTO] Picking up dropped egg again...")
 
         local repickupSuccess,repickupErr=pcall(function()
             EggPickupEvent:FireServer(droppedUUID)
@@ -2600,25 +2578,7 @@ local function tryAutoPickup()
 
         AddDebug("[AUTO] Dropped egg pickup confirmed")
 
-        stopAutoPickupFloat()
-        
-        local root=getCharacterRoot()
-        
-        if root then
-            root.CFrame=root.CFrame+Vector3.new(0,5,0)
-            AddDebug("[AUTO] Float stopped")
-            AddDebug("[AUTO] Raised 5 studs")
-        else
-            AddDebug("[AUTO ERROR] HumanoidRootPart not found after re-pickup")
-            AutoPickupBusy=false
-            return
-        end
-        
-        AddDebug("[AUTO] Moving to plot using BreakRemaining...")
-
-        local movementTime=math.max(0,initialBreakRemaining-2)
-
-        if not teleportToMyPlot(movementTime) then
+        if not teleportToMyPlot() then
             AutoPickupBusy=false
             return
         end
