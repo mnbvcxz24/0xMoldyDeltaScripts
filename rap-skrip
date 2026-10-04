@@ -629,7 +629,6 @@ local TeleportToPlotEvent
 
 local AutoDipResult = nil
 local AutoDipWaitingForResult = false
-
 local AutoVolcanoMessageReceived = false
 local AutoVolcanoMessageText = nil
 local AutoVolcanoWaitingForMessage = false
@@ -2336,7 +2335,9 @@ local function tryAutoPickup()
 
         if not AutoPickupRunning then AutoPickupBusy = false return end
 
+        AddDebug("[AUTO] Waiting 1 sec before pickup...")
         task.wait(1)
+
         AutoPickupAwaitingUUID = tostring(uuid)
         AutoPickupAwaitingPickup = true
         AutoPickupPickupConfirmed = false
@@ -2351,7 +2352,7 @@ local function tryAutoPickup()
 
         if not pickupSuccess then
             AutoPickupAwaitingPickup = false
-            AddDebug("[AUTO ERROR] Pickup request failed: " .. tostring(pickupErr))
+            AddDebug("[AUTO ERROR] Pickup failed: " .. tostring(pickupErr))
             AutoPickupBusy = false
             return
         end
@@ -2366,6 +2367,7 @@ local function tryAutoPickup()
         AutoPickupAwaitingPickup = false
         AutoPickupPickupConfirmed = true
         AddDebug("[AUTO] Original pickup confirmed")
+
         AddDebug("[AUTO] Waiting 1 sec before drop...")
         task.wait(1)
 
@@ -2382,27 +2384,42 @@ local function tryAutoPickup()
 
         local root = getCharacterRoot()
         local dropPosition = root and root.Position
+
         if not dropPosition then
             AddDebug("[AUTO ERROR] Drop position unavailable")
             AutoPickupBusy = false
             return
         end
 
+        AddDebug("[AUTO] ActiveEggs snapshot saved")
         AddDebug("[AUTO] Dropping original egg...")
-        BasketDropEvent:FireServer()
+
+        local dropSuccess, dropErr = pcall(function()
+            BasketDropEvent:FireServer()
+        end)
+
+        if not dropSuccess then
+            AddDebug("[AUTO ERROR] Drop failed: " .. tostring(dropErr))
+            AutoPickupBusy = false
+            return
+        end
+
         AddDebug("[AUTO] Drop sent")
-        AddDebug("[AUTO] Waiting 1 sec for drop...")
+        AddDebug("[AUTO] Waiting 1 sec for dropped egg...")
         task.wait(1)
 
         local droppedEgg = waitForDroppedEgg(eggName, previousDroppedUUIDs, dropPosition, 10)
+
         if not droppedEgg then
             AutoPickupBusy = false
             return
         end
 
         local droppedUUID = tostring(droppedEgg.UUID)
+
         AddDebug("[AUTO] New dropped UUID: " .. droppedUUID)
         AddDebug(string.format("[AUTO] BreakRemaining: %.2f", droppedEgg.BreakRemaining))
+
         AddDebug("[AUTO] Waiting 1 sec before re-pickup...")
         task.wait(1)
 
@@ -2433,6 +2450,8 @@ local function tryAutoPickup()
         AutoPickupAwaitingPickup = false
         AutoPickupPickupConfirmed = true
         AddDebug("[AUTO] Dropped egg pickup confirmed")
+
+        AddDebug("[AUTO] Waiting 1 sec...")
         task.wait(1)
 
         if AutoDipEnabled then
@@ -2452,13 +2471,13 @@ local function tryAutoPickup()
                 return
             end
 
-            AddDebug("[AUTO DIP] Starting volcano mutation...")
+            AddDebug("[AUTO DIP] Starting mutation...")
 
             AutoDipResult = nil
             AutoDipWaitingForResult = true
             AutoVolcanoMessageReceived = false
             AutoVolcanoMessageText = nil
-            AutoVolcanoWaitingForMessage = false
+            AutoVolcanoWaitingForMessage = true
 
             local dipSuccess, dipErr = pcall(function()
                 VolcanoDipEvent:FireServer()
@@ -2475,6 +2494,7 @@ local function tryAutoPickup()
             AddDebug("[AUTO DIP] Waiting for mutation result...")
 
             local dipStart = os.clock()
+
             while AutoDipWaitingForResult and AutoPickupRunning and os.clock() - dipStart < 10 do
                 task.wait(0.1)
             end
@@ -2494,7 +2514,7 @@ local function tryAutoPickup()
                 return
             end
 
-            AddDebug("[AUTO DIP] Result received")
+            AddDebug("[AUTO DIP] Mutation result received")
             AddDebug("[AUTO DIP] Waiting for mutation message...")
 
             AutoVolcanoWaitingForMessage = true
@@ -2520,8 +2540,9 @@ local function tryAutoPickup()
             end
 
             AutoVolcanoWaitingForMessage = false
-            AddDebug("[AUTO DIP] Mutation completed")
-            AddDebug("[AUTO DIP] Dropping mutated egg...")
+
+            AddDebug("[AUTO DIP] Mutation message received")
+            AddDebug("[AUTO DIP] Preparing drop...")
 
             local volcanoPreviousUUIDs = {}
             local activeEggsBeforeVolcanoDrop = getActiveEggs()
@@ -2533,36 +2554,56 @@ local function tryAutoPickup()
                 end
             end
 
-            local volcanoDropPosition = getCharacterRoot()
-            volcanoDropPosition = volcanoDropPosition and volcanoDropPosition.Position
+            local volcanoRoot = getCharacterRoot()
+            local volcanoDropPosition = volcanoRoot and volcanoRoot.Position
 
             if not volcanoDropPosition then
                 stopAutoPickupFloat()
-                AddDebug("[AUTO DIP ERROR] Volcano drop position unavailable")
+                AddDebug("[AUTO DIP ERROR] Drop position unavailable")
                 AutoPickupBusy = false
                 return
             end
 
-            BasketDropEvent:FireServer()
-            AddDebug("[AUTO DIP] Mutated egg drop sent")
+            AddDebug("[AUTO DIP] ActiveEggs snapshot saved")
+            AddDebug("[AUTO DIP] Dropping mutated egg...")
+
+            local volcanoDropSuccess, volcanoDropErr = pcall(function()
+                BasketDropEvent:FireServer()
+            end)
+
+            if not volcanoDropSuccess then
+                stopAutoPickupFloat()
+                AddDebug("[AUTO DIP ERROR] Drop failed: " .. tostring(volcanoDropErr))
+                AutoPickupBusy = false
+                return
+            end
+
+            AddDebug("[AUTO DIP] Drop sent")
+            AddDebug("[AUTO DIP] Waiting 1 sec for new egg...")
             task.wait(1)
 
             stopAutoPickupFloat()
 
+            AddDebug("[AUTO DIP] Searching for new dropped egg...")
+
             local mutatedEgg = waitForDroppedEgg(eggName, volcanoPreviousUUIDs, volcanoDropPosition, 10)
 
             if not mutatedEgg then
+                AddDebug("[AUTO DIP ERROR] New dropped egg not found")
                 AutoPickupBusy = false
                 return
             end
 
             droppedUUID = tostring(mutatedEgg.UUID)
 
-            AddDebug("[AUTO DIP] New mutated UUID: " .. droppedUUID)
+            AddDebug("[AUTO DIP] New UUID: " .. droppedUUID)
             AddDebug(string.format("[AUTO DIP] New BreakRemaining: %.2f", mutatedEgg.BreakRemaining))
+        else
+            AddDebug("[AUTO] Auto DIP disabled")
         end
 
-        AddDebug("[AUTO] Starting BreakRemaining timer...")
+        AddDebug("[AUTO] Starting BreakRemaining countdown...")
+
         if not waitForBreakRemaining(droppedUUID) then
             AutoPickupBusy = false
             return
@@ -2586,10 +2627,13 @@ local function tryAutoPickup()
             return
         end
 
+        AddDebug("[AUTO] Waiting 1 sec before claim...")
         task.wait(1)
 
         AutoPickupAwaitingDeposit = true
         AutoPickupDepositConfirmed = false
+
+        AddDebug("[AUTO] Claiming UUID: " .. droppedUUID)
 
         if not sendArrivalClaim(droppedUUID) then
             AutoPickupAwaitingDeposit = false
