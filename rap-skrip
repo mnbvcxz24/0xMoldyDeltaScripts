@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v9.1"
+local ver = "TEST v9.2"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2459,6 +2459,7 @@ local function tryAutoPickup()
         local droppedEgg=waitForDroppedEgg(eggName,previousDroppedUUIDs,dropPosition,10)
 
         if not droppedEgg then
+            AddDebug("[AUTO ERROR] First dropped egg not found")
             AutoPickupBusy=false
             return
         end
@@ -2523,8 +2524,9 @@ local function tryAutoPickup()
 
             AutoDipResult=nil
             AutoDipWaitingForResult=true
-            AutoVolcanoMessageReceived=true
-            AutoVolcanoMessageText=message
+            AutoVolcanoMessageReceived=false
+            AutoVolcanoMessageText=nil
+            AutoVolcanoWaitingForMessage=true
 
             local dipSuccess,dipErr=pcall(function()
                 VolcanoDipEvent:FireServer()
@@ -2575,11 +2577,10 @@ local function tryAutoPickup()
                 return
             end
 
-            AutoVolcanoWaitingForMessage=false
-
             AddDebug("[AUTO DIP] Mutation result received")
             AddDebug("[AUTO DIP] Mutation message received")
 
+            AutoVolcanoWaitingForMessage=false
             stopAutoPickupFloat()
 
             local outsideVolcanoPosition=Vector3.new(
@@ -2609,53 +2610,67 @@ local function tryAutoPickup()
                 return
             end
 
-            local volcanoPreviousUUIDs={}
-            local activeEggsBeforeVolcanoDrop=getActiveEggs()
+            local finalPreviousUUIDs={}
+            local activeEggsBeforeFinalDrop=getActiveEggs()
 
-            if activeEggsBeforeVolcanoDrop then
-                for _,existingEgg in ipairs(activeEggsBeforeVolcanoDrop:GetChildren()) do
+            if activeEggsBeforeFinalDrop then
+                for _,existingEgg in ipairs(activeEggsBeforeFinalDrop:GetChildren()) do
                     local existingUUID=getEggUUID(existingEgg)
                     if existingUUID then
-                        volcanoPreviousUUIDs[tostring(existingUUID)]=true
+                        finalPreviousUUIDs[tostring(existingUUID)]=true
                     end
                 end
             end
 
-            local volcanoRoot=getCharacterRoot()
-            local volcanoDropPosition=volcanoRoot and volcanoRoot.Position
+            local finalRoot=getCharacterRoot()
+            local finalDropPosition=finalRoot and finalRoot.Position
 
-            if not volcanoDropPosition then
-                AddDebug("[AUTO DIP ERROR] Drop position unavailable")
+            if not finalDropPosition then
+                AddDebug("[AUTO DIP ERROR] Final drop position unavailable")
                 AutoPickupBusy=false
                 return
             end
 
             AddDebug("[AUTO DIP] ActiveEggs snapshot saved")
+            AddDebug(string.format(
+                "[AUTO DIP] Final drop position: %.1f, %.1f, %.1f",
+                finalDropPosition.X,
+                finalDropPosition.Y,
+                finalDropPosition.Z
+            ))
+
             AddDebug("[AUTO DIP] Dropping mutated egg...")
 
-            local volcanoDropSuccess,volcanoDropErr=pcall(function()
+            local finalDropSuccess,finalDropErr=pcall(function()
                 BasketDropEvent:FireServer()
             end)
 
-            if not volcanoDropSuccess then
-                AddDebug("[AUTO DIP ERROR] Drop failed: "..tostring(volcanoDropErr))
+            if not finalDropSuccess then
+                AddDebug("[AUTO DIP ERROR] Final drop failed: "..tostring(finalDropErr))
                 AutoPickupBusy=false
                 return
             end
 
-            AddDebug("[AUTO DIP] Drop sent")
+            AddDebug("[AUTO DIP] Final drop sent")
             AddDebug("[AUTO DIP] Waiting 1 sec for new egg...")
             task.wait(1)
 
+            if not AutoPickupRunning then
+                AutoPickupBusy=false
+                return
+            end
+
+            AddDebug("[AUTO DIP] Searching for NEW dropped UUID...")
+
             local mutatedEgg=waitForDroppedEgg(
                 eggName,
-                volcanoPreviousUUIDs,
-                volcanoDropPosition,
+                finalPreviousUUIDs,
+                finalDropPosition,
                 10
             )
 
             if not mutatedEgg then
-                AddDebug("[AUTO DIP ERROR] New dropped egg not found")
+                AddDebug("[AUTO DIP ERROR] New final dropped egg not found")
                 AutoPickupBusy=false
                 return
             end
@@ -2671,13 +2686,16 @@ local function tryAutoPickup()
 
         AddDebug("[AUTO] Starting BreakRemaining countdown...")
 
+        local timerPosition=AutoDipEnabled and nil or dropPosition
+
         local timerSuccess,finalUUID=waitForBreakRemaining(
             droppedUUID,
             eggName,
-            AutoDipEnabled and nil or dropPosition
+            timerPosition
         )
 
         if not timerSuccess then
+            AddDebug("[AUTO ERROR] BreakRemaining timer failed")
             AutoPickupBusy=false
             return
         end
@@ -2693,6 +2711,7 @@ local function tryAutoPickup()
         AddDebug("[AUTO] Teleporting to ranch...")
 
         if not teleportToMyPlot() then
+            AddDebug("[AUTO ERROR] Failed to teleport to ranch")
             AutoPickupBusy=false
             return
         end
@@ -2708,10 +2727,15 @@ local function tryAutoPickup()
         AutoPickupAwaitingDeposit=true
         AutoPickupDepositConfirmed=false
 
-        AddDebug("[AUTO] Claiming UUID: "..droppedUUID)
+        AddDebug("[AUTO] Claiming UUID: "..tostring(droppedUUID))
 
-        if not sendArrivalClaim(droppedUUID) then
+        local claimSuccess,claimErr=pcall(function()
+            sendArrivalClaim(droppedUUID)
+        end)
+
+        if not claimSuccess then
             AutoPickupAwaitingDeposit=false
+            AddDebug("[AUTO ERROR] Claim failed: "..tostring(claimErr))
             AutoPickupBusy=false
             return
         end
