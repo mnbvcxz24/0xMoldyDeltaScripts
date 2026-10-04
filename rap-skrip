@@ -2241,107 +2241,94 @@ local function tryAutoPickup()
 
         if isDip then
             local root=getCharacterRoot()
-
+        
             if not root then
                 AddDebug("[AUTO DIP] Character root not found")
                 AutoPickupBusy=false
                 return
             end
-
+        
             AddDebug("[AUTO DIP] TP -> Volcano")
-
+        
             local tpSuccess,tpErr=pcall(function()
                 root.CFrame=CFrame.new(VolcanoDropPosition)
             end)
-
+        
             if not tpSuccess then
                 AddDebug("[AUTO DIP] Volcano TP failed: "..tostring(tpErr))
                 AutoPickupBusy=false
                 return
             end
-
+        
             task.wait(0.5)
-
-            if not AutoPickupRunning then
-                AutoPickupBusy=false
-                return
-            end
-
+        
             AutoVolcanoMessageReceived=false
             AutoVolcanoMessageText=nil
             AutoVolcanoWaitingForMessage=true
-
+        
             AddDebug("[AUTO DIP] Firing VolcanoDip...")
-
+        
             local dipSuccess,dipErr=pcall(function()
                 VolcanoDipEvent:FireServer()
             end)
-
+        
             if not dipSuccess then
                 AutoVolcanoWaitingForMessage=false
                 AddDebug("[AUTO DIP] VolcanoDip ERROR: "..tostring(dipErr))
                 AutoPickupBusy=false
                 return
             end
-
+        
             AddDebug("[AUTO DIP] VolcanoDip fired")
-            AddDebug("[AUTO DIP] Waiting for mutation message...")
-
+            AddDebug("[AUTO DIP] Waiting for mutation result...")
+        
             local mutationStart=os.clock()
-
+        
             while AutoPickupRunning and not AutoVolcanoMessageReceived do
                 if os.clock()-mutationStart>=15 then
                     AutoVolcanoWaitingForMessage=false
-                    AddDebug("[AUTO DIP] Mutation message timeout")
+                    AddDebug("[AUTO DIP] Mutation result timeout")
                     AutoPickupBusy=false
                     return
                 end
-
+        
                 task.wait(0.1)
             end
-
+        
             AutoVolcanoWaitingForMessage=false
-
-            if not AutoPickupRunning then
-                AutoPickupBusy=false
-                return
-            end
-
+        
             if not AutoVolcanoMessageReceived then
-                AddDebug("[AUTO DIP] No mutation result")
+                AddDebug("[AUTO DIP] Mutation result was not captured")
                 AutoPickupBusy=false
                 return
             end
-
-            AddDebug("[AUTO DIP] Mutation result received")
-
-            if AutoVolcanoMessageText then
-                AddDebug("[AUTO DIP] "..tostring(AutoVolcanoMessageText))
-            end
-
+        
+            AddDebug("[AUTO DIP] Mutation result captured")
+            AddDebug("[AUTO DIP] "..tostring(AutoVolcanoMessageText))
+        
             AddDebug("[AUTO DIP] Waiting 3 seconds...")
             task.wait(3)
-
+        
             if not AutoPickupRunning then
                 AutoPickupBusy=false
                 return
             end
-
+        
             stopAutoPickupFloat()
-
+        
             AddDebug("[AUTO DIP] TP -> Static Outside Position")
-
+        
             local outsideSuccess,outsideErr=pcall(function()
                 root.CFrame=CFrame.new(AutoPickupOutsidePosition)
             end)
-
+        
             if not outsideSuccess then
                 AddDebug("[AUTO DIP] Outside TP failed: "..tostring(outsideErr))
                 AutoPickupBusy=false
                 return
             end
-
-            AddDebug("[AUTO DIP] Outside position reached")
+        
+            AddDebug("[AUTO DIP] Outside TP complete")
             AddDebug("[AUTO DIP] Waiting 1 second before drop...")
             task.wait(1)
         else
@@ -2514,17 +2501,18 @@ end
 local GameMessageEvent=game:GetService("ReplicatedStorage").Remotes.Reusable.GameMessage
 
 GameMessageEvent.OnClientEvent:Connect(function(message,_,data)
-    if not AutoVolcanoWaitingForMessage then return end
     if typeof(message)~="string" then return end
 
-    if string.find(message," Egg Mutated Into ",1,true) then
+    if string.find(message,"Egg Mutated Into",1,true) then
         AutoVolcanoMessageReceived=true
         AutoVolcanoMessageText=message
-        AddDebug("[AUTO DIP] Mutation successful")
-    elseif string.find(message," Egg Didn't Mutate",1,true) then
+        AddDebug("[AUTO DIP] Mutation SUCCESS detected")
+        AddDebug("[AUTO DIP] "..message)
+    elseif string.find(message,"Egg Didn't Mutate",1,true) then
         AutoVolcanoMessageReceived=true
         AutoVolcanoMessageText=message
-        AddDebug("[AUTO DIP] Mutation failed")
+        AddDebug("[AUTO DIP] Mutation FAILED detected")
+        AddDebug("[AUTO DIP] "..message)
     end
 end)
 
