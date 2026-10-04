@@ -2045,19 +2045,6 @@ local function teleportOutsidePlot(eggPosition)
     return true
 end
 
-local function teleportOutsidePlot(eggPosition)
-    local root=getCharacterRoot()
-    if not root then return false end
-    local ranchCFrame=getMyRanchCFrame()
-    if not ranchCFrame or not eggPosition then return false end
-    local direction=(ranchCFrame.Position-eggPosition).Unit
-    local outsidePosition=ranchCFrame.Position+direction*20
-    local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
-    if not success then return false end
-    AddDebug("[AUTO] TP -> 20 studs outside plot")
-    return true
-end
-
 local function findNextAutoPickupEgg()
     local ActiveEggs =
         getActiveEggs()
@@ -2219,104 +2206,6 @@ local function waitForDroppedEgg(eggName, previousUUIDs, dropPosition, timeout)
 
     AddDebug("[AUTO ERROR] New dropped egg not found")
     return nil
-end
-
-local function moveToPlotOverTime(startPosition,remainingTime)
-    local root=getCharacterRoot()
-
-    if not root or not startPosition then
-        AddDebug("[AUTO MOVE ERROR] Character root or start position unavailable")
-        return false
-    end
-
-    local plotPosition
-
-    local success,err=pcall(function()
-        local plot=getMyPlot()
-        if plot then
-            if plot:IsA("BasePart") then
-                plotPosition=plot.Position
-            elseif plot:IsA("Model") then
-                plotPosition=plot:GetPivot().Position
-            end
-        end
-    end)
-
-    if not success or not plotPosition then
-        AddDebug("[AUTO MOVE ERROR] Plot position unavailable")
-        return false
-    end
-
-    remainingTime=tonumber(remainingTime)
-
-    if not remainingTime then
-        AddDebug("[AUTO MOVE ERROR] Invalid BreakRemaining")
-        return false
-    end
-
-    remainingTime=math.max(remainingTime,2)
-
-    local distance=(plotPosition-startPosition).Magnitude
-    local stepDistance=50
-    local steps=math.max(1,math.ceil(distance/stepDistance))
-    local stepTime=(remainingTime-2)/steps
-
-    if stepTime<0.1 then
-        stepTime=0.1
-    end
-
-    AddDebug(string.format("[AUTO MOVE] Distance: %.1f",distance))
-    AddDebug(string.format("[AUTO MOVE] BreakRemaining: %.1fs",remainingTime))
-    AddDebug(string.format("[AUTO MOVE] Steps: %d | Step range: %.1f",steps,stepDistance))
-
-    for i=1,steps do
-        if not AutoPickupRunning then
-            return false
-        end
-
-        root=getCharacterRoot()
-
-        if not root then
-            return false
-        end
-
-        local currentPosition=root.Position
-        local remainingDistance=(plotPosition-currentPosition).Magnitude
-
-        if remainingDistance<=stepDistance then
-            break
-        end
-
-        local direction=(plotPosition-currentPosition).Unit
-        local nextPosition=currentPosition+direction*math.min(stepDistance,remainingDistance)
-
-        root.CFrame=CFrame.new(nextPosition)
-
-        local secondsLeft=math.max(2,remainingTime-(i*stepTime))
-
-        AddDebug(string.format("[AUTO MOVE] Step %d/%d | %.1fs remaining",i,steps,secondsLeft))
-
-        task.wait(stepTime)
-    end
-
-    if not AutoPickupRunning then
-        return false
-    end
-
-    root=getCharacterRoot()
-
-    if root then
-        local remainingDistance=(plotPosition-root.Position).Magnitude
-
-        if remainingDistance>5 then
-            root.CFrame=CFrame.new(plotPosition)
-        end
-    end
-
-    AddDebug("[AUTO MOVE] Reached plot")
-    AddDebug("[AUTO MOVE] BreakRemaining target reached")
-
-    return true
 end
 
 local function sendArrivalClaim(uuid)
