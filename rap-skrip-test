@@ -146,7 +146,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -125, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v5.5"
+Subtitle.Text = "RAP SKRIP - 0xMoldy TEST v5.6"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -267,31 +267,268 @@ ContentDivider.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
 ContentDivider.BorderSizePixel = 0
 ContentDivider.Parent = Content
 
-local Content2Title = Instance.new("TextLabel")
-Content2Title.Name = "Content2Title"
-Content2Title.Size = UDim2.new(1, -10, 0, 24)
-Content2Title.Position = UDim2.fromOffset(5, 5)
-Content2Title.BackgroundTransparency = 1
-Content2Title.Text = "Content 2"
-Content2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
-Content2Title.TextSize = textSize(13)
-Content2Title.Font = Enum.Font.GothamBold
-Content2Title.TextXAlignment = Enum.TextXAlignment.Left
-Content2Title.Parent = Content2
+local AutoContent2 = Instance.new("Frame")
+AutoContent2.Name = "AutoContent2"
+AutoContent2.Size = UDim2.fromScale(1, 1)
+AutoContent2.BackgroundTransparency = 1
+AutoContent2.ClipsDescendants = false
+AutoContent2.Visible = true
+AutoContent2.Parent = Content2
 
-local Content2Info = Instance.new("TextLabel")
-Content2Info.Name = "Content2Info"
-Content2Info.Size = UDim2.new(1, -10, 0, 40)
-Content2Info.Position = UDim2.fromOffset(5, 32)
-Content2Info.BackgroundTransparency = 1
-Content2Info.Text = "Additional content can be added here."
-Content2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
-Content2Info.TextSize = textSize(11)
-Content2Info.Font = Enum.Font.Gotham
-Content2Info.TextWrapped = true
-Content2Info.TextXAlignment = Enum.TextXAlignment.Left
-Content2Info.TextYAlignment = Enum.TextYAlignment.Top
-Content2Info.Parent = Content2
+local AutoContent2Title = Instance.new("TextLabel")
+AutoContent2Title.Name = "AutoContent2Title"
+AutoContent2Title.Size = UDim2.new(1, -10, 0, 24)
+AutoContent2Title.Position = UDim2.fromOffset(5, 5)
+AutoContent2Title.BackgroundTransparency = 1
+AutoContent2Title.Text = "Auto Content 2"
+AutoContent2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
+AutoContent2Title.TextSize = textSize(13)
+AutoContent2Title.Font = Enum.Font.GothamBold
+AutoContent2Title.TextXAlignment = Enum.TextXAlignment.Left
+AutoContent2Title.Parent = AutoContent2
+
+local AutoContent2Info = Instance.new("TextLabel")
+AutoContent2Info.Name = "AutoContent2Info"
+AutoContent2Info.Size = UDim2.new(1, -10, 0, 40)
+AutoContent2Info.Position = UDim2.fromOffset(5, 32)
+AutoContent2Info.BackgroundTransparency = 1
+AutoContent2Info.Text = "Additional Auto content can be added here."
+AutoContent2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
+AutoContent2Info.TextSize = textSize(11)
+AutoContent2Info.Font = Enum.Font.Gotham
+AutoContent2Info.TextWrapped = true
+AutoContent2Info.TextXAlignment = Enum.TextXAlignment.Left
+AutoContent2Info.TextYAlignment = Enum.TextYAlignment.Top
+AutoContent2Info.Parent = AutoContent2
+
+local ESPContent2 = Instance.new("Frame")
+ESPContent2.Name = "ESPContent2"
+ESPContent2.Size = UDim2.fromScale(1, 1)
+ESPContent2.BackgroundTransparency = 1
+ESPContent2.ClipsDescendants = false
+ESPContent2.Visible = false
+ESPContent2.Parent = Content2
+
+local ESPContent2Title = Instance.new("TextLabel")
+ESPContent2Title.Name = "ESPContent2Title"
+ESPContent2Title.Size = UDim2.new(1, -10, 0, 24)
+ESPContent2Title.Position = UDim2.fromOffset(5, 5)
+ESPContent2Title.BackgroundTransparency = 1
+ESPContent2Title.Text = "ESP Content 2"
+ESPContent2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
+ESPContent2Title.TextSize = textSize(13)
+ESPContent2Title.Font = Enum.Font.GothamBold
+ESPContent2Title.TextXAlignment = Enum.TextXAlignment.Left
+ESPContent2Title.Parent = ESPContent2
+
+local ESPContent2Info = Instance.new("TextLabel")
+ESPContent2Info.Name = "ESPContent2Info"
+ESPContent2Info.Size = UDim2.new(1, -10, 0, 40)
+ESPContent2Info.Position = UDim2.fromOffset(5, 32)
+ESPContent2Info.BackgroundTransparency = 1
+ESPContent2Info.Text = "Additional ESP content can be added here."
+ESPContent2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
+ESPContent2Info.TextSize = textSize(11)
+ESPContent2Info.Font = Enum.Font.Gotham
+ESPContent2Info.TextWrapped = true
+ESPContent2Info.TextXAlignment = Enum.TextXAlignment.Left
+ESPContent2Info.TextYAlignment = Enum.TextYAlignment.Top
+ESPContent2Info.Parent = ESPContent2
+
+local DebugContent2 = Instance.new("Frame")
+DebugContent2.Name = "DebugContent2"
+DebugContent2.Size = UDim2.fromScale(1, 1)
+DebugContent2.BackgroundTransparency = 1
+DebugContent2.ClipsDescendants = false
+DebugContent2.Visible = false
+DebugContent2.Parent = Content2
+
+local DebugContent2Title = Instance.new("TextLabel")
+DebugContent2Title.Name = "DebugContent2Title"
+DebugContent2Title.Size = UDim2.new(1, -10, 0, 24)
+DebugContent2Title.Position = UDim2.fromOffset(5, 5)
+DebugContent2Title.BackgroundTransparency = 1
+DebugContent2Title.Text = "Debug Content 2"
+DebugContent2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
+DebugContent2Title.TextSize = textSize(13)
+DebugContent2Title.Font = Enum.Font.GothamBold
+DebugContent2Title.TextXAlignment = Enum.TextXAlignment.Left
+DebugContent2Title.Parent = DebugContent2
+
+local DebugContent2Info = Instance.new("TextLabel")
+DebugContent2Info.Name = "DebugContent2Info"
+DebugContent2Info.Size = UDim2.new(1, -10, 0, 40)
+DebugContent2Info.Position = UDim2.fromOffset(5, 32)
+DebugContent2Info.BackgroundTransparency = 1
+DebugContent2Info.Text = "Additional Debug content can be added here."
+DebugContent2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
+DebugContent2Info.TextSize = textSize(11)
+DebugContent2Info.Font = Enum.Font.Gotham
+DebugContent2Info.TextWrapped = true
+DebugContent2Info.TextXAlignment = Enum.TextXAlignment.Left
+DebugContent2Info.TextYAlignment = Enum.TextYAlignment.Top
+DebugContent2Info.Parent = DebugContent2
+
+local SettingsContent2 = Instance.new("Frame")
+SettingsContent2.Name = "SettingsContent2"
+SettingsContent2.Size = UDim2.fromScale(1, 1)
+SettingsContent2.BackgroundTransparency = 1
+SettingsContent2.ClipsDescendants = false
+SettingsContent2.Visible = false
+SettingsContent2.Parent = Content2
+
+local SettingsContent2Title = Instance.new("TextLabel")
+SettingsContent2Title.Name = "SettingsContent2Title"
+SettingsContent2Title.Size = UDim2.new(1, -10, 0, 24)
+SettingsContent2Title.Position = UDim2.fromOffset(5, 5)
+SettingsContent2Title.BackgroundTransparency = 1
+SettingsContent2Title.Text = "Settings Content 2"
+SettingsContent2Title.TextColor3 = Color3.fromRGB(200, 200, 205)
+SettingsContent2Title.TextSize = textSize(13)
+SettingsContent2Title.Font = Enum.Font.GothamBold
+SettingsContent2Title.TextXAlignment = Enum.TextXAlignment.Left
+SettingsContent2Title.Parent = SettingsContent2
+
+local SettingsContent2Info = Instance.new("TextLabel")
+SettingsContent2Info.Name = "SettingsContent2Info"
+SettingsContent2Info.Size = UDim2.new(1, -10, 0, 40)
+SettingsContent2Info.Position = UDim2.fromOffset(5, 32)
+SettingsContent2Info.BackgroundTransparency = 1
+SettingsContent2Info.Text = "Additional Settings content can be added here."
+SettingsContent2Info.TextColor3 = Color3.fromRGB(140, 140, 150)
+SettingsContent2Info.TextSize = textSize(11)
+SettingsContent2Info.Font = Enum.Font.Gotham
+SettingsContent2Info.TextWrapped = true
+SettingsContent2Info.TextXAlignment = Enum.TextXAlignment.Left
+SettingsContent2Info.TextYAlignment = Enum.TextYAlignment.Top
+SettingsContent2Info.Parent = SettingsContent2
+
+local AutoPlaceTitle = Instance.new("TextLabel")
+AutoPlaceTitle.Name = "AutoPlaceTitle"
+AutoPlaceTitle.Size = UDim2.new(1, -10, 0, 24)
+AutoPlaceTitle.Position = UDim2.fromOffset(5, 5)
+AutoPlaceTitle.BackgroundTransparency = 1
+AutoPlaceTitle.Text = "Auto Place Eggs"
+AutoPlaceTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoPlaceTitle.TextSize = textSize(13)
+AutoPlaceTitle.Font = Enum.Font.GothamBold
+AutoPlaceTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceTitle.Parent = AutoContent2
+
+local AutoPlaceStatus = Instance.new("TextLabel")
+AutoPlaceStatus.Name = "AutoPlaceStatus"
+AutoPlaceStatus.Size = UDim2.new(1, -75, 0, 20)
+AutoPlaceStatus.Position = UDim2.fromOffset(5, 33)
+AutoPlaceStatus.BackgroundTransparency = 1
+AutoPlaceStatus.Text = "● Inactive"
+AutoPlaceStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
+AutoPlaceStatus.TextSize = textSize(9)
+AutoPlaceStatus.Font = Enum.Font.Gotham
+AutoPlaceStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceStatus.Parent = AutoContent2
+
+local AutoPlaceToggle = Instance.new("TextButton")
+AutoPlaceToggle.Name = "AutoPlaceToggle"
+AutoPlaceToggle.Size = UDim2.fromOffset(62, 27)
+AutoPlaceToggle.Position = UDim2.new(1, -67, 0, 5)
+AutoPlaceToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoPlaceToggle.Text = "OFF"
+AutoPlaceToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoPlaceToggle.TextSize = textSize(10)
+AutoPlaceToggle.Font = Enum.Font.GothamBold
+AutoPlaceToggle.AutoButtonColor = false
+AutoPlaceToggle.Active = true
+AutoPlaceToggle.Selectable = true
+AutoPlaceToggle.Parent = AutoContent2
+
+local AutoPlaceToggleCorner = Instance.new("UICorner")
+AutoPlaceToggleCorner.CornerRadius = UDim.new(0, 6)
+AutoPlaceToggleCorner.Parent = AutoPlaceToggle
+
+local AutoPlaceFilterLabel = Instance.new("TextLabel")
+AutoPlaceFilterLabel.Name = "AutoPlaceFilterLabel"
+AutoPlaceFilterLabel.Size = UDim2.new(1, -10, 0, 19)
+AutoPlaceFilterLabel.Position = UDim2.fromOffset(5, 61)
+AutoPlaceFilterLabel.BackgroundTransparency = 1
+AutoPlaceFilterLabel.Text = "Egg Filter"
+AutoPlaceFilterLabel.TextColor3 = Color3.fromRGB(210, 210, 218)
+AutoPlaceFilterLabel.TextSize = textSize(10)
+AutoPlaceFilterLabel.Font = Enum.Font.GothamMedium
+AutoPlaceFilterLabel.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceFilterLabel.Parent = AutoContent2
+
+local AutoPlaceFilterButton = Instance.new("TextButton")
+AutoPlaceFilterButton.Name = "AutoPlaceFilterButton"
+AutoPlaceFilterButton.Size = UDim2.new(1, -10, 0, 27)
+AutoPlaceFilterButton.Position = UDim2.fromOffset(5, 82)
+AutoPlaceFilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+AutoPlaceFilterButton.Text = "-- ▼"
+AutoPlaceFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoPlaceFilterButton.TextSize = textSize(10)
+AutoPlaceFilterButton.Font = Enum.Font.Gotham
+AutoPlaceFilterButton.AutoButtonColor = false
+AutoPlaceFilterButton.Active = true
+AutoPlaceFilterButton.Selectable = true
+AutoPlaceFilterButton.Parent = AutoContent2
+
+local AutoPlaceFilterCorner = Instance.new("UICorner")
+AutoPlaceFilterCorner.CornerRadius = UDim.new(0, 6)
+AutoPlaceFilterCorner.Parent = AutoPlaceFilterButton
+
+local AutoPlaceSelected = Instance.new("TextLabel")
+AutoPlaceSelected.Name = "AutoPlaceSelected"
+AutoPlaceSelected.Size = UDim2.new(1, -10, 0, 20)
+AutoPlaceSelected.Position = UDim2.fromOffset(5, 112)
+AutoPlaceSelected.BackgroundTransparency = 1
+AutoPlaceSelected.Text = "Selected: None"
+AutoPlaceSelected.TextColor3 = Color3.fromRGB(145, 145, 155)
+AutoPlaceSelected.TextSize = textSize(9)
+AutoPlaceSelected.Font = Enum.Font.Gotham
+AutoPlaceSelected.TextXAlignment = Enum.TextXAlignment.Left
+AutoPlaceSelected.TextTruncate = Enum.TextTruncate.AtEnd
+AutoPlaceSelected.Parent = AutoContent2
+
+local AutoHatchTitle = Instance.new("TextLabel")
+AutoHatchTitle.Name = "AutoHatchTitle"
+AutoHatchTitle.Size = UDim2.new(1, -10, 0, 24)
+AutoHatchTitle.Position = UDim2.fromOffset(5, 145)
+AutoHatchTitle.BackgroundTransparency = 1
+AutoHatchTitle.Text = "Auto Hatch"
+AutoHatchTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoHatchTitle.TextSize = textSize(13)
+AutoHatchTitle.Font = Enum.Font.GothamBold
+AutoHatchTitle.TextXAlignment = Enum.TextXAlignment.Left
+AutoHatchTitle.Parent = AutoContent2
+
+local AutoHatchStatus = Instance.new("TextLabel")
+AutoHatchStatus.Name = "AutoHatchStatus"
+AutoHatchStatus.Size = UDim2.new(1, -75, 0, 20)
+AutoHatchStatus.Position = UDim2.fromOffset(5, 173)
+AutoHatchStatus.BackgroundTransparency = 1
+AutoHatchStatus.Text = "● Inactive"
+AutoHatchStatus.TextColor3 = Color3.fromRGB(150, 150, 158)
+AutoHatchStatus.TextSize = textSize(9)
+AutoHatchStatus.Font = Enum.Font.Gotham
+AutoHatchStatus.TextXAlignment = Enum.TextXAlignment.Left
+AutoHatchStatus.Parent = AutoContent2
+
+local AutoHatchToggle = Instance.new("TextButton")
+AutoHatchToggle.Name = "AutoHatchToggle"
+AutoHatchToggle.Size = UDim2.fromOffset(62, 27)
+AutoHatchToggle.Position = UDim2.new(1, -67, 0, 145)
+AutoHatchToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoHatchToggle.Text = "OFF"
+AutoHatchToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoHatchToggle.TextSize = textSize(10)
+AutoHatchToggle.Font = Enum.Font.GothamBold
+AutoHatchToggle.AutoButtonColor = false
+AutoHatchToggle.Active = true
+AutoHatchToggle.Selectable = true
+AutoHatchToggle.Parent = AutoContent2
+
+local AutoHatchToggleCorner = Instance.new("UICorner")
+AutoHatchToggleCorner.CornerRadius = UDim.new(0, 6)
+AutoHatchToggleCorner.Parent = AutoHatchToggle
 
 local function createPage()
     local page = Instance.new("Frame")
@@ -4085,7 +4322,22 @@ local function showPage(page)
     DebugPage.Visible = false
     SettingsPage.Visible = false
 
+    AutoContent2.Visible = false
+    ESPContent2.Visible = false
+    DebugContent2.Visible = false
+    SettingsContent2.Visible = false
+
     page.Visible = true
+
+    if page == AutoPage then
+        AutoContent2.Visible = true
+    elseif page == ESPPage then
+        ESPContent2.Visible = true
+    elseif page == DebugPage then
+        DebugContent2.Visible = true
+    elseif page == SettingsPage then
+        SettingsContent2.Visible = true
+    end
 
     FilterFrame.Visible = false
     AutoFilterFrame.Visible = false
