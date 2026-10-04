@@ -2035,13 +2035,26 @@ end
 local function teleportOutsidePlot(eggPosition)
     local root=getCharacterRoot()
     if not root then return false end
-    local ranchCFrame=getMyRanchCFrame()
-    if not ranchCFrame or not eggPosition then return false end
-    local direction=(eggPosition-ranchCFrame.Position).Unit
-    local outsidePosition=ranchCFrame.Position-direction*20
-    local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
+    local plot=findMyPlot()
+    if not plot or not eggPosition then return false end
+    local baseplate=plot:FindFirstChild("Baseplate")
+    if not baseplate or not baseplate:IsA("BasePart") then return false end
+
+    local center=baseplate.Position+Vector3.new(0,baseplate.Size.Y/2+3,0)
+    local direction=Vector3.new(eggPosition.X-center.X,0,eggPosition.Z-center.Z)
+
+    if direction.Magnitude==0 then return false end
+    direction=direction.Unit
+
+    local edge=(math.abs(direction:Dot(baseplate.CFrame.RightVector))*baseplate.Size.X/2)+(math.abs(direction:Dot(baseplate.CFrame.LookVector))*baseplate.Size.Z/2)
+    local outsidePosition=center-direction*(edge+50)
+
+    local success=pcall(function()
+        root.CFrame=CFrame.new(outsidePosition)
+    end)
+
     if not success then return false end
-    AddDebug("[AUTO] TP -> 20 studs outside plot")
+    AddDebug("[AUTO] TP -> 50 studs outside plot")
     return true
 end
 
