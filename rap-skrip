@@ -2037,8 +2037,8 @@ local function teleportOutsidePlot(eggPosition)
     if not root then return false end
     local ranchCFrame=getMyRanchCFrame()
     if not ranchCFrame or not eggPosition then return false end
-    local direction=(ranchCFrame.Position-eggPosition).Unit
-    local outsidePosition=ranchCFrame.Position+direction*20
+    local direction=(eggPosition-ranchCFrame.Position).Unit
+    local outsidePosition=ranchCFrame.Position-direction*20
     local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
     if not success then return false end
     AddDebug("[AUTO] TP -> 20 studs outside plot")
