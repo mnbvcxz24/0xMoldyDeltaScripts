@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.8"
+local ver = "TEST v10.9"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -1125,19 +1125,7 @@ AutoToggleConnection =
             AutoPickupDepositConfirmed = false
             AutoDipWaitingForResult = false
             AutoVolcanoWaitingForMessage = false
-
-            local root =
-                getCharacterRoot()
-
-            if root then
-                pcall(function()
-                    root.Anchored = false
-                    root.AssemblyLinearVelocity =
-                        Vector3.zero
-                    root.AssemblyAngularVelocity =
-                        Vector3.zero
-                end)
-            end
+            AutoPickupFloating = false
 
             AddDebug(
                 "[AUTO] Movement reset"
@@ -2351,7 +2339,7 @@ local function tryAutoPickup()
                 return
             end
 
-            task.wait(.25)
+            task.wait(1)
         end
 
         if not AutoPickupRunning then
@@ -2372,8 +2360,10 @@ local function tryAutoPickup()
             AutoPickupBusy=false
             return
         end
+
         AddDebug("[AUTO] Drop sent")
-        task.wait(0.50)
+
+        task.wait(0.25)
 
         if not AutoPickupRunning then
             AutoPickupBusy=false
