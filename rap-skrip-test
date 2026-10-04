@@ -272,14 +272,26 @@ AutoContent2.ClipsDescendants = false
 AutoContent2.Visible = true
 AutoContent2.Parent = Content2
 
+local AutoTitle2 = Instance.new("TextLabel")
+AutoTitle2.Name = "AutoTitle2"
+AutoTitle2.Size = UDim2.new(1, -10, 0, 24)
+AutoTitle2.Position = UDim2.fromOffset(5, 5)
+AutoTitle2.BackgroundTransparency = 1
+AutoTitle2.Text = "Eggs Automation"
+AutoTitle2.TextColor3 = Color3.fromRGB(240, 240, 245)
+AutoTitle2.TextSize = textSize(15)
+AutoTitle2.Font = Enum.Font.GothamBold
+AutoTitle2.TextXAlignment = Enum.TextXAlignment.Left
+AutoTitle2.Parent = AutoContent2
+
 local AutoPlaceTitle = Instance.new("TextLabel")
 AutoPlaceTitle.Name = "AutoPlaceTitle"
 AutoPlaceTitle.Size = UDim2.new(1, -10, 0, 24)
 AutoPlaceTitle.Position = UDim2.fromOffset(5, 5)
 AutoPlaceTitle.BackgroundTransparency = 1
-AutoPlaceTitle.Text = "Egg Automation"
+AutoPlaceTitle.Text = "Auto Place Eggs"
 AutoPlaceTitle.TextColor3 = Color3.fromRGB(240, 240, 245)
-AutoPlaceTitle.TextSize = textSize(15)
+AutoPlaceTitle.TextSize = textSize(10)
 AutoPlaceTitle.Font = Enum.Font.GothamBold
 AutoPlaceTitle.TextXAlignment = Enum.TextXAlignment.Left
 AutoPlaceTitle.Parent = AutoContent2
@@ -295,6 +307,18 @@ AutoPlaceStatus.TextSize = textSize(9)
 AutoPlaceStatus.Font = Enum.Font.Gotham
 AutoPlaceStatus.TextXAlignment = Enum.TextXAlignment.Left
 AutoPlaceStatus.Parent = AutoContent2
+
+local AutoPlaceToggle = Instance.new("TextButton")
+AutoPlaceToggle.Name = "AutoPlaceToggle"
+AutoPlaceToggle.Size = UDim2.fromOffset(62, 27)
+AutoPlaceToggle.Position = UDim2.new(1, -67, 0, 5)
+AutoPlaceToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 53)
+AutoPlaceToggle.Text = "OFF"
+AutoPlaceToggle.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoPlaceToggle.TextSize = textSize(10)
+AutoPlaceToggle.Font = Enum.Font.GothamBold
+AutoPlaceToggle.AutoButtonColor = false
+AutoPlaceToggle.Parent = AutoContent2
 
 local ESPContent2 = Instance.new("Frame")
 ESPContent2.Name = "ESPContent2"
