@@ -2338,14 +2338,6 @@ local function tryAutoPickup()
         return
     end
 
-    if not BasketDropEvent then
-        AddDebug(
-            "[AUTO ERROR] BasketDrop remote not found"
-        )
-
-        return
-    end
-
     AutoPickupBusy = true
 
     local success, err =
