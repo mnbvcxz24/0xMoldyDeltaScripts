@@ -256,6 +256,14 @@ Content1.BackgroundTransparency = 1
 Content1.ClipsDescendants = false
 Content1.Parent = Content
 
+local Content2 = Instance.new("Frame")
+Content2.Name = "Content2"
+Content2.Size = UDim2.new(0.5, -5, 1, 0)
+Content2.Position = UDim2.new(0.5, 5, 0, 0)
+Content2.BackgroundTransparency = 1
+Content2.ClipsDescendants = false
+Content2.Parent = Content
+
 local AutoContent2 = Instance.new("Frame")
 AutoContent2.Name = "AutoContent2"
 AutoContent2.Size = UDim2.fromScale(1, 1)
@@ -300,14 +308,6 @@ SettingsContent2.BackgroundTransparency = 1
 SettingsContent2.ClipsDescendants = false
 SettingsContent2.Visible = false
 SettingsContent2.Parent = Content2
-
-local Content2 = Instance.new("Frame")
-Content2.Name = "Content2"
-Content2.Size = UDim2.new(0.5, -5, 1, 0)
-Content2.Position = UDim2.new(0.5, 5, 0, 0)
-Content2.BackgroundTransparency = 1
-Content2.ClipsDescendants = false
-Content2.Parent = Content
 
 local ContentDivider = Instance.new("Frame")
 ContentDivider.Name = "ContentDivider"
