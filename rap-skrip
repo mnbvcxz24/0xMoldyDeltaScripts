@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.4"
+local ver = "TEST v10.5"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2281,6 +2281,7 @@ local function tryAutoPickup()
                     AutoPickupBusy=false
                     return
                 end
+
                 task.wait(0.1)
             end
 
@@ -2291,8 +2292,6 @@ local function tryAutoPickup()
                 AutoPickupBusy=false
                 return
             end
-
-            AddDebug("[AUTO DIP] "..tostring(AutoVolcanoMessageText))
 
             task.wait(3)
 
@@ -2347,6 +2346,7 @@ local function tryAutoPickup()
         if activeEggsBeforeDrop then
             for _,existingEgg in ipairs(activeEggsBeforeDrop:GetChildren()) do
                 local existingUUID=getEggUUID(existingEgg)
+
                 if existingUUID then
                     previousDroppedUUIDs[tostring(existingUUID)]=true
                 end
@@ -2362,19 +2362,30 @@ local function tryAutoPickup()
             return
         end
 
-        local dropSuccess,dropErr=pcall(function()
-            BasketDropEvent:FireServer()
-        end)
+        local droppedEgg=nil
 
-        if not dropSuccess then
-            AddDebug("[AUTO ERROR] Drop failed: "..tostring(dropErr))
-            AutoPickupBusy=false
-            return
+        for dropAttempt=1,2 do
+            local dropSuccess,dropErr=pcall(function()
+                BasketDropEvent:FireServer()
+            end)
+
+            if not dropSuccess then
+                AddDebug("[AUTO ERROR] Drop "..dropAttempt.." failed: "..tostring(dropErr))
+            else
+                droppedEgg=waitForDroppedEgg(eggName,previousDroppedUUIDs,dropPosition,2)
+
+                if droppedEgg then
+                    break
+                end
+            end
+
+            if dropAttempt<2 then
+                task.wait(0.15)
+            end
         end
 
-        local droppedEgg=waitForDroppedEgg(eggName,previousDroppedUUIDs,dropPosition,10)
-
         if not droppedEgg then
+            AddDebug("[AUTO ERROR] Drop failed after 2 attempts")
             AutoPickupBusy=false
             return
         end
@@ -2385,20 +2396,30 @@ local function tryAutoPickup()
         AutoPickupAwaitingPickup=true
         AutoPickupPickupConfirmed=false
 
-        local repickupSuccess,repickupErr=pcall(function()
-            EggPickupEvent:FireServer(droppedUUID)
-        end)
+        local repickupConfirmed=false
 
-        if not repickupSuccess then
-            AutoPickupAwaitingPickup=false
-            AddDebug("[AUTO ERROR] Re-pickup failed: "..tostring(repickupErr))
-            AutoPickupBusy=false
-            return
+        for pickupAttempt=1,2 do
+            local repickupSuccess,repickupErr=pcall(function()
+                EggPickupEvent:FireServer(droppedUUID)
+            end)
+
+            if not repickupSuccess then
+                AddDebug("[AUTO ERROR] Re-pickup "..pickupAttempt.." failed: "..tostring(repickupErr))
+            else
+                if waitForPickupConfirmation(droppedUUID) then
+                    repickupConfirmed=true
+                    break
+                end
+            end
+
+            if pickupAttempt<2 then
+                task.wait(0.15)
+            end
         end
 
-        if not waitForPickupConfirmation(droppedUUID) then
+        if not repickupConfirmed then
             AutoPickupAwaitingPickup=false
-            AddDebug("[AUTO ERROR] Re-pickup confirmation timeout")
+            AddDebug("[AUTO ERROR] Re-pickup failed after 2 attempts")
             AutoPickupBusy=false
             return
         end
@@ -2450,7 +2471,6 @@ local function tryAutoPickup()
     AutoVolcanoWaitingForMessage=false
     AutoPickupBusy=false
 end
-
 local GameMessageEvent=game:GetService("ReplicatedStorage").Remotes.Reusable.GameMessage
 
 GameMessageEvent.OnClientEvent:Connect(function(message,_,data)
