@@ -1,4 +1,4 @@
-local ver = "TEST v6.4"
+local ver = "TEST v6.5"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
