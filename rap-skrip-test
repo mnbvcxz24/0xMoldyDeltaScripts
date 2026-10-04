@@ -250,6 +250,38 @@ Content1.BackgroundTransparency = 1
 Content1.ClipsDescendants = false
 Content1.Parent = Content
 
+local AutoContent2 = Instance.new("Frame")
+AutoContent2.Name = "AutoContent2"
+AutoContent2.Size = UDim2.fromScale(1, 1)
+AutoContent2.BackgroundTransparency = 1
+AutoContent2.ClipsDescendants = false
+AutoContent2.Visible = true
+AutoContent2.Parent = Content2
+
+local ESPContent2 = Instance.new("Frame")
+ESPContent2.Name = "ESPContent2"
+ESPContent2.Size = UDim2.fromScale(1, 1)
+ESPContent2.BackgroundTransparency = 1
+ESPContent2.ClipsDescendants = false
+ESPContent2.Visible = false
+ESPContent2.Parent = Content2
+
+local DebugContent2 = Instance.new("Frame")
+DebugContent2.Name = "DebugContent2"
+DebugContent2.Size = UDim2.fromScale(1, 1)
+DebugContent2.BackgroundTransparency = 1
+DebugContent2.ClipsDescendants = false
+DebugContent2.Visible = false
+DebugContent2.Parent = Content2
+
+local SettingsContent2 = Instance.new("Frame")
+SettingsContent2.Name = "SettingsContent2"
+SettingsContent2.Size = UDim2.fromScale(1, 1)
+SettingsContent2.BackgroundTransparency = 1
+SettingsContent2.ClipsDescendants = false
+SettingsContent2.Visible = false
+SettingsContent2.Parent = Content2
+
 local Content2 = Instance.new("Frame")
 Content2.Name = "Content2"
 Content2.Size = UDim2.new(0.5, -5, 1, 0)
