@@ -2240,7 +2240,7 @@ local function waitForBreakRemaining(initialBreakRemaining)
 
     AddDebug("[AUTO TIMER] Starting at "..tostring(remaining).." seconds")
 
-    while AutoPickupRunning and remaining>2 do
+    while AutoPickupRunning and remaining>1 do
         AddDebug(string.format("[AUTO TIMER] BreakRemaining: %d",remaining))
         task.wait(1)
         remaining=remaining-1
