@@ -1,4 +1,4 @@
-local ver = "TEST v6.6"
+local ver = "TEST v6.7"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
@@ -2173,6 +2173,70 @@ local function waitForDepositConfirmation()
     return false
 end
 
+local function getNearestEggData()
+    local character = player.Character
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+
+    if not root then
+        AddDebug("[AUTO ERROR] Character not ready")
+        return nil
+    end
+
+    local ActiveEggs = getActiveEggs()
+
+    if not ActiveEggs then
+        AddDebug("[AUTO ERROR] ActiveEggs not found")
+        return nil
+    end
+
+    local nearestEgg = nil
+    local nearestDistance = math.huge
+    local nearestPosition = nil
+
+    for _, egg in ipairs(ActiveEggs:GetChildren()) do
+        local position
+
+        local attrPosition = egg:GetAttribute("Position")
+
+        if typeof(attrPosition) == "Vector3" then
+            position = attrPosition
+        elseif egg:IsA("BasePart") then
+            position = egg.Position
+        end
+
+        if position then
+            local distance =
+                (root.Position - position).Magnitude
+
+            if distance < nearestDistance then
+                nearestDistance = distance
+                nearestEgg = egg
+                nearestPosition = position
+            end
+        end
+    end
+
+    if not nearestEgg then
+        AddDebug("[AUTO ERROR] No active egg found")
+        return nil
+    end
+
+    local breakRemaining =
+        tonumber(nearestEgg:GetAttribute("BreakRemaining"))
+
+    local eggName =
+        nearestEgg:GetAttribute("Egg")
+
+    return {
+        Instance = nearestEgg,
+        UUID = tostring(nearestEgg.Name),
+        Egg = eggName,
+        BreakRemaining = breakRemaining,
+        Distance = nearestDistance,
+        Position = nearestPosition
+    }
+end
+
 local function getDroppedEggData(uuid)
     local ActiveEggs = getActiveEggs()
 
@@ -2527,8 +2591,42 @@ local function tryAutoPickup()
             
             task.wait(0.2)
             
-            local droppedEgg =
-                waitForDroppedEgg(uuid, 10)
+            local droppedEgg = nil
+            
+            local dropScanStart = os.clock()
+            
+            while AutoPickupRunning
+                and os.clock() - dropScanStart < 10 do
+            
+                droppedEgg = getNearestEggData()
+            
+                if droppedEgg
+                    and droppedEgg.BreakRemaining ~= nil then
+            
+                    AddDebug(
+                        string.format(
+                            "[AUTO] Dropped %s | BreakRemaining: %.2f | Distance: %.1f",
+                            tostring(droppedEgg.Egg),
+                            droppedEgg.BreakRemaining,
+                            droppedEgg.Distance
+                        )
+                    )
+            
+                    break
+                end
+            
+                droppedEgg = nil
+                task.wait(0.1)
+            end
+            
+            if not droppedEgg then
+                AddDebug(
+                    "[AUTO ERROR] Dropped egg / BreakRemaining not found"
+                )
+            
+                AutoPickupBusy = false
+                return
+            end
 
             if not droppedEgg then
                 AutoPickupBusy = false
