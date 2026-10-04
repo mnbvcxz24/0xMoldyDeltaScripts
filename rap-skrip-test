@@ -73,8 +73,6 @@ end
 
 local AntiAFKEnabled = false
 
-local VirtualUser = game:GetService("VirtualUser")
-
 player.Idled:Connect(function()
     if not AntiAFKEnabled then
         return
