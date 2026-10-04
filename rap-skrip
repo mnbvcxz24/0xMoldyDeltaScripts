@@ -2265,7 +2265,7 @@ local function tryAutoPickup()
 
             AddDebug("[AUTO DIP] TP -> Volcano")
 
-            task.wait(0.25)
+            task.wait(0.50)
 
             AutoVolcanoMessageReceived=false
             AutoVolcanoMessageText=nil
