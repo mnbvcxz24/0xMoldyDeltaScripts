@@ -2173,20 +2173,28 @@ local function waitForDepositConfirmation()
     return false
 end
 
-local function getNearestEggData()
-    local character = player.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-
-    if not root then
-        AddDebug("[AUTO ERROR] Character not ready")
-        return nil
-    end
-
+local function getNearestEggData(referencePosition)
     local ActiveEggs = getActiveEggs()
 
     if not ActiveEggs then
         AddDebug("[AUTO ERROR] ActiveEggs not found")
         return nil
+    end
+
+    local positionToUse = referencePosition
+
+    if not positionToUse then
+        local character = player.Character
+        local root =
+            character
+            and character:FindFirstChild("HumanoidRootPart")
+
+        if not root then
+            AddDebug("[AUTO ERROR] Character not ready")
+            return nil
+        end
+
+        positionToUse = root.Position
     end
 
     local nearestEgg = nil
@@ -2196,7 +2204,8 @@ local function getNearestEggData()
     for _, egg in ipairs(ActiveEggs:GetChildren()) do
         local position
 
-        local attrPosition = egg:GetAttribute("Position")
+        local attrPosition =
+            egg:GetAttribute("Position")
 
         if typeof(attrPosition) == "Vector3" then
             position = attrPosition
@@ -2206,7 +2215,7 @@ local function getNearestEggData()
 
         if position then
             local distance =
-                (root.Position - position).Magnitude
+                (positionToUse - position).Magnitude
 
             if distance < nearestDistance then
                 nearestDistance = distance
@@ -2222,7 +2231,11 @@ local function getNearestEggData()
     end
 
     local breakRemaining =
-        tonumber(nearestEgg:GetAttribute("BreakRemaining"))
+        tonumber(
+            nearestEgg:GetAttribute(
+                "BreakRemaining"
+            )
+        )
 
     local eggName =
         nearestEgg:GetAttribute("Egg")
