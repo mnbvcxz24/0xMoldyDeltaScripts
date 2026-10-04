@@ -2342,8 +2342,10 @@ local function tryAutoPickup()
         AutoPickupPickupConfirmed=true
 
         AddDebug("[AUTO] Original pickup confirmed")
-        AddDebug("[AUTO] Waiting 1 sec before moving to drop position...")
+        stopAutoPickupFloat()
         task.wait(1)
+        AddDebug("[AUTO] Waiting 1 sec before moving to drop position...")
+
 
         if not teleportOutsidePlot(eggPosition) then
             AutoPickupBusy=false
