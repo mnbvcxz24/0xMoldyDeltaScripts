@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v6.9"
+local ver = "TEST v7.1"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -42,15 +42,12 @@ local DebugBox
 
 local function AddDebug(message)
     table.insert(DebugLines, tostring(message))
-
     if #DebugLines > 150 then
         table.remove(DebugLines, 1)
     end
-
     if DebugText then
         DebugText.Text = table.concat(DebugLines, "\n")
     end
-
     if DebugText and DebugBox then
         task.defer(function()
             if DebugText and DebugBox then
@@ -58,7 +55,6 @@ local function AddDebug(message)
                     0,
                     DebugText.AbsoluteSize.Y + 15
                 )
-
                 DebugBox.CanvasPosition = Vector2.new(
                     0,
                     math.max(
@@ -77,12 +73,10 @@ player.Idled:Connect(function()
     if not AntiAFKEnabled then
         return
     end
-
     pcall(function()
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new(0, 0))
     end)
-
     AddDebug("[ANTI AFK] Idle activity sent")
 end)
 
@@ -198,21 +192,11 @@ local function updateSidebarSize()
     )
 end
 
-SidebarLayout:GetPropertyChangedSignal(
-    "AbsoluteContentSize"
-):Connect(updateSidebarSize)
+SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateSidebarSize)
 
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(
-    1,
-    -(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 15),
-    1,
-    -65
-)
-Content.Position = UDim2.fromOffset(
-    Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 5,
-    55
-)
+Content.Size = UDim2.new(1,-(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 15),1,-65)
+Content.Position = UDim2.fromOffset(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 5,55)
 Content.BackgroundTransparency = 1
 Content.ClipsDescendants = false
 Content.Parent = Main
@@ -359,14 +343,7 @@ AutoPage.Visible = true
 
 local function createSidebarButton(text)
     local button = Instance.new("TextButton")
-
-    button.Size = UDim2.new(
-        1,
-        -10,
-        0,
-        math.max(36, textSize(12) + 24)
-    )
-
+    button.Size = UDim2.new(1,-10,0,math.max(36, textSize(12) + 24))
     button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -377,11 +354,9 @@ local function createSidebarButton(text)
     button.Selectable = true
     button.ZIndex = 10
     button.Parent = Sidebar
-
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 7)
     corner.Parent = button
-
     return button
 end
 
@@ -508,19 +483,12 @@ DetectedEggLayout.Parent = DetectedEggFrame
 
 local function updateDetectedEggFrameSize()
     local contentHeight = DetectedEggLayout.AbsoluteContentSize.Y
-    local maxHeight = math.max(
-        30,
-        ESPPage.AbsoluteSize.Y
-            - DetectedEggFrame.Position.Y.Offset
-            - 10
-    )
-
+    local maxHeight = math.max(30,ESPPage.AbsoluteSize.Y- DetectedEggFrame.Position.Y.Offset- 10)
     local visibleHeight = math.clamp(
         contentHeight + 8,
         30,
         math.min(90, maxHeight)
     )
-
     DetectedEggFrame.Size = UDim2.new(
         1,
         -10,
