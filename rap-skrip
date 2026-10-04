@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v9.9"
+local ver = "TEST v10"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2023,72 +2023,37 @@ end
 
 local function teleportToMyPlot()
     local root=getCharacterRoot()
-
-    if not root then
-        AddDebug("[AUTO ERROR] HumanoidRootPart not found")
-        return false
-    end
-
+    if not root then return false end
     local ranchCFrame=getMyRanchCFrame()
-
-    if not ranchCFrame then
-        AddDebug("[AUTO ERROR] Your plot/Baseplate was not found")
-        return false
-    end
-
-    local success,err=pcall(function()
-        root.CFrame=ranchCFrame
-    end)
-
-    if not success then
-        AddDebug("[AUTO ERROR] Ranch TP failed: "..tostring(err))
-        return false
-    end
-
+    if not ranchCFrame then return false end
+    local success=pcall(function() root.CFrame=ranchCFrame end)
+    if not success then return false end
     AddDebug("[AUTO] TP -> Your Plot")
     return true
 end
 
 local function teleportOutsidePlot(eggPosition)
     local root=getCharacterRoot()
-
-    if not root then
-        AddDebug("[AUTO ERROR] HumanoidRootPart not found")
-        return false
-    end
-
+    if not root then return false end
     local ranchCFrame=getMyRanchCFrame()
+    if not ranchCFrame or not eggPosition then return false end
+    local direction=(ranchCFrame.Position-eggPosition).Unit
+    local outsidePosition=ranchCFrame.Position+direction*20
+    local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
+    if not success then return false end
+    AddDebug("[AUTO] TP -> 20 studs outside plot")
+    return true
+end
 
-    if not ranchCFrame then
-        AddDebug("[AUTO ERROR] Your plot/Baseplate was not found")
-        return false
-    end
-
-    if not eggPosition then
-        AddDebug("[AUTO ERROR] Egg position unavailable")
-        return false
-    end
-
-    local ranchPosition=ranchCFrame.Position
-    local direction=ranchPosition-eggPosition
-
-    if direction.Magnitude<=0 then
-        direction=ranchCFrame.LookVector
-    else
-        direction=direction.Unit
-    end
-
-    local outsidePosition=ranchPosition+direction*20
-
-    local success,err=pcall(function()
-        root.CFrame=CFrame.new(outsidePosition)
-    end)
-
-    if not success then
-        AddDebug("[AUTO ERROR] Outside plot TP failed: "..tostring(err))
-        return false
-    end
-
+local function teleportOutsidePlot(eggPosition)
+    local root=getCharacterRoot()
+    if not root then return false end
+    local ranchCFrame=getMyRanchCFrame()
+    if not ranchCFrame or not eggPosition then return false end
+    local direction=(ranchCFrame.Position-eggPosition).Unit
+    local outsidePosition=ranchCFrame.Position+direction*20
+    local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
+    if not success then return false end
     AddDebug("[AUTO] TP -> 20 studs outside plot")
     return true
 end
