@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v9.6"
+local ver = "TEST v9.7"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2473,7 +2473,8 @@ local function tryAutoPickup()
         AutoPickupPickupConfirmed=true
 
         AddDebug("[AUTO] Dropped egg pickup confirmed")
-
+        stopAutoPickupFloat()
+        AddDebug("[AUTO] Float stopped")
         AddDebug("[AUTO] Starting BreakRemaining countdown...")
 
         if not waitForBreakRemaining(initialBreakRemaining) then
