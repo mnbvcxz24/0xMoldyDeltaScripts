@@ -711,7 +711,6 @@ pcall(function()
 
     EggPickupEvent = GameRemotes:WaitForChild("EggPickup")
     EggArrivalClaimEvent = GameRemotes:WaitForChild("EggArrivalClaim")
-    BasketDropEvent = GameRemotes:WaitForChild("BasketDrop")
     TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
     VolcanoDipEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDip"]
     VolcanoDipResultEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDipResult"]
