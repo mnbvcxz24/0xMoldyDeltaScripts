@@ -1,4 +1,4 @@
-local ver = "TEST v6.1"
+local ver = "TEST v6.2"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
@@ -657,6 +657,7 @@ local AutoPickupDepositConfirmed = false
 local EggPickupEvent
 local EggArrivalClaimEvent
 local TeleportToPlotEvent
+local BasketDropEvent
 
 local AutoDipResult = nil
 local AutoDipWaitingForResult = false
@@ -710,6 +711,7 @@ pcall(function()
 
     EggPickupEvent = GameRemotes:WaitForChild("EggPickup")
     EggArrivalClaimEvent = GameRemotes:WaitForChild("EggArrivalClaim")
+    BasketDropEvent = GameRemotes:WaitForChild("BasketDrop")
     TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
     VolcanoDipEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDip"]
     VolcanoDipResultEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDipResult"]
@@ -2242,16 +2244,15 @@ local function waitForBreakRemaining(uuid)
         local data = getDroppedEggData(uuid)
 
         if data and data.BreakRemaining ~= nil then
-            local remaining = data.BreakRemaining
-
             AddDebug(
                 string.format(
-                    "[AUTO TIMER] BreakRemaining: %.2f",
-                    remaining
+                    "[AUTO TIMER] %s | %.2f sec",
+                    tostring(data.Egg),
+                    data.BreakRemaining
                 )
             )
 
-            if remaining <= 2 then
+            if data.BreakRemaining <= 2 then
                 AddDebug("[AUTO TIMER] Reached 2 seconds")
                 return true
             end
@@ -2340,6 +2341,14 @@ local function tryAutoPickup()
         return
     end
 
+    if not BasketDropEvent then
+        AddDebug(
+            "[AUTO ERROR] BasketDrop remote not found"
+        )
+
+        return
+    end
+
     AutoPickupBusy = true
 
     local success, err =
@@ -2372,7 +2381,7 @@ local function tryAutoPickup()
 
             local volcanicRoute =
                 eggName == "Volcanic Egg"
-            
+
             if volcanicRoute then
                 if not enterVolcanicEgg(egg) then
                     AutoPickupBusy = false
@@ -2402,19 +2411,19 @@ local function tryAutoPickup()
                     AutoPickupClaimDelay
                 )
             )
-            
+
             task.wait(
                 AutoPickupClaimDelay
             )
-            
+
             if not AutoPickupRunning then
                 AutoPickupBusy = false
                 return
             end
-            
+
             AutoPickupAwaitingUUID =
                 tostring(uuid)
-            
+
             AutoPickupAwaitingPickup =
                 true
 
@@ -2479,21 +2488,70 @@ local function tryAutoPickup()
                 AddDebug(
                     "[AUTO VOLCANO] Pickup confirmed"
                 )
-            
+
                 task.wait(1)
-            
+
                 if not AutoPickupRunning then
                     AutoPickupBusy = false
                     return
                 end
-            
+
                 if not exitVolcanicEgg() then
                     AutoPickupBusy = false
                     return
                 end
             end
 
+            if not AutoPickupRunning then
+                AutoPickupBusy = false
+                return
+            end
+
+            AddDebug(
+                "[AUTO] Dropping egg..."
+            )
+
+            local dropSuccess, dropErr =
+                pcall(function()
+                    BasketDropEvent:FireServer(
+                        uuid
+                    )
+                end)
+
+            if not dropSuccess then
+                AddDebug(
+                    "[AUTO ERROR] Drop request failed: " ..
+                    tostring(dropErr)
+                )
+
+                AutoPickupBusy = false
+                return
+            end
+
+            AddDebug(
+                "[AUTO] Drop request sent"
+            )
+
+            task.wait(0.2)
+
+            local droppedEgg =
+                waitForDroppedEgg(uuid, 10)
+
+            if not droppedEgg then
+                AutoPickupBusy = false
+                return
+            end
+
+            AddDebug(
+                string.format(
+                    "[AUTO] Dropped %s | BreakRemaining: %.2f",
+                    tostring(droppedEgg.Egg),
+                    droppedEgg.BreakRemaining
+                )
+            )
+
             if AutoDipEnabled then
+
                 AddDebug(
                     "[AUTO DIP] Teleporting to volcano..."
                 )
@@ -2516,7 +2574,7 @@ local function tryAutoPickup()
                     AddDebug(
                         "[AUTO DIP ERROR] Unable to float at volcano"
                     )
-                
+
                     AutoPickupBusy = false
                     return
                 end
@@ -2524,6 +2582,7 @@ local function tryAutoPickup()
                 task.wait(1.5)
 
                 if not AutoPickupRunning then
+                    stopAutoPickupFloat()
                     AutoPickupBusy = false
                     return
                 end
@@ -2534,7 +2593,7 @@ local function tryAutoPickup()
 
                 AutoDipResult = nil
                 AutoDipWaitingForResult = true
-                
+
                 AutoVolcanoMessageReceived = false
                 AutoVolcanoMessageText = nil
                 AutoVolcanoWaitingForMessage = false
@@ -2546,6 +2605,7 @@ local function tryAutoPickup()
 
                 if not dipSuccess then
                     AutoDipWaitingForResult = false
+                    stopAutoPickupFloat()
 
                     AddDebug(
                         "[AUTO DIP ERROR] " ..
@@ -2561,11 +2621,12 @@ local function tryAutoPickup()
                 )
 
                 local dipReceived = false
-                
+
                 for dipAttempt = 1, 2 do
+
                     local dipStart =
                         os.clock()
-                
+
                     while
                         AutoDipWaitingForResult
                         and AutoPickupRunning
@@ -2573,135 +2634,193 @@ local function tryAutoPickup()
                     do
                         task.wait(0.1)
                     end
-                
+
                     if not AutoPickupRunning then
                         AutoDipWaitingForResult = false
+                        stopAutoPickupFloat()
                         AutoPickupBusy = false
                         return
                     end
-                
+
                     if not AutoDipWaitingForResult
                         and AutoDipResult then
-                
+
                         dipReceived = true
                         break
                     end
-                
+
                     AutoDipWaitingForResult = false
-                
+
                     if dipAttempt == 1 then
+
                         AddDebug(
                             "[AUTO DIP] No result after 10s, refiring VolcanoDip..."
                         )
-                
+
                         AutoDipResult = nil
                         AutoDipWaitingForResult = true
-                
+
                         local retrySuccess, retryErr =
                             pcall(function()
                                 VolcanoDipEvent:FireServer()
                             end)
-                
+
                         if not retrySuccess then
                             AutoDipWaitingForResult = false
-                
+
                             AddDebug(
                                 "[AUTO DIP ERROR] Retry failed: " ..
                                 tostring(retryErr)
                             )
-                
+
                             break
                         end
-                
+
                         AddDebug(
                             "[AUTO DIP] VolcanoDip retry sent (2/2)"
                         )
                     end
                 end
-                
+
                 if not dipReceived then
                     AutoDipWaitingForResult = false
-                
+                    stopAutoPickupFloat()
+
                     AddDebug(
                         "[AUTO DIP ERROR] No result after 2 attempts"
                     )
-                
+
                     AddDebug(
-                        "[AUTO DIP] Failed deposit, returning to plot..."
+                        "[AUTO DIP] Continuing with BreakRemaining check..."
                     )
-                
-                    stopAutoPickupFloat()
-                
-                    if not teleportToMyPlot() then
+
+                    if not waitForBreakRemaining(uuid) then
                         AutoPickupBusy = false
                         return
                     end
-                end
-                
-                AddDebug(
-                    "[AUTO DIP] Result received: " ..
-                    tostring(AutoDipResult.Success)
-                )
-                
-                AddDebug(
-                    "[AUTO DIP] DIP confirmed successfully"
-                )
-                
-                AddDebug(
-                    "[AUTO DIP] Waiting for mutation message..."
-                )
-                
-                AutoVolcanoWaitingForMessage = true
-                
-                local messageStart =
-                    os.clock()
-                
-                while
-                    not AutoVolcanoMessageReceived
-                    and AutoPickupRunning
-                    and os.clock() - messageStart < 10
-                do
-                    task.wait(0.1)
-                end
-                
-                if not AutoPickupRunning then
-                    AutoDipWaitingForResult = false
-                    AutoPickupBusy = false
-                    return
+
+                else
+
+                    AddDebug(
+                        "[AUTO DIP] Result received: " ..
+                        tostring(AutoDipResult.Success)
+                    )
+
+                    AddDebug(
+                        "[AUTO DIP] DIP confirmed successfully"
+                    )
+
+                    AddDebug(
+                        "[AUTO DIP] Waiting for mutation message..."
+                    )
+
+                    AutoVolcanoWaitingForMessage = true
+
+                    local messageStart =
+                        os.clock()
+
+                    while
+                        not AutoVolcanoMessageReceived
+                        and AutoPickupRunning
+                        and os.clock() - messageStart < 10
+                    do
+                        task.wait(0.1)
+                    end
+
+                    if not AutoPickupRunning then
+                        AutoVolcanoWaitingForMessage = false
+                        stopAutoPickupFloat()
+                        AutoPickupBusy = false
+                        return
+                    end
+
+                    if not AutoVolcanoMessageReceived then
+                        AutoVolcanoWaitingForMessage = false
+
+                        AddDebug(
+                            "[AUTO DIP ERROR] Mutation message timeout"
+                        )
+
+                        stopAutoPickupFloat()
+
+                        AddDebug(
+                            "[AUTO DIP] Continuing with BreakRemaining check..."
+                        )
+
+                        if not waitForBreakRemaining(uuid) then
+                            AutoPickupBusy = false
+                            return
+                        end
+
+                    else
+
+                        AddDebug(
+                            "[AUTO DIP] Mutation process completed"
+                        )
+
+                        AutoVolcanoWaitingForMessage = false
+
+                        stopAutoPickupFloat()
+
+                        if not AutoPickupRunning then
+                            AutoPickupBusy = false
+                            return
+                        end
+
+                        AddDebug(
+                            "[AUTO DIP] Rescanning dropped egg timer..."
+                        )
+
+                        local updatedDroppedEgg =
+                            waitForDroppedEgg(uuid, 10)
+
+                        if not updatedDroppedEgg then
+                            AutoPickupBusy = false
+                            return
+                        end
+
+                        AddDebug(
+                            string.format(
+                                "[AUTO DIP] Updated BreakRemaining: %.2f",
+                                updatedDroppedEgg.BreakRemaining
+                            )
+                        )
+
+                        AddDebug(
+                            "[AUTO DIP] Waiting for BreakRemaining <= 2..."
+                        )
+
+                        if not waitForBreakRemaining(uuid) then
+                            AutoPickupBusy = false
+                            return
+                        end
+                    end
                 end
 
-                if not AutoVolcanoMessageReceived then
-                    AutoVolcanoWaitingForMessage = false
-                
-                    AddDebug(
-                        "[AUTO DIP ERROR] Mutation message timeout"
-                    )
-                
+            else
+
+                AddDebug(
+                    "[AUTO] Volcano DIP disabled"
+                )
+
+                AddDebug(
+                    "[AUTO] Waiting for BreakRemaining <= 2..."
+                )
+
+                if not waitForBreakRemaining(uuid) then
                     AutoPickupBusy = false
                     return
                 end
-                
-                AddDebug(
-                    "[AUTO DIP] Mutation process completed"
-                )
-                
-                AddDebug(
-                    "[AUTO DIP] Waiting 3 seconds before returning..."
-                )
-                
-                task.wait(3)
-                
-                if not AutoPickupRunning then
-                    AutoPickupBusy = false
-                    return
-                end
-                
-                stopAutoPickupFloat()
-                
-                AddDebug(
-                    "[AUTO DIP] Returning to plot..."
-                )
             end
+
+            if not AutoPickupRunning then
+                AutoPickupBusy = false
+                return
+            end
+
+            AddDebug(
+                "[AUTO] BreakRemaining reached 2 seconds"
+            )
 
             if not teleportToMyPlot() then
                 AutoPickupBusy = false
