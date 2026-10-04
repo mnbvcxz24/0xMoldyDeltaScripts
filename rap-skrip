@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v9.3"
+local ver = "TEST v9.4"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2348,43 +2348,6 @@ local function sendArrivalClaim(uuid)
     return true
 end
 
-local function waitForFinalBreakRemaining(uuid,eggName,timeout)
-    timeout=timeout or 300
-    local start=os.clock()
-    local lastValue=nil
-
-    while AutoPickupRunning and os.clock()-start<timeout do
-        local data=getDroppedEggData(uuid)
-
-        if data then
-            local remaining=tonumber(data.BreakRemaining)
-
-            if remaining then
-                if lastValue==nil or math.abs(remaining-lastValue)>=0.1 then
-                    AddDebug(string.format(
-                        "[AUTO TIMER] %s | %.2f sec",
-                        tostring(eggName),
-                        remaining
-                    ))
-                    lastValue=remaining
-                end
-
-                if remaining<=2 then
-                    AddDebug("[AUTO TIMER] Reached 2 seconds")
-                    return true
-                end
-            end
-        else
-            AddDebug("[AUTO TIMER] Waiting for BreakRemaining...")
-        end
-
-        task.wait(0.1)
-    end
-
-    AddDebug("[AUTO TIMER ERROR] Timer timeout")
-    return false
-end
-
 local function tryAutoPickup()
     if not AutoPickupRunning or AutoPickupBusy or not EggPickupEvent then return end
     AutoPickupBusy=true
@@ -2568,7 +2531,7 @@ local function tryAutoPickup()
             AutoVolcanoMessageReceived=false
             AutoVolcanoMessageText=nil
             AutoVolcanoWaitingForMessage=true
-
+            
             local dipSuccess,dipErr=pcall(function()
                 VolcanoDipEvent:FireServer()
             end)
@@ -2844,55 +2807,22 @@ local function tryAutoPickup()
     AutoPickupBusy=false
 end
 
-local GameMessageEvent =
-    game:GetService("ReplicatedStorage")
-    .Remotes.Reusable.GameMessage
+local GameMessageEvent=game:GetService("ReplicatedStorage").Remotes.Reusable.GameMessage
 
-GameMessageEvent.OnClientEvent:Connect(function(message, _, data)
-    if not AutoVolcanoWaitingForMessage then
-        return
-    end
+GameMessageEvent.OnClientEvent:Connect(function(message,_,data)
+    if not AutoVolcanoWaitingForMessage then return end
+    if typeof(message)~="string" then return end
 
-    if typeof(message) ~= "string" then
-        return
-    end
-
-    if string.find(
-        message,
-        " Egg Mutated Into ",
-        1,
-        true
-    ) then
-
+    if string.find(message," Egg Mutated Into ",1,true) then
         AutoVolcanoMessageReceived=true
         AutoVolcanoMessageText=message
-
-        AddDebug(
-            "[AUTO DIP] Mutation successful"
-        )
-
-        AddDebug(
-            "[AUTO DIP] " .. message
-        )
-
-    elseif string.find(
-        message,
-        " Egg Didn't Mutate",
-        1,
-        true
-    ) then
-
-        AutoVolcanoMessageReceived = true
-        AutoVolcanoMessageText = message
-        AutoVolcanoWaitingForMessage = false
-
-        AddDebug(
-            "[AUTO DIP] Mutation failed"
-        )
-
-        AddDebug(
-            "[AUTO DIP] " .. message
-        )
+        AddDebug("[AUTO DIP] Mutation successful")
+        AddDebug("[AUTO DIP] "..message)
+    elseif string.find(message," Egg Didn't Mutate",1,true) then
+        AutoVolcanoMessageReceived=true
+        AutoVolcanoMessageText=message
+        AddDebug("[AUTO DIP] Mutation failed")
+        AddDebug("[AUTO DIP] "..message)
     end
 end)
 
