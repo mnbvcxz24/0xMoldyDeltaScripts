@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.3"
+local ver = "TEST v10.4"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2249,33 +2249,33 @@ local function tryAutoPickup()
                 AutoPickupBusy=false
                 return
             end
-
+        
             local volcanoSuccess,volcanoErr=pcall(function()
                 root.CFrame=CFrame.new(VolcanoDropPosition)
             end)
-
+        
             if not volcanoSuccess then
                 AddDebug("[AUTO DIP] TP failed: "..tostring(volcanoErr))
                 AutoPickupBusy=false
                 return
             end
-
+        
             AddDebug("[AUTO DIP] TP -> Volcano")
-
+        
             task.wait(0.25)
-
+        
             AutoDipResult=nil
             AutoDipWaitingForResult=true
             AutoVolcanoMessageReceived=false
             AutoVolcanoMessageText=nil
             AutoVolcanoWaitingForMessage=true
-
+        
             AddDebug("[AUTO DIP] Starting Volcano DIP")
-
+        
             local dipSuccess,dipErr=pcall(function()
                 VolcanoDipEvent:FireServer()
             end)
-
+        
             if not dipSuccess then
                 AutoDipWaitingForResult=false
                 AutoVolcanoWaitingForMessage=false
@@ -2283,33 +2283,41 @@ local function tryAutoPickup()
                 AutoPickupBusy=false
                 return
             end
-
+        
             local dipStart=os.clock()
-
+        
             while AutoPickupRunning and os.clock()-dipStart<10 do
                 if AutoDipResult~=nil then break end
                 if AutoVolcanoMessageReceived then break end
                 task.wait(0.1)
             end
-
+        
             AutoDipWaitingForResult=false
             AutoVolcanoWaitingForMessage=false
-
-            if AutoDipResult~=nil and type(AutoDipResult)=="table" and AutoDipResult.Success==false then
-                AddDebug("[AUTO DIP] Mutation failed")
-                AutoPickupBusy=false
-                return
+        
+            if AutoDipResult~=nil and type(AutoDipResult)=="table" then
+                if AutoDipResult.Success==true then
+                    AddDebug("[AUTO DIP] Mutation successful")
+                else
+                    AddDebug("[AUTO DIP] Mutation failed")
+                end
+            elseif AutoVolcanoMessageReceived then
+                AddDebug("[AUTO DIP] Mutation result received")
+            else
+                AddDebug("[AUTO DIP] Mutation result timeout")
             end
-
+        
             if AutoVolcanoMessageReceived and AutoVolcanoMessageText then
                 AddDebug("[AUTO DIP] "..AutoVolcanoMessageText)
             end
-
+        
             AddDebug("[AUTO DIP] Waiting 3 seconds after mutation...")
             task.wait(3)
-
+        
             stopAutoPickupFloat()
-
+        
+            AddDebug("[AUTO DIP] Returning outside plot")
+        
             if not teleportOutsidePlot(eggPosition) then
                 AutoPickupBusy=false
                 return
@@ -2321,7 +2329,7 @@ local function tryAutoPickup()
                     return
                 end
             end
-
+        
             if not teleportOutsidePlot(eggPosition) then
                 AutoPickupBusy=false
                 return
