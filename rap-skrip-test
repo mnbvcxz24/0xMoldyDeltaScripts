@@ -1,4 +1,4 @@
-local ver = "TEST v6.3"
+local ver = "TEST v6.4"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
@@ -2504,33 +2504,39 @@ local function tryAutoPickup()
                 return
             end
 
-            AddDebug(
+             AddDebug(
                 "[AUTO] Dropping egg..."
             )
-
+            
+            local BasketDropEvent =
+                ReplicatedStorage
+                    :WaitForChild("Remotes")
+                    :WaitForChild("Game")
+                    :WaitForChild("BasketDrop")
+            
             local dropSuccess, dropErr =
                 pcall(function()
                     BasketDropEvent:FireServer(
                         uuid
                     )
                 end)
-
+            
             if not dropSuccess then
                 AddDebug(
                     "[AUTO ERROR] Drop request failed: " ..
                     tostring(dropErr)
                 )
-
+            
                 AutoPickupBusy = false
                 return
             end
-
+            
             AddDebug(
                 "[AUTO] Drop request sent"
             )
-
+            
             task.wait(0.2)
-
+            
             local droppedEgg =
                 waitForDroppedEgg(uuid, 10)
 
