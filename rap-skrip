@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.1"
+local ver = "TEST v10.2"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2357,9 +2357,6 @@ local function tryAutoPickup()
             return
         end
 
-        AddDebug("[AUTO] Waiting 1 sec before drop...")
-        task.wait(1)
-
         local BasketDropEvent=ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Game"):WaitForChild("BasketDrop")
 
         local previousDroppedUUIDs={}
@@ -2398,8 +2395,7 @@ local function tryAutoPickup()
         end
 
         AddDebug("[AUTO] Drop sent")
-        AddDebug("[AUTO] Waiting 1 sec for dropped egg...")
-        task.wait(1)
+        AddDebug("[AUTO] Waiting for dropped egg...")
 
         local droppedEgg=waitForDroppedEgg(
             eggName,
