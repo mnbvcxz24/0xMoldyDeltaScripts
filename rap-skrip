@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v11"
+local ver = "TEST v11.1"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -1933,10 +1933,10 @@ local function teleportOutsidePlot(eggPosition)
     if direction.Magnitude==0 then return false end
     direction=direction.Unit
     local edge=(math.abs(direction:Dot(baseplate.CFrame.RightVector))*baseplate.Size.X/2)+(math.abs(direction:Dot(baseplate.CFrame.LookVector))*baseplate.Size.Z/2)
-    local outsidePosition=center-direction*(edge+35)
+    local outsidePosition=center-direction*(edge+50)
     local success=pcall(function() root.CFrame=CFrame.new(outsidePosition) end)
     if not success then return false end
-    AddDebug("[AUTO] TP -> 35 studs outside plot")
+    AddDebug("[AUTO] TP -> 50 studs outside plot")
     return true
 end
 
@@ -2219,172 +2219,98 @@ local function tryAutoPickup(egg)
     stopAutoPickupFloat()
 
     if shouldAutoDip then
-        local reachedVolcano=false
-
-        while AutoPickupRunning and not reachedVolcano do
-            local root=getCharacterRoot()
-
-            if root then
-                pcall(function()
-                    root.CFrame=CFrame.new(VolcanoDropPosition)
-                end)
-
-                if (root.Position-VolcanoDropPosition).Magnitude<=10 then
-                    reachedVolcano=true
-                    AddDebug("[AUTO DIP] TP -> Volcano")
-                end
-            end
-
-            if not reachedVolcano then
-                task.wait(0.1)
-            end
+        local root=getCharacterRoot()
+    
+        if root then
+            pcall(function()
+                root.CFrame=CFrame.new(VolcanoDropPosition)
+            end)
         end
-
-        if not AutoPickupRunning then
-            AutoPickupBusy=false
-            return
-        end
-
+    
+        task.wait(0.5)
+    
         AutoVolcanoMessageReceived=false
         AutoVolcanoMessageText=nil
         AutoVolcanoWaitingForMessage=true
-
+    
         VolcanoDipEvent:FireServer()
-
+    
         local mutationStart=os.clock()
-
+    
         while AutoPickupRunning and not AutoVolcanoMessageReceived and os.clock()-mutationStart<15 do
             task.wait(0.1)
         end
-
+    
         AutoVolcanoWaitingForMessage=false
-
+    
         if not AutoVolcanoMessageReceived then
             AutoPickupBusy=false
             return
         end
-
+    
         task.wait(3)
-
+    
         stopAutoPickupFloat()
-
+    
         local reachedOutside=false
-
+    
         while AutoPickupRunning and not reachedOutside do
             if teleportOutsidePlot(eggPosition) then
-                local root=getCharacterRoot()
-
-                if root then
-                    local plot=findMyPlot()
-                    local baseplate=plot and plot:FindFirstChild("Baseplate")
-
-                    if baseplate and baseplate:IsA("BasePart") then
-                        local center=baseplate.Position
-                        local distanceXZ=((root.Position.X-center.X)^2+(root.Position.Z-center.Z)^2)^0.5
-                        local plotRadius=math.max(baseplate.Size.X,baseplate.Size.Z)/2
-
-                        if distanceXZ>plotRadius+20 then
-                            reachedOutside=true
-                            AddDebug("[AUTO DIP] TP -> Outside")
-                        end
-                    else
-                        reachedOutside=true
-                    end
-                end
-            end
-
-            if not reachedOutside then
+                reachedOutside=true
+                AddDebug("[AUTO DIP] TP -> Outside")
+            else
                 task.wait(0.1)
             end
         end
-
+    
         if not AutoPickupRunning then
             AutoPickupBusy=false
             return
         end
-
+    
         task.wait(1)
-
+    
     elseif isVolcanic then
         exitVolcanicEgg()
         stopAutoPickupFloat()
-
+    
         local reachedOutside=false
-
+    
         while AutoPickupRunning and not reachedOutside do
             if teleportOutsidePlot(eggPosition) then
-                local root=getCharacterRoot()
-
-                if root then
-                    local plot=findMyPlot()
-                    local baseplate=plot and plot:FindFirstChild("Baseplate")
-
-                    if baseplate and baseplate:IsA("BasePart") then
-                        local center=baseplate.Position
-                        local distanceXZ=((root.Position.X-center.X)^2+(root.Position.Z-center.Z)^2)^0.5
-                        local plotRadius=math.max(baseplate.Size.X,baseplate.Size.Z)/2
-
-                        if distanceXZ>plotRadius+20 then
-                            reachedOutside=true
-                        end
-                    else
-                        reachedOutside=true
-                    end
-                end
-            end
-
-            if not reachedOutside then
+                reachedOutside=true
+            else
                 task.wait(0.1)
             end
         end
-
+    
         if not AutoPickupRunning then
             AutoPickupBusy=false
             return
         end
-
+    
         task.wait(1)
-
+    
     else
         stopAutoPickupFloat()
-
+    
         local reachedOutside=false
-
+    
         while AutoPickupRunning and not reachedOutside do
             if teleportOutsidePlot(eggPosition) then
-                local root=getCharacterRoot()
-
-                if root then
-                    local plot=findMyPlot()
-                    local baseplate=plot and plot:FindFirstChild("Baseplate")
-
-                    if baseplate and baseplate:IsA("BasePart") then
-                        local center=baseplate.Position
-                        local distanceXZ=((root.Position.X-center.X)^2+(root.Position.Z-center.Z)^2)^0.5
-                        local plotRadius=math.max(baseplate.Size.X,baseplate.Size.Z)/2
-
-                        if distanceXZ>plotRadius+20 then
-                            reachedOutside=true
-                        end
-                    else
-                        reachedOutside=true
-                    end
-                end
-            end
-
-            if not reachedOutside then
+                reachedOutside=true
+            else
                 task.wait(0.1)
             end
         end
-
+    
         if not AutoPickupRunning then
             AutoPickupBusy=false
             return
         end
-
+    
         task.wait(1)
     end
-
     local BasketDropEvent=ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Game"):WaitForChild("BasketDrop")
     local previousDroppedUUIDs={}
     local activeEggsBeforeDrop=getActiveEggs()
