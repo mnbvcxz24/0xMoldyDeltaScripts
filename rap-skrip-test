@@ -1,4 +1,9 @@
-
+local ver = "TEST v6.6"
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "RAP Skrip | 0xMoldy",
+    Text = ver,
+    Duration = 3
+})
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -145,7 +150,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -125, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy | v7"
+Subtitle.Text = "RAP SKRIP - 0xMoldy | " .. ver
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
@@ -699,22 +704,14 @@ local VolcanoDropPosition = Vector3.new(
 )
 
 pcall(function()
-    local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
-    local GameRemotes = Remotes and Remotes:FindFirstChild("Game")
+    local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+    local GameRemotes = Remotes:WaitForChild("Game")
 
-    if GameRemotes then
-        EggPickupEvent = GameRemotes:FindFirstChild("EggPickup")
-        EggArrivalClaimEvent = GameRemotes:FindFirstChild("EggArrivalClaim")
-        TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
-    end
-
-    local Packages = ReplicatedStorage:FindFirstChild("packages")
-    local Net = Packages and Packages:FindFirstChild("Net")
-
-    if Net then
-        VolcanoDipEvent = Net:FindFirstChild("RE/VolcanoDip")
-        VolcanoDipResultEvent = Net:FindFirstChild("RE/VolcanoDipResult")
-    end
+    EggPickupEvent = GameRemotes:WaitForChild("EggPickup")
+    EggArrivalClaimEvent = GameRemotes:WaitForChild("EggArrivalClaim")
+    TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
+    VolcanoDipEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDip"]
+    VolcanoDipResultEvent = game:GetService("ReplicatedStorage").packages.Net["RE/VolcanoDipResult"]
 end)
 
 local AutoTitle = Instance.new("TextLabel")
@@ -2176,83 +2173,6 @@ local function waitForDepositConfirmation()
     return false
 end
 
-local function getNearestEggData(referencePosition)
-    local ActiveEggs = getActiveEggs()
-
-    if not ActiveEggs then
-        AddDebug("[AUTO ERROR] ActiveEggs not found")
-        return nil
-    end
-
-    local positionToUse = referencePosition
-
-    if not positionToUse then
-        local character = player.Character
-        local root =
-            character
-            and character:FindFirstChild("HumanoidRootPart")
-
-        if not root then
-            AddDebug("[AUTO ERROR] Character not ready")
-            return nil
-        end
-
-        positionToUse = root.Position
-    end
-
-    local nearestEgg = nil
-    local nearestDistance = math.huge
-    local nearestPosition = nil
-
-    for _, egg in ipairs(ActiveEggs:GetChildren()) do
-        local position
-
-        local attrPosition =
-            egg:GetAttribute("Position")
-
-        if typeof(attrPosition) == "Vector3" then
-            position = attrPosition
-        elseif egg:IsA("BasePart") then
-            position = egg.Position
-        end
-
-        if position then
-            local distance =
-                (positionToUse - position).Magnitude
-
-            if distance < nearestDistance then
-                nearestDistance = distance
-                nearestEgg = egg
-                nearestPosition = position
-            end
-        end
-    end
-
-    if not nearestEgg then
-        AddDebug("[AUTO ERROR] No active egg found")
-        return nil
-    end
-
-    local breakRemaining =
-        tonumber(
-            nearestEgg:GetAttribute(
-                "BreakRemaining"
-            )
-        )
-
-    local eggName =
-        nearestEgg:GetAttribute("Egg")
-
-    return {
-        Instance = nearestEgg,
-        UUID = tostring(nearestEgg.Name),
-        Egg = eggName,
-        BreakRemaining = breakRemaining,
-        Distance = nearestDistance,
-        Position = nearestPosition
-    }
-end
-
 local function getDroppedEggData(uuid)
     local ActiveEggs = getActiveEggs()
 
@@ -2316,9 +2236,9 @@ local function waitForDroppedEgg(uuid, timeout)
     return nil
 end
 
-local function waitForBreakRemaining()
+local function waitForBreakRemaining(uuid)
     while AutoPickupRunning do
-        local data = getNearestEggData()
+        local data = getDroppedEggData(uuid)
 
         if data and data.BreakRemaining ~= nil then
             AddDebug(
@@ -2330,18 +2250,15 @@ local function waitForBreakRemaining()
             )
 
             if data.BreakRemaining <= 2 then
-                AddDebug(
-                    "[AUTO TIMER] Reached 2 seconds"
-                )
-
-                return data
+                AddDebug("[AUTO TIMER] Reached 2 seconds")
+                return true
             end
         end
 
         task.wait(0.1)
     end
 
-    return nil
+    return false
 end
 
 local function sendArrivalClaim(uuid)
@@ -2610,59 +2527,13 @@ local function tryAutoPickup()
             
             task.wait(0.2)
             
-            local droppedEgg = nil
-            
-            local dropScanStart = os.clock()
-            
-            while AutoPickupRunning
-                and os.clock() - dropScanStart < 10 do
-            
-                droppedEgg = getNearestEggData()
-            
-                if droppedEgg
-                    and droppedEgg.BreakRemaining ~= nil then
-            
-                    AddDebug(
-                        string.format(
-                            "[AUTO] Dropped %s | BreakRemaining: %.2f | Distance: %.1f",
-                            tostring(droppedEgg.Egg),
-                            droppedEgg.BreakRemaining,
-                            droppedEgg.Distance
-                        )
-                    )
-            
-                    break
-                end
-            
-                droppedEgg = nil
-                task.wait(0.1)
-            end
-            
+            local droppedEgg =
+                waitForDroppedEgg(uuid, 10)
+
             if not droppedEgg then
-                AddDebug(
-                    "[AUTO ERROR] Dropped egg / BreakRemaining not found"
-                )
                 AutoPickupBusy = false
                 return
             end
-            
-            local droppedEggPosition = droppedEgg.Position
-            
-            AddDebug(
-                string.format(
-                    "[AUTO] Dropped position: %.1f, %.1f, %.1f",
-                    droppedEggPosition.X,
-                    droppedEggPosition.Y,
-                    droppedEggPosition.Z
-                )
-            )
-            
-            uuid = droppedEgg.UUID
-
-            AddDebug(
-                "[AUTO] Dropped egg UUID: " ..
-                tostring(uuid)
-            )
 
             AddDebug(
                 string.format(
@@ -2816,7 +2687,7 @@ local function tryAutoPickup()
                         "[AUTO DIP] Continuing with BreakRemaining check..."
                     )
 
-                    if not waitForBreakRemaining() then
+                    if not waitForBreakRemaining(uuid) then
                         AutoPickupBusy = false
                         return
                     end
@@ -2869,7 +2740,7 @@ local function tryAutoPickup()
                             "[AUTO DIP] Continuing with BreakRemaining check..."
                         )
 
-                        if not waitForBreakRemaining() then
+                        if not waitForBreakRemaining(uuid) then
                             AutoPickupBusy = false
                             return
                         end
@@ -2893,48 +2764,13 @@ local function tryAutoPickup()
                             "[AUTO DIP] Rescanning dropped egg timer..."
                         )
 
-                        local updatedDroppedEgg = nil
-                        
-                        local rescanStart = os.clock()
-                        
-                        while AutoPickupRunning
-                            and os.clock() - rescanStart < 10 do
-                        
-                            updatedDroppedEgg = getNearestEggData()
-                        
-                            if updatedDroppedEgg
-                                and updatedDroppedEgg.BreakRemaining ~= nil then
-                                break
-                            end
-                        
-                            updatedDroppedEgg = nil
-                            task.wait(0.1)
-                        end
-                        
+                        local updatedDroppedEgg =
+                            waitForDroppedEgg(uuid, 10)
+
                         if not updatedDroppedEgg then
-                            AddDebug(
-                                "[AUTO DIP ERROR] Updated nearest egg / BreakRemaining not found"
-                            )
-                        
                             AutoPickupBusy = false
                             return
                         end
-                        
-                        droppedEgg = updatedDroppedEgg
-                        uuid = droppedEgg.UUID
-                        
-                        AddDebug(
-                            string.format(
-                                "[AUTO DIP] Updated %s | BreakRemaining: %.2f",
-                                tostring(droppedEgg.Egg),
-                                droppedEgg.BreakRemaining
-                            )
-                        )
-                        
-                        AddDebug(
-                            "[AUTO DIP] Updated UUID: " ..
-                            tostring(uuid)
-                        )
 
                         AddDebug(
                             string.format(
@@ -2947,7 +2783,7 @@ local function tryAutoPickup()
                             "[AUTO DIP] Waiting for BreakRemaining <= 2..."
                         )
 
-                        if not waitForBreakRemaining() then
+                        if not waitForBreakRemaining(uuid) then
                             AutoPickupBusy = false
                             return
                         end
@@ -2964,7 +2800,7 @@ local function tryAutoPickup()
                     "[AUTO] Waiting for BreakRemaining <= 2..."
                 )
 
-                if not waitForBreakRemaining() then
+                if not waitForBreakRemaining(uuid) then
                     AutoPickupBusy = false
                     return
                 end
@@ -2998,7 +2834,7 @@ local function tryAutoPickup()
                 false
 
             local arrivalSuccess =
-                sendArrivalClaim()
+                sendArrivalClaim(uuid)
 
             if not arrivalSuccess then
                 AutoPickupAwaitingDeposit = false
