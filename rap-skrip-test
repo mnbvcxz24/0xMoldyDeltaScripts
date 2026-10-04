@@ -1,9 +1,4 @@
-local ver = "TEST v7"
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "RAP Skrip | 0xMoldy",
-    Text = ver,
-    Duration = 3
-})
+
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -150,7 +145,7 @@ local Subtitle = Instance.new("TextLabel")
 Subtitle.Size = UDim2.new(1, -125, 0, 18)
 Subtitle.Position = UDim2.fromOffset(16, 31)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "RAP SKRIP - 0xMoldy | " .. ver
+Subtitle.Text = "RAP SKRIP - 0xMoldy | v7"
 Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
 Subtitle.TextSize = textSize(11)
 Subtitle.Font = Enum.Font.Gotham
