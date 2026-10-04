@@ -33,9 +33,7 @@ Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 Gui.Enabled = true
 Gui.Parent = CoreGui
 
-local DebugLines = {
-    "[SYSTEM] ESP UI loaded."
-}
+local DebugLines = {"[SYSTEM] ESP UI loaded."}
 
 local DebugText
 local DebugBox
@@ -77,12 +75,10 @@ player.Idled:Connect(function()
     if not AntiAFKEnabled then
         return
     end
-
     pcall(function()
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new(0, 0))
     end)
-
     AddDebug("[ANTI AFK] Idle activity sent")
 end)
 
@@ -191,28 +187,16 @@ SidebarPadding.Parent = Sidebar
 
 local function updateSidebarSize()
     local contentHeight = SidebarLayout.AbsoluteContentSize.Y
-
     Sidebar.Size = UDim2.fromOffset(
         105,
         contentHeight + 10
     )
 end
 
-SidebarLayout:GetPropertyChangedSignal(
-    "AbsoluteContentSize"
-):Connect(updateSidebarSize)
-
+SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateSidebarSize)
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(
-    1,
-    -(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 15),
-    1,
-    -65
-)
-Content.Position = UDim2.fromOffset(
-    Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 5,
-    55
-)
+Content.Size = UDim2.new(1,-(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 15),1,-65)
+Content.Position = UDim2.fromOffset(Sidebar.Position.X.Offset + Sidebar.Size.X.Offset + 5,55)
 Content.BackgroundTransparency = 1
 Content.ClipsDescendants = false
 Content.Parent = Main
@@ -359,14 +343,7 @@ AutoPage.Visible = true
 
 local function createSidebarButton(text)
     local button = Instance.new("TextButton")
-
-    button.Size = UDim2.new(
-        1,
-        -10,
-        0,
-        math.max(36, textSize(12) + 24)
-    )
-
+    button.Size = UDim2.new(1,-10,0,math.max(36, textSize(12) + 24))
     button.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
     button.Text = text
     button.TextColor3 = Color3.fromRGB(210, 210, 218)
@@ -381,7 +358,6 @@ local function createSidebarButton(text)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 7)
     corner.Parent = button
-
     return button
 end
 
@@ -508,25 +484,9 @@ DetectedEggLayout.Parent = DetectedEggFrame
 
 local function updateDetectedEggFrameSize()
     local contentHeight = DetectedEggLayout.AbsoluteContentSize.Y
-    local maxHeight = math.max(
-        30,
-        ESPPage.AbsoluteSize.Y
-            - DetectedEggFrame.Position.Y.Offset
-            - 10
-    )
-
-    local visibleHeight = math.clamp(
-        contentHeight + 8,
-        30,
-        math.min(90, maxHeight)
-    )
-
-    DetectedEggFrame.Size = UDim2.new(
-        1,
-        -10,
-        0,
-        visibleHeight
-    )
+    local maxHeight = math.max(30,ESPPage.AbsoluteSize.Y- DetectedEggFrame.Position.Y.Offset- 10)
+    local visibleHeight = math.clamp(contentHeight + 8,30,math.min(90, maxHeight))
+    DetectedEggFrame.Size = UDim2.new(1,-10,0,visibleHeight)
 end
 
 DetectedEggLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateDetectedEggFrameSize)
@@ -539,7 +499,6 @@ local function updateDetectedEggList(lines)
             child:Destroy()
         end
     end
-
     for index, line in ipairs(lines) do
         local label = Instance.new("TextLabel")
         label.Size = UDim2.new(1, -10, 0, math.max(18, textSize(9) + 6))
@@ -636,46 +595,16 @@ local AutoVolcanoWaitingForMessage = false
 local VolcanoDipEvent
 local VolcanoDipResultEvent
 
-local VolcanoEntrance1Position = Vector3.new(
-    -4918.390625,
-    41274.457031,
-    -3673.695312
-)
-
-local VolcanoEntrance2Position = Vector3.new(
-    -4933.537109,
-    41275.101562,
-    -3672.198486
-)
-
-local VolcanoInside1Position = Vector3.new(
-    -4958.368164,
-    41277.191406,
-    -3669.209473
-)
-
-local VolcanoInside2Position = Vector3.new(
-    -5085.847656,
-    41253.742188,
-    -3509.459473
-)
-
-local VolcanoEggPosition = Vector3.new(
-    -5330.669922,
-    40912.410156,
-    -3575.845215
-)
-
-local VolcanoDropPosition = Vector3.new(
-    -5067.05859375,
-    41409.12890625,
-    -3471.73583984375
-)
+local VolcanoEntrance1Position = Vector3.new(-4918.390625,41274.457031,-3673.695312)
+local VolcanoEntrance2Position = Vector3.new(-4933.537109,41275.101562,-3672.198486)
+local VolcanoInside1Position = Vector3.new(-4958.368164,41277.191406,-3669.209473)
+local VolcanoInside2Position = Vector3.new(-5085.847656,41253.742188,-3509.459473)
+local VolcanoEggPosition = Vector3.new(-5330.669922,40912.410156,-3575.845215)
+local VolcanoDropPosition = Vector3.new(-5067.05859375,41409.12890625,-3471.73583984375)
 
 pcall(function()
     local Remotes = ReplicatedStorage:WaitForChild("Remotes")
     local GameRemotes = Remotes:WaitForChild("Game")
-
     EggPickupEvent = GameRemotes:WaitForChild("EggPickup")
     EggArrivalClaimEvent = GameRemotes:WaitForChild("EggArrivalClaim")
     TeleportToPlotEvent = GameRemotes:FindFirstChild("TeleportToPlot")
@@ -923,40 +852,20 @@ local claimDragging = false
 
 local function updateClaimDelayFromX(x)
     local width = AutoClaimBar.AbsoluteSize.X
-
     if width <= 0 then
         return
     end
-
-    local relative = math.clamp(
-        (x - AutoClaimBar.AbsolutePosition.X) / width,
-        0,
-        1
-    )
-
-    AutoPickupClaimDelay =
-        math.floor((1 + relative * 4) * 10 + 0.5) / 10
-
-    local alpha =
-        (AutoPickupClaimDelay - 1) / 4
-    
-    AutoClaimFill.Size =
-        UDim2.new(alpha, 0, 1, 0)
-    
-    AutoClaimKnob.Position =
-        UDim2.new(alpha, 0, 0.5, 0)
-    
-    AutoClaimLabel.Text =
-        string.format(
-            "Claim Delay: %.1fs",
-            AutoPickupClaimDelay
-        )
+    local relative = math.clamp((x - AutoClaimBar.AbsolutePosition.X) / width,0,1)
+    AutoPickupClaimDelay =math.floor((1 + relative * 4) * 10 + 0.5) / 10
+    local alpha =(AutoPickupClaimDelay - 1) / 4
+    AutoClaimFill.Size =UDim2.new(alpha, 0, 1, 0)
+    AutoClaimKnob.Position =UDim2.new(alpha, 0, 0.5, 0)
+    AutoClaimLabel.Text =string.format("Claim Delay: %.1fs",AutoPickupClaimDelay)
 end
 
 AutoClaimKnob.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
-
         claimDragging = true
     end
 end)
@@ -964,7 +873,6 @@ end)
 AutoClaimBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
-
         claimDragging = true
         updateClaimDelayFromX(input.Position.X)
     end
@@ -976,7 +884,6 @@ UserInputService.InputChanged:Connect(function(input)
             input.UserInputType == Enum.UserInputType.MouseMovement
             or input.UserInputType == Enum.UserInputType.Touch
         ) then
-
         updateClaimDelayFromX(input.Position.X)
     end
 end)
@@ -984,21 +891,15 @@ end)
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
-
         claimDragging = false
     end
 end)
 
 AutoMovementButton.MouseButton1Click:Connect(function()
     AutoPickupMovementMode = "Teleport"
-
     AutoMovementButton.Text = "Teleport"
-    AutoMovementButton.BackgroundColor3 =
-        Color3.fromRGB(55, 85, 60)
-
-    AutoMovementInfo.Text =
-        "Teleport active • Glide reserved"
-
+    AutoMovementButton.BackgroundColor3 =Color3.fromRGB(55, 85, 60)
+    AutoMovementInfo.Text ="Teleport active • Glide reserved"
     AddDebug("[AUTO] Movement mode: Teleport")
 end)
 
@@ -2274,68 +2175,6 @@ local function sendArrivalClaim(uuid)
     return true
 end
 
-local function dropAndRepickEgg(eggName)
-    local BasketDropEvent=ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Game"):WaitForChild("BasketDrop")
-    local previousDroppedUUIDs={}
-    local ActiveEggs=getActiveEggs()
-
-    if ActiveEggs then
-        for _,egg in ipairs(ActiveEggs:GetChildren()) do
-            local uuid=getEggUUID(egg)
-            if uuid then previousDroppedUUIDs[tostring(uuid)]=true end
-        end
-    end
-
-    local root=getCharacterRoot()
-    local dropPosition=root and root.Position
-    if not dropPosition then return nil end
-
-    AddDebug("[AUTO] Dropping original egg...")
-
-    local dropSuccess,dropErr=pcall(function()
-        BasketDropEvent:FireServer()
-    end)
-
-    if not dropSuccess then
-        AddDebug("[AUTO ERROR] Drop failed: "..tostring(dropErr))
-        return nil
-    end
-
-    AddDebug("[AUTO] Drop sent")
-
-    local droppedEgg=waitForDroppedEgg(eggName,previousDroppedUUIDs,dropPosition,10)
-    if not droppedEgg then return nil end
-
-    local droppedUUID=tostring(droppedEgg.UUID)
-    AddDebug("[AUTO] New dropped UUID: "..droppedUUID)
-
-    AutoPickupAwaitingUUID=droppedUUID
-    AutoPickupAwaitingPickup=true
-    AutoPickupPickupConfirmed=false
-
-    local repickupSuccess,repickupErr=pcall(function()
-        EggPickupEvent:FireServer(droppedUUID)
-    end)
-
-    if not repickupSuccess then
-        AutoPickupAwaitingPickup=false
-        AddDebug("[AUTO ERROR] Re-pickup failed: "..tostring(repickupErr))
-        return nil
-    end
-
-    if not waitForPickupConfirmation(droppedUUID) then
-        AutoPickupAwaitingPickup=false
-        AddDebug("[AUTO ERROR] Re-pickup confirmation timeout")
-        return nil
-    end
-
-    AutoPickupAwaitingPickup=false
-    AutoPickupPickupConfirmed=true
-    AddDebug("[AUTO] Dropped egg pickup confirmed")
-
-    return droppedUUID
-end
-
 local function tryAutoPickup()
     if not AutoPickupRunning or AutoPickupBusy or not EggPickupEvent then return end
     AutoPickupBusy=true
@@ -2411,11 +2250,12 @@ local function tryAutoPickup()
                 return
             end
 
-            local volcanoSuccess=pcall(function()
+            local volcanoSuccess,volcanoErr=pcall(function()
                 root.CFrame=CFrame.new(VolcanoDropPosition)
             end)
 
             if not volcanoSuccess then
+                AddDebug("[AUTO DIP] TP failed: "..tostring(volcanoErr))
                 AutoPickupBusy=false
                 return
             end
@@ -2439,7 +2279,7 @@ local function tryAutoPickup()
             if not dipSuccess then
                 AutoDipWaitingForResult=false
                 AutoVolcanoWaitingForMessage=false
-                AddDebug("[AUTO DIP] Failed to fire VolcanoDip: "..tostring(dipErr))
+                AddDebug("[AUTO DIP] VolcanoDip failed: "..tostring(dipErr))
                 AutoPickupBusy=false
                 return
             end
@@ -2493,12 +2333,81 @@ local function tryAutoPickup()
             return
         end
 
-        local droppedUUID=dropAndRepickEgg(eggName)
+        -- KEEP YOUR EXISTING DROP / UUID / RE-PICKUP CODE HERE.
+        -- Do not replace it with another helper.
 
-        if not droppedUUID then
+        local BasketDropEvent=ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Game"):WaitForChild("BasketDrop")
+        local previousDroppedUUIDs={}
+        local activeEggsBeforeDrop=getActiveEggs()
+
+        if activeEggsBeforeDrop then
+            for _,existingEgg in ipairs(activeEggsBeforeDrop:GetChildren()) do
+                local existingUUID=getEggUUID(existingEgg)
+                if existingUUID then
+                    previousDroppedUUIDs[tostring(existingUUID)]=true
+                end
+            end
+        end
+
+        local root=getCharacterRoot()
+        local dropPosition=root and root.Position
+
+        if not dropPosition then
             AutoPickupBusy=false
             return
         end
+
+        AddDebug("[AUTO] Dropping original egg...")
+
+        local dropSuccess,dropErr=pcall(function()
+            BasketDropEvent:FireServer()
+        end)
+
+        if not dropSuccess then
+            AddDebug("[AUTO ERROR] Drop failed: "..tostring(dropErr))
+            AutoPickupBusy=false
+            return
+        end
+
+        AddDebug("[AUTO] Drop sent")
+
+        local droppedEgg=waitForDroppedEgg(eggName,previousDroppedUUIDs,dropPosition,10)
+
+        if not droppedEgg then
+            AutoPickupBusy=false
+            return
+        end
+
+        local droppedUUID=tostring(droppedEgg.UUID)
+
+        AddDebug("[AUTO] New dropped UUID: "..droppedUUID)
+
+        AutoPickupAwaitingUUID=droppedUUID
+        AutoPickupAwaitingPickup=true
+        AutoPickupPickupConfirmed=false
+
+        local repickupSuccess,repickupErr=pcall(function()
+            EggPickupEvent:FireServer(droppedUUID)
+        end)
+
+        if not repickupSuccess then
+            AutoPickupAwaitingPickup=false
+            AddDebug("[AUTO ERROR] Re-pickup failed: "..tostring(repickupErr))
+            AutoPickupBusy=false
+            return
+        end
+
+        if not waitForPickupConfirmation(droppedUUID) then
+            AutoPickupAwaitingPickup=false
+            AddDebug("[AUTO ERROR] Re-pickup confirmation timeout")
+            AutoPickupBusy=false
+            return
+        end
+
+        AutoPickupAwaitingPickup=false
+        AutoPickupPickupConfirmed=true
+
+        AddDebug("[AUTO] Dropped egg pickup confirmed")
 
         if not teleportToMyPlot() then
             AutoPickupBusy=false
