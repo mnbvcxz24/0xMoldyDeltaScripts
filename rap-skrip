@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v10.4"
+local ver = "TEST v10.5"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2261,11 +2261,8 @@ local function tryAutoPickup()
             end
         
             AddDebug("[AUTO DIP] TP -> Volcano")
-        
             task.wait(0.25)
         
-            AutoDipResult=nil
-            AutoDipWaitingForResult=true
             AutoVolcanoMessageReceived=false
             AutoVolcanoMessageText=nil
             AutoVolcanoWaitingForMessage=true
@@ -2277,42 +2274,41 @@ local function tryAutoPickup()
             end)
         
             if not dipSuccess then
-                AutoDipWaitingForResult=false
                 AutoVolcanoWaitingForMessage=false
                 AddDebug("[AUTO DIP] VolcanoDip failed: "..tostring(dipErr))
                 AutoPickupBusy=false
                 return
             end
         
-            local dipStart=os.clock()
+            AddDebug("[AUTO DIP] Waiting for mutation message...")
         
-            while AutoPickupRunning and os.clock()-dipStart<10 do
-                if AutoDipResult~=nil then break end
-                if AutoVolcanoMessageReceived then break end
+            local mutationStart=os.clock()
+        
+            while AutoPickupRunning and not AutoVolcanoMessageReceived and os.clock()-mutationStart<15 do
                 task.wait(0.1)
             end
         
-            AutoDipWaitingForResult=false
             AutoVolcanoWaitingForMessage=false
         
-            if AutoDipResult~=nil and type(AutoDipResult)=="table" then
-                if AutoDipResult.Success==true then
-                    AddDebug("[AUTO DIP] Mutation successful")
-                else
-                    AddDebug("[AUTO DIP] Mutation failed")
-                end
-            elseif AutoVolcanoMessageReceived then
-                AddDebug("[AUTO DIP] Mutation result received")
-            else
-                AddDebug("[AUTO DIP] Mutation result timeout")
+            if not AutoVolcanoMessageReceived then
+                AddDebug("[AUTO DIP] Mutation message timeout")
+                AutoPickupBusy=false
+                return
             end
         
-            if AutoVolcanoMessageReceived and AutoVolcanoMessageText then
+            if AutoVolcanoMessageText then
                 AddDebug("[AUTO DIP] "..AutoVolcanoMessageText)
             end
         
-            AddDebug("[AUTO DIP] Waiting 3 seconds after mutation...")
+            AddDebug("[AUTO DIP] Mutation message received")
+            AddDebug("[AUTO DIP] Waiting 3 seconds...")
+        
             task.wait(3)
+        
+            if not AutoPickupRunning then
+                AutoPickupBusy=false
+                return
+            end
         
             stopAutoPickupFloat()
         
@@ -2474,12 +2470,10 @@ GameMessageEvent.OnClientEvent:Connect(function(message,_,data)
         AutoVolcanoMessageReceived=true
         AutoVolcanoMessageText=message
         AddDebug("[AUTO DIP] Mutation successful")
-        AddDebug("[AUTO DIP] "..message)
     elseif string.find(message," Egg Didn't Mutate",1,true) then
         AutoVolcanoMessageReceived=true
         AutoVolcanoMessageText=message
         AddDebug("[AUTO DIP] Mutation failed")
-        AddDebug("[AUTO DIP] "..message)
     end
 end)
 
