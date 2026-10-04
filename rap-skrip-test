@@ -1,4 +1,4 @@
-local ver = "TEST v6.5"
+local ver = "TEST v6.6"
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "RAP Skrip | 0xMoldy",
     Text = ver,
@@ -2508,9 +2508,7 @@ local function tryAutoPickup()
             
             local dropSuccess, dropErr =
                 pcall(function()
-                    BasketDropEvent:FireServer(
-                        uuid
-                    )
+                    BasketDropEvent:FireServer()
                 end)
             
             if not dropSuccess then
