@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v9.7"
+local ver = "TEST v9.8"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -2021,47 +2021,101 @@ local function getMyRanchCFrame()
         )
 end
 
-local function teleportToMyPlot()
-    local root =
-        getCharacterRoot()
+local function teleportToMyPlot(duration)
+    local root=getCharacterRoot()
 
     if not root then
-        AddDebug(
-            "[AUTO ERROR] HumanoidRootPart not found"
-        )
-
+        AddDebug("[AUTO ERROR] HumanoidRootPart not found")
         return false
     end
 
-    local ranchCFrame =
-        getMyRanchCFrame()
+    local ranchCFrame=getMyRanchCFrame()
 
     if not ranchCFrame then
-        AddDebug(
-            "[AUTO ERROR] Your plot/Baseplate was not found"
-        )
-
+        AddDebug("[AUTO ERROR] Your plot/Baseplate was not found")
         return false
     end
 
-    local success, err =
-        pcall(function()
-            root.CFrame = ranchCFrame
+    if not duration then
+        local success,err=pcall(function()
+            root.CFrame=ranchCFrame
         end)
 
-    if not success then
-        AddDebug(
-            "[AUTO ERROR] Ranch TP failed: " ..
-            tostring(err)
-        )
+        if not success then
+            AddDebug("[AUTO ERROR] Ranch TP failed: "..tostring(err))
+            return false
+        end
 
+        AddDebug("[AUTO] TP -> Your Plot")
+        return true
+    end
+
+    duration=tonumber(duration)
+
+    if not duration then
+        AddDebug("[AUTO ERROR] Invalid movement duration")
         return false
     end
 
-    AddDebug(
-        "[AUTO] TP -> Your Plot"
-    )
+    local startPosition=root.Position
+    local targetPosition=ranchCFrame.Position
+    local distance=(targetPosition-startPosition).Magnitude
 
+    if distance<=5 then
+        root.CFrame=ranchCFrame
+        AddDebug("[AUTO] Already at your plot")
+        return true
+    end
+
+    local stepDistance=50
+    local steps=math.max(1,math.ceil(distance/stepDistance))
+    local stepTime=duration/steps
+
+    if stepTime<0.1 then
+        stepTime=0.1
+    end
+    AddDebug(string.format(
+        "[AUTO MOVE] Distance: %.1f | Steps: %d | Duration: %.1fs",
+        distance,
+        steps,
+        duration
+    ))
+
+    for i=1,steps do
+        if not AutoPickupRunning then
+            return false
+        end
+        root=getCharacterRoot()
+        if not root then
+            AddDebug("[AUTO ERROR] HumanoidRootPart lost")
+            return false
+        end
+        local currentPosition=root.Position
+        local remainingDistance=(targetPosition-currentPosition).Magnitude
+        if remainingDistance<=5 then
+            break
+        end
+        local direction=(targetPosition-currentPosition).Unit
+        local moveDistance=math.min(stepDistance,remainingDistance)
+        local nextPosition=currentPosition+direction*moveDistance
+        root.CFrame=CFrame.new(nextPosition)
+        AddDebug(string.format(
+            "[AUTO MOVE] Step %d/%d | %.1f studs",
+            i,
+            steps,
+            remainingDistance
+        ))
+        task.wait(stepTime)
+    end
+    if not AutoPickupRunning then
+        return false
+    end
+    root=getCharacterRoot()
+    if not root then
+        return false
+    end
+    root.CFrame=ranchCFrame
+    AddDebug("[AUTO] Reached your plot")
     return true
 end
 
@@ -2228,29 +2282,101 @@ local function waitForDroppedEgg(eggName, previousUUIDs, dropPosition, timeout)
     return nil
 end
 
-local function waitForBreakRemaining(initialBreakRemaining)
-    local remaining=tonumber(initialBreakRemaining)
+local function moveToPlotOverTime(startPosition,remainingTime)
+    local root=getCharacterRoot()
 
-    if not remaining then
-        AddDebug("[AUTO TIMER ERROR] Invalid BreakRemaining")
+    if not root or not startPosition then
+        AddDebug("[AUTO MOVE ERROR] Character root or start position unavailable")
         return false
     end
 
-    remaining=math.floor(remaining)
+    local plotPosition
 
-    AddDebug("[AUTO TIMER] Starting at "..tostring(remaining).." seconds")
+    local success,err=pcall(function()
+        local plot=getMyPlot()
+        if plot then
+            if plot:IsA("BasePart") then
+                plotPosition=plot.Position
+            elseif plot:IsA("Model") then
+                plotPosition=plot:GetPivot().Position
+            end
+        end
+    end)
 
-    while AutoPickupRunning and remaining>1 do
-        AddDebug(string.format("[AUTO TIMER] BreakRemaining: %d",remaining))
-        task.wait(1)
-        remaining=remaining-1
+    if not success or not plotPosition then
+        AddDebug("[AUTO MOVE ERROR] Plot position unavailable")
+        return false
+    end
+
+    remainingTime=tonumber(remainingTime)
+
+    if not remainingTime then
+        AddDebug("[AUTO MOVE ERROR] Invalid BreakRemaining")
+        return false
+    end
+
+    remainingTime=math.max(remainingTime,2)
+
+    local distance=(plotPosition-startPosition).Magnitude
+    local stepDistance=50
+    local steps=math.max(1,math.ceil(distance/stepDistance))
+    local stepTime=(remainingTime-2)/steps
+
+    if stepTime<0.1 then
+        stepTime=0.1
+    end
+
+    AddDebug(string.format("[AUTO MOVE] Distance: %.1f",distance))
+    AddDebug(string.format("[AUTO MOVE] BreakRemaining: %.1fs",remainingTime))
+    AddDebug(string.format("[AUTO MOVE] Steps: %d | Step range: %.1f",steps,stepDistance))
+
+    for i=1,steps do
+        if not AutoPickupRunning then
+            return false
+        end
+
+        root=getCharacterRoot()
+
+        if not root then
+            return false
+        end
+
+        local currentPosition=root.Position
+        local remainingDistance=(plotPosition-currentPosition).Magnitude
+
+        if remainingDistance<=stepDistance then
+            break
+        end
+
+        local direction=(plotPosition-currentPosition).Unit
+        local nextPosition=currentPosition+direction*math.min(stepDistance,remainingDistance)
+
+        root.CFrame=CFrame.new(nextPosition)
+
+        local secondsLeft=math.max(2,remainingTime-(i*stepTime))
+
+        AddDebug(string.format("[AUTO MOVE] Step %d/%d | %.1fs remaining",i,steps,secondsLeft))
+
+        task.wait(stepTime)
     end
 
     if not AutoPickupRunning then
         return false
     end
 
-    AddDebug("[AUTO TIMER] BreakRemaining reached 2 seconds")
+    root=getCharacterRoot()
+
+    if root then
+        local remainingDistance=(plotPosition-root.Position).Magnitude
+
+        if remainingDistance>5 then
+            root.CFrame=CFrame.new(plotPosition)
+        end
+    end
+
+    AddDebug("[AUTO MOVE] Reached plot")
+    AddDebug("[AUTO MOVE] BreakRemaining target reached")
+
     return true
 end
 
@@ -2473,23 +2599,15 @@ local function tryAutoPickup()
         AutoPickupPickupConfirmed=true
 
         AddDebug("[AUTO] Dropped egg pickup confirmed")
+
         stopAutoPickupFloat()
+
         AddDebug("[AUTO] Float stopped")
-        AddDebug("[AUTO] Starting BreakRemaining countdown...")
+        AddDebug("[AUTO] Moving to plot using BreakRemaining...")
 
-        if not waitForBreakRemaining(initialBreakRemaining) then
-            AutoPickupBusy=false
-            return
-        end
+        local movementTime=math.max(0,initialBreakRemaining-2)
 
-        if not AutoPickupRunning then
-            AutoPickupBusy=false
-            return
-        end
-
-        AddDebug("[AUTO] Teleporting to ranch...")
-
-        if not teleportToMyPlot() then
+        if not teleportToMyPlot(movementTime) then
             AutoPickupBusy=false
             return
         end
