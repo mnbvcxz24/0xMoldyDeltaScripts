@@ -1,9 +1,11 @@
 local ver = "TEST v8.2"
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "RAP Skrip | 0xMoldy",
-    Text = ver,
-    Duration = 3
-})
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "RAP Skrip | 0xMoldy",
+        Text = ver,
+        Duration = 3
+    })
+end)
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -2519,10 +2521,6 @@ local function tryAutoPickup()
     local success, err =
         pcall(function()
 
-            -- =========================================================
-            -- FIND ORIGINAL TARGET
-            -- =========================================================
-
             local egg, uuid =
                 findNextAutoPickupEgg()
 
@@ -2551,10 +2549,6 @@ local function tryAutoPickup()
             local volcanicRoute =
                 eggName == "Volcanic Egg"
 
-            -- =========================================================
-            -- MOVE TO ORIGINAL EGG
-            -- =========================================================
-
             if volcanicRoute then
 
                 if not enterVolcanicEgg(egg) then
@@ -2577,10 +2571,6 @@ local function tryAutoPickup()
             end
 
             task.wait(0.15)
-
-            -- =========================================================
-            -- PICKUP ORIGINAL EGG
-            -- =========================================================
 
             AutoPickupAwaitingUUID =
                 tostring(uuid)
@@ -2670,10 +2660,6 @@ local function tryAutoPickup()
                 tostring(eggName)
             )
 
-            -- =========================================================
-            -- EXIT VOLCANO AFTER ORIGINAL PICKUP
-            -- =========================================================
-
             if volcanicRoute then
 
                 AddDebug(
@@ -2697,10 +2683,6 @@ local function tryAutoPickup()
                 AutoPickupBusy = false
                 return
             end
-
-            -- =========================================================
-            -- SNAPSHOT ACTIVEEGGS BEFORE DROP
-            -- =========================================================
 
             AddDebug(
                 "[AUTO] Preparing to drop..."
@@ -2744,10 +2726,6 @@ local function tryAutoPickup()
                 return
             end
 
-            -- =========================================================
-            -- SAVE DROP POSITION
-            -- =========================================================
-
             local characterRoot =
                 getCharacterRoot()
 
@@ -2764,10 +2742,6 @@ local function tryAutoPickup()
                 AutoPickupBusy = false
                 return
             end
-
-            -- =========================================================
-            -- DROP
-            -- =========================================================
 
             AddDebug(
                 "[AUTO] Dropping egg..."
@@ -2799,10 +2773,6 @@ local function tryAutoPickup()
                 "[AUTO] Drop request sent"
             )
 
-            -- =========================================================
-            -- WAIT FOR SERVER TO REGISTER DROP
-            -- =========================================================
-
             local dropScanDelay = 0.75
 
             AddDebug(
@@ -2818,10 +2788,6 @@ local function tryAutoPickup()
                 AutoPickupBusy = false
                 return
             end
-
-            -- =========================================================
-            -- FIND NEW DROPPED EGG
-            -- =========================================================
 
             AddDebug(
                 "[AUTO] Scanning ActiveEggs for dropped egg..."
@@ -2868,10 +2834,6 @@ local function tryAutoPickup()
                     initialBreakRemaining or 0
                 )
             )
-
-            -- =========================================================
-            -- PICK UP THE DROPPED EGG AGAIN
-            -- =========================================================
 
             AddDebug(
                 "[AUTO] Picking up dropped egg again..."
@@ -2940,10 +2902,6 @@ local function tryAutoPickup()
                 "[AUTO] Dropped egg picked up again"
             )
 
-            -- =========================================================
-            -- AUTO DIP
-            -- =========================================================
-
             if AutoDipEnabled then
 
                 AddDebug(
@@ -2983,10 +2941,6 @@ local function tryAutoPickup()
                     return
                 end
 
-                -- =====================================================
-                -- FIRE DIP
-                -- =====================================================
-
                 AddDebug(
                     "[AUTO DIP] Firing VolcanoDip..."
                 )
@@ -3022,10 +2976,6 @@ local function tryAutoPickup()
                 )
 
                 local dipReceived = false
-
-                -- =====================================================
-                -- DIP RESULT / RETRY
-                -- =====================================================
 
                 for dipAttempt = 1, 2 do
 
@@ -3090,10 +3040,6 @@ local function tryAutoPickup()
                     end
                 end
 
-                -- =====================================================
-                -- DIP FAILED / NO RESULT
-                -- =====================================================
-
                 if not dipReceived then
 
                     AutoDipWaitingForResult = false
@@ -3116,10 +3062,6 @@ local function tryAutoPickup()
                     end
 
                 else
-
-                    -- =================================================
-                    -- DIP RESULT RECEIVED
-                    -- =================================================
 
                     AddDebug(
                         "[AUTO DIP] Result received: " ..
@@ -3157,10 +3099,6 @@ local function tryAutoPickup()
                         return
                     end
 
-                    -- =================================================
-                    -- MUTATION MESSAGE TIMEOUT
-                    -- =================================================
-
                     if not AutoVolcanoMessageReceived then
 
                         AutoVolcanoWaitingForMessage = false
@@ -3185,10 +3123,6 @@ local function tryAutoPickup()
 
                     else
 
-                        -- =============================================
-                        -- MUTATION COMPLETED
-                        -- =============================================
-
                         AddDebug(
                             "[AUTO DIP] Mutation process completed"
                         )
@@ -3201,10 +3135,6 @@ local function tryAutoPickup()
                             AutoPickupBusy = false
                             return
                         end
-
-                        -- =============================================
-                        -- RESCAN SAME DROPPED EGG
-                        -- =============================================
 
                         AddDebug(
                             "[AUTO DIP] Waiting before timer rescan..."
@@ -3267,10 +3197,6 @@ local function tryAutoPickup()
 
             else
 
-                -- =====================================================
-                -- AUTO DIP DISABLED
-                -- =====================================================
-
                 AddDebug(
                     "[AUTO] Volcano DIP disabled"
                 )
@@ -3287,10 +3213,6 @@ local function tryAutoPickup()
                     return
                 end
             end
-
-            -- =========================================================
-            -- TELEPORT TO RANCH
-            -- =========================================================
 
             if not AutoPickupRunning then
                 AutoPickupBusy = false
@@ -3316,10 +3238,6 @@ local function tryAutoPickup()
             end
 
             task.wait(0.15)
-
-            -- =========================================================
-            -- ARRIVAL CLAIM
-            -- =========================================================
 
             AutoPickupAwaitingDeposit =
                 true
@@ -3369,10 +3287,6 @@ local function tryAutoPickup()
                 return
             end
 
-            -- =========================================================
-            -- CLEANUP
-            -- =========================================================
-
             AutoPickupAwaitingUUID = nil
             AutoPickupAwaitingPickup = false
             AutoPickupAwaitingDeposit = false
@@ -3393,10 +3307,6 @@ local function tryAutoPickup()
                 AutoPickupNextEggDelay
             )
         end)
-
-    -- =============================================================
-    -- FINAL CLEANUP
-    -- =============================================================
 
     if not success then
 
