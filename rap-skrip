@@ -3820,6 +3820,7 @@ ScanButton.MouseButton1Click:Connect(function()
                     #eggs
                 )
             )
+
             for _, egg in ipairs(
                 eggs
             ) do
@@ -3902,6 +3903,7 @@ Toggle.MouseButton1Click:Connect(function()
         AddDebug(
             "[ESP] Disabled"
         )
+
         clearESP()
     end
 end)
@@ -3913,6 +3915,7 @@ task.spawn(function()
                 updateESP()
             end)
         end
+
         task.wait(1)
     end
 end)
@@ -3920,7 +3923,9 @@ end)
 task.spawn(function()
     local lastAutoError = ""
     local lastAutoErrorTime = 0
+
     while Gui.Parent do
+
         if AutoPickupRunning
             and not AutoPickupBusy then
 
@@ -3932,17 +3937,31 @@ task.spawn(function()
             if not success then
                 local errorText =
                     tostring(err)
-                local now =os.clock()
+
+                local now =
+                    os.clock()
+
                 if errorText ~= lastAutoError
                     or now - lastAutoErrorTime >= 5 then
-                    AddDebug("[AUTO ERROR] " ..errorText )
-                    lastAutoError =errorText
-                    lastAutoErrorTime =now
+
+                    AddDebug(
+                        "[AUTO ERROR] " ..
+                        errorText
+                    )
+
+                    lastAutoError =
+                        errorText
+
+                    lastAutoErrorTime =
+                        now
                 end
+
                 AutoPickupBusy = false
+
                 task.wait(1)
             end
         end
+
         task.wait(0.25)
     end
 end)
@@ -4093,48 +4112,140 @@ ConfigSaveButton.MouseButton1Click:Connect(function()
 end)
 
 AutoExecuteButton.MouseButton1Click:Connect(function()
-    local content ='loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-skrip"))()'
+    local content =
+        'loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-skrip"))()'
+
     local success, err =
-        pcall(function(
+        pcall(function()
+
             if makefolder
                 and isfolder
-                and not isfolder("RAPSkrip") 
-                then
-                makefolder("RAPSkrip")
+                and not isfolder(
+                    "RAPSkrip"
+                ) then
+
+                makefolder(
+                    "RAPSkrip"
+                )
             end
-            writefile("RAPSkrip/rap_skrip_test.txt",content)
+
+            writefile(
+                "RAPSkrip/rap_skrip_test.txt",
+                content
+            )
         end)
+
     if success then
-        AutoExecuteStatus.Text ="Created: rap_skrip_test.txt"
-        AddDebug("[AUTOEXEC] rap_skrip_test.txt created")
+        AutoExecuteStatus.Text =
+            "Created: rap_skrip_test.txt"
+
+        AddDebug(
+            "[AUTOEXEC] rap_skrip_test.txt created"
+        )
     else
-        AutoExecuteStatus.Text ="Failed: " ..tostring(err)
-        AddDebug("[AUTOEXEC ERROR] " ..tostring(err))
+        AutoExecuteStatus.Text =
+            "Failed: " ..
+            tostring(err)
+
+        AddDebug(
+            "[AUTOEXEC ERROR] " ..
+            tostring(err)
+        )
     end
 end)
+
 updateAntiAFKButton()
-local Minimized =Instance.new("TextButton")
-Minimized.Size =UDim2.fromOffset(39,30)
-Minimized.AnchorPoint =Vector2.new(0.5,0.5)
-Minimized.Position =UDim2.fromScale(0.5,0.5)
-Minimized.BackgroundColor3 =Color3.fromRGB(35,35,42)
-Minimized.Text ="RAP"
-Minimized.TextSize =textSize(12)
-Minimized.TextColor3 =Color3.fromRGB(220,220,225)
-Minimized.Font =Enum.Font.GothamBold
-Minimized.AutoButtonColor =false
-Minimized.Active =true
-Minimized.Selectable =true
-Minimized.ZIndex =100
-Minimized.Visible =false
-Minimized.Parent = Gui
-local MinCorner =Instance.new("UICorner")
-MinCorner.CornerRadius =UDim.new(1,0)
-MinCorner.Parent =Minimized
-local MinimizedStroke =Instance.new("UIStroke")
-MinimizedStroke.Color =Color3.fromRGB(55,55,65)
-MinimizedStroke.Thickness =1
-MinimizedStroke.Parent =Minimized
+
+local Minimized =
+    Instance.new("TextButton")
+
+Minimized.Size =
+    UDim2.fromOffset(
+        39,
+        30
+    )
+
+Minimized.AnchorPoint =
+    Vector2.new(
+        0.5,
+        0.5
+    )
+
+Minimized.Position =
+    UDim2.fromScale(
+        0.5,
+        0.5
+    )
+
+Minimized.BackgroundColor3 =
+    Color3.fromRGB(
+        35,
+        35,
+        42
+    )
+
+Minimized.Text =
+    "RAP"
+
+Minimized.TextSize =
+    textSize(12)
+
+Minimized.TextColor3 =
+    Color3.fromRGB(
+        220,
+        220,
+        225
+    )
+
+Minimized.Font =
+    Enum.Font.GothamBold
+
+Minimized.AutoButtonColor =
+    false
+
+Minimized.Active =
+    true
+
+Minimized.Selectable =
+    true
+
+Minimized.ZIndex =
+    100
+
+Minimized.Visible =
+    false
+
+Minimized.Parent =
+    Gui
+
+local MinCorner =
+    Instance.new("UICorner")
+
+MinCorner.CornerRadius =
+    UDim.new(
+        1,
+        0
+    )
+
+MinCorner.Parent =
+    Minimized
+
+local MinimizedStroke =
+    Instance.new("UIStroke")
+
+MinimizedStroke.Color =
+    Color3.fromRGB(
+        55,
+        55,
+        65
+    )
+
+MinimizedStroke.Thickness =
+    1
+
+MinimizedStroke.Parent =
+    Minimized
+
 local dragging = false
 local dragStart
 local startPos
@@ -4144,15 +4255,21 @@ Header.InputBegan:Connect(function(input)
         Enum.UserInputType.MouseButton1
         or input.UserInputType ==
         Enum.UserInputType.Touch then
+
         dragging = true
+
         dragStart =
             input.Position
+
         startPos =
             Main.Position
+
         input.Changed:Connect(
             function()
+
                 if input.UserInputState ==
                     Enum.UserInputState.End then
+
                     dragging = false
                 end
             end
@@ -4169,15 +4286,21 @@ Minimized.InputBegan:Connect(function(input)
         Enum.UserInputType.MouseButton1
         or input.UserInputType ==
         Enum.UserInputType.Touch then
+
         minimizedDragging = true
+
         minimizedDragStart =
             input.Position
+
         minimizedStartPos =
             Minimized.Position
+
         input.Changed:Connect(
             function()
+
                 if input.UserInputState ==
                     Enum.UserInputState.End then
+
                     minimizedDragging = false
                 end
             end
@@ -4193,6 +4316,7 @@ UserInputService.InputChanged:Connect(function(input)
             or input.UserInputType ==
                 Enum.UserInputType.Touch
         ) then
+
         local delta =
             input.Position -
             minimizedDragStart
@@ -4217,6 +4341,7 @@ UserInputService.InputChanged:Connect(function(input)
             or input.UserInputType ==
                 Enum.UserInputType.Touch
         ) then
+
         local delta =
             input.Position -
             dragStart
@@ -4238,11 +4363,14 @@ local function showPage(page)
     ESPPage.Visible = false
     DebugPage.Visible = false
     SettingsPage.Visible = false
+
     AutoContent2.Visible = false
     ESPContent2.Visible = false
     DebugContent2.Visible = false
     SettingsContent2.Visible = false
+
     page.Visible = true
+
     if page == AutoPage then
         AutoContent2.Visible = true
     elseif page == ESPPage then
@@ -4252,6 +4380,7 @@ local function showPage(page)
     elseif page == SettingsPage then
         SettingsContent2.Visible = true
     end
+
     FilterFrame.Visible = false
     AutoFilterFrame.Visible = false
 end
@@ -4259,19 +4388,24 @@ end
 AutoButton.MouseButton1Click:Connect(function()
     showPage(AutoPage)
 end)
+
 ESPButton.MouseButton1Click:Connect(function()
     showPage(ESPPage)
 end)
+
 DebugButton.MouseButton1Click:Connect(function()
     showPage(DebugPage)
 end)
+
 SettingsButton.MouseButton1Click:Connect(function()
     showPage(SettingsPage)
 end)
+
 Minimize.MouseButton1Click:Connect(function()
     Main.Visible = false
     Minimized.Visible = true
 end)
+
 Minimized.MouseButton1Click:Connect(function()
     Main.Visible = true
     Minimized.Visible = false
@@ -4301,6 +4435,7 @@ Close.MouseButton1Click:Connect(function()
             oldESP:Destroy()
         end
     end)
+
     Gui:Destroy()
 end)
 
