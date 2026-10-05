@@ -1,184 +1,224 @@
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CoreGui = game:GetService("CoreGui")
-local UserInputService = game:GetService("UserInputService")
+local Players=game:GetService("Players")
+local ReplicatedStorage=game:GetService("ReplicatedStorage")
+local CoreGui=game:GetService("CoreGui")
+local UserInputService=game:GetService("UserInputService")
 
 pcall(function()
-    local old = CoreGui:FindFirstChild("ModuleScanner")
-    if old then
-        old:Destroy()
-    end
+    local old=CoreGui:FindFirstChild("ModuleScanner")
+    if old then old:Destroy() end
 end)
 
-local Gui = Instance.new("ScreenGui")
-Gui.Name = "ModuleScanner"
-Gui.ResetOnSpawn = false
-Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Gui.Parent = CoreGui
+local Gui=Instance.new("ScreenGui")
+Gui.Name="ModuleScanner"
+Gui.ResetOnSpawn=false
+Gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+Gui.Parent=CoreGui
 
-local Main = Instance.new("Frame")
-Main.Size = UDim2.fromOffset(620, 420)
-Main.Position = UDim2.new(0.5, -310, 0.5, -210)
-Main.BackgroundColor3 = Color3.fromRGB(22, 22, 27)
-Main.BorderSizePixel = 0
-Main.Parent = Gui
+local Main=Instance.new("Frame")
+Main.Size=UDim2.fromOffset(620,420)
+Main.Position=UDim2.new(0.5,-310,0.5,-210)
+Main.BackgroundColor3=Color3.fromRGB(22,22,27)
+Main.BorderSizePixel=0
+Main.Parent=Gui
 
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 7)
-Corner.Parent = Main
+local Corner=Instance.new("UICorner")
+Corner.CornerRadius=UDim.new(0,7)
+Corner.Parent=Main
 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -45, 0, 32)
-Title.Position = UDim2.fromOffset(10, 3)
-Title.BackgroundTransparency = 1
-Title.Text = "Data Scanner"
-Title.TextColor3 = Color3.fromRGB(235, 235, 240)
-Title.TextSize = 14
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Main
+local Title=Instance.new("TextLabel")
+Title.Size=UDim2.new(1,-45,0,32)
+Title.Position=UDim2.fromOffset(10,3)
+Title.BackgroundTransparency=1
+Title.Text="Data Scanner"
+Title.TextColor3=Color3.fromRGB(235,235,240)
+Title.TextSize=14
+Title.Font=Enum.Font.GothamBold
+Title.TextXAlignment=Enum.TextXAlignment.Left
+Title.Parent=Main
 
-local Close = Instance.new("TextButton")
-Close.Size = UDim2.fromOffset(26, 26)
-Close.Position = UDim2.new(1, -32, 0, 6)
-Close.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-Close.Text = "×"
-Close.TextColor3 = Color3.fromRGB(240, 240, 240)
-Close.TextSize = 16
-Close.Font = Enum.Font.GothamBold
-Close.Active = true
-Close.ZIndex = 10
-Close.Parent = Main
+local Close=Instance.new("TextButton")
+Close.Size=UDim2.fromOffset(26,26)
+Close.Position=UDim2.new(1,-32,0,6)
+Close.BackgroundColor3=Color3.fromRGB(45,45,52)
+Close.BorderSizePixel=0
+Close.Text="×"
+Close.TextColor3=Color3.fromRGB(240,240,240)
+Close.TextSize=16
+Close.Font=Enum.Font.GothamBold
+Close.Active=true
+Close.ZIndex=10
+Close.Parent=Main
 
-local ServiceButton = Instance.new("TextButton")
-ServiceButton.Size = UDim2.fromOffset(150, 26)
-ServiceButton.Position = UDim2.fromOffset(10, 38)
-ServiceButton.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-ServiceButton.BorderSizePixel = 0
-ServiceButton.Text = "ReplicatedStorage ▼"
-ServiceButton.TextColor3 = Color3.fromRGB(235, 235, 240)
-ServiceButton.TextSize = 9
-ServiceButton.Font = Enum.Font.Gotham
-ServiceButton.TextXAlignment = Enum.TextXAlignment.Left
-ServiceButton.Active = true
-ServiceButton.ZIndex = 10
-ServiceButton.Parent = Main
+local ServiceButton=Instance.new("TextButton")
+ServiceButton.Size=UDim2.fromOffset(150,26)
+ServiceButton.Position=UDim2.fromOffset(10,38)
+ServiceButton.BackgroundColor3=Color3.fromRGB(30,30,36)
+ServiceButton.BorderSizePixel=0
+ServiceButton.Text="ReplicatedStorage ▼"
+ServiceButton.TextColor3=Color3.fromRGB(235,235,240)
+ServiceButton.TextSize=9
+ServiceButton.Font=Enum.Font.Gotham
+ServiceButton.TextXAlignment=Enum.TextXAlignment.Left
+ServiceButton.Active=true
+ServiceButton.ZIndex=10
+ServiceButton.Parent=Main
 
-local ServicePadding = Instance.new("UIPadding")
-ServicePadding.PaddingLeft = UDim.new(0, 7)
-ServicePadding.Parent = ServiceButton
+local ServicePadding=Instance.new("UIPadding")
+ServicePadding.PaddingLeft=UDim.new(0,7)
+ServicePadding.Parent=ServiceButton
 
-local ServiceCorner = Instance.new("UICorner")
-ServiceCorner.CornerRadius = UDim.new(0, 4)
-ServiceCorner.Parent = ServiceButton
+local ServiceCorner=Instance.new("UICorner")
+ServiceCorner.CornerRadius=UDim.new(0,4)
+ServiceCorner.Parent=ServiceButton
 
-local Search = Instance.new("TextBox")
-Search.Size = UDim2.fromOffset(180, 26)
-Search.Position = UDim2.fromOffset(168, 38)
-Search.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-Search.BorderSizePixel = 0
-Search.PlaceholderText = "Search..."
-Search.PlaceholderColor3 = Color3.fromRGB(130, 130, 140)
-Search.Text = ""
-Search.TextColor3 = Color3.fromRGB(235, 235, 240)
-Search.TextSize = 9
-Search.Font = Enum.Font.Gotham
-Search.ClearTextOnFocus = false
-Search.Parent = Main
+local Search=Instance.new("TextBox")
+Search.Size=UDim2.fromOffset(180,26)
+Search.Position=UDim2.fromOffset(168,38)
+Search.BackgroundColor3=Color3.fromRGB(30,30,36)
+Search.BorderSizePixel=0
+Search.PlaceholderText="Search..."
+Search.PlaceholderColor3=Color3.fromRGB(130,130,140)
+Search.Text=""
+Search.TextColor3=Color3.fromRGB(235,235,240)
+Search.TextSize=9
+Search.Font=Enum.Font.Gotham
+Search.ClearTextOnFocus=false
+Search.Parent=Main
 
-local SearchCorner = Instance.new("UICorner")
-SearchCorner.CornerRadius = UDim.new(0, 4)
-SearchCorner.Parent = Search
+local SearchCorner=Instance.new("UICorner")
+SearchCorner.CornerRadius=UDim.new(0,4)
+SearchCorner.Parent=Search
 
-local SelectedLabel = Instance.new("TextLabel")
-SelectedLabel.Size = UDim2.fromOffset(190, 22)
-SelectedLabel.Position = UDim2.fromOffset(358, 39)
-SelectedLabel.BackgroundTransparency = 1
-SelectedLabel.Text = "Selected: --"
-SelectedLabel.TextColor3 = Color3.fromRGB(170, 170, 180)
-SelectedLabel.TextSize = 9
-SelectedLabel.Font = Enum.Font.Gotham
-SelectedLabel.TextXAlignment = Enum.TextXAlignment.Left
-SelectedLabel.TextTruncate = Enum.TextTruncate.AtEnd
-SelectedLabel.Parent = Main
+local SelectedLabel=Instance.new("TextLabel")
+SelectedLabel.Size=UDim2.fromOffset(190,22)
+SelectedLabel.Position=UDim2.fromOffset(358,39)
+SelectedLabel.BackgroundTransparency=1
+SelectedLabel.Text="Selected: --"
+SelectedLabel.TextColor3=Color3.fromRGB(170,170,180)
+SelectedLabel.TextSize=9
+SelectedLabel.Font=Enum.Font.Gotham
+SelectedLabel.TextXAlignment=Enum.TextXAlignment.Left
+SelectedLabel.TextTruncate=Enum.TextTruncate.AtEnd
+SelectedLabel.Parent=Main
 
-local RequireButton = Instance.new("TextButton")
-RequireButton.Size = UDim2.fromOffset(70, 26)
-RequireButton.Position = UDim2.new(1, -80, 0, 38)
-RequireButton.BackgroundColor3 = Color3.fromRGB(45, 100, 65)
-RequireButton.Text = "REQUIRE"
-RequireButton.TextColor3 = Color3.fromRGB(240, 240, 240)
-RequireButton.TextSize = 9
-RequireButton.Font = Enum.Font.GothamBold
-RequireButton.Active = true
-RequireButton.ZIndex = 10
-RequireButton.Parent = Main
+local RequireButton=Instance.new("TextButton")
+RequireButton.Size=UDim2.fromOffset(70,26)
+RequireButton.Position=UDim2.new(1,-80,0,38)
+RequireButton.BackgroundColor3=Color3.fromRGB(45,100,65)
+RequireButton.BorderSizePixel=0
+RequireButton.Text="REQUIRE"
+RequireButton.TextColor3=Color3.fromRGB(240,240,240)
+RequireButton.TextSize=9
+RequireButton.Font=Enum.Font.GothamBold
+RequireButton.Active=true
+RequireButton.ZIndex=10
+RequireButton.Parent=Main
 
-local RequireCorner = Instance.new("UICorner")
-RequireCorner.CornerRadius = UDim.new(0, 4)
-RequireCorner.Parent = RequireButton
+local RequireCorner=Instance.new("UICorner")
+RequireCorner.CornerRadius=UDim.new(0,4)
+RequireCorner.Parent=RequireButton
 
-local Tree = Instance.new("ScrollingFrame")
-Tree.Size = UDim2.fromOffset(245, 340)
-Tree.Position = UDim2.fromOffset(10, 70)
-Tree.BackgroundColor3 = Color3.fromRGB(27, 27, 33)
-Tree.BorderSizePixel = 0
-Tree.ScrollBarThickness = 3
-Tree.CanvasSize = UDim2.new()
-Tree.Parent = Main
+local PathBox=Instance.new("TextBox")
+PathBox.Size=UDim2.fromOffset(515,25)
+PathBox.Position=UDim2.fromOffset(10,67)
+PathBox.BackgroundColor3=Color3.fromRGB(30,30,36)
+PathBox.BorderSizePixel=0
+PathBox.PlaceholderText="Path: Workspace.Plots.Plot.Eggs.Cherub Egg.RootPart"
+PathBox.PlaceholderColor3=Color3.fromRGB(120,120,130)
+PathBox.Text=""
+PathBox.TextColor3=Color3.fromRGB(235,235,240)
+PathBox.TextSize=9
+PathBox.Font=Enum.Font.Gotham
+PathBox.ClearTextOnFocus=false
+PathBox.Parent=Main
 
-local TreeLayout = Instance.new("UIListLayout")
-TreeLayout.Padding = UDim.new(0, 1)
-TreeLayout.Parent = Tree
+local PathCorner=Instance.new("UICorner")
+PathCorner.CornerRadius=UDim.new(0,4)
+PathCorner.Parent=PathBox
 
-local Output = Instance.new("ScrollingFrame")
-Output.Size = UDim2.fromOffset(345, 340)
-Output.Position = UDim2.fromOffset(265, 70)
-Output.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
-Output.BorderSizePixel = 0
-Output.ScrollBarThickness = 4
-Output.CanvasSize = UDim2.new()
-Output.Parent = Main
+local PathPadding=Instance.new("UIPadding")
+PathPadding.PaddingLeft=UDim.new(0,7)
+PathPadding.PaddingRight=UDim.new(0,7)
+PathPadding.Parent=PathBox
 
-local OutputLayout = Instance.new("UIListLayout")
-OutputLayout.Padding = UDim.new(0, 0)
-OutputLayout.Parent = Output
+local GoPathButton=Instance.new("TextButton")
+GoPathButton.Size=UDim2.fromOffset(75,25)
+GoPathButton.Position=UDim2.fromOffset(535,67)
+GoPathButton.BackgroundColor3=Color3.fromRGB(45,100,65)
+GoPathButton.BorderSizePixel=0
+GoPathButton.Text="GO"
+GoPathButton.TextColor3=Color3.fromRGB(240,240,240)
+GoPathButton.TextSize=9
+GoPathButton.Font=Enum.Font.GothamBold
+GoPathButton.Active=true
+GoPathButton.ZIndex=10
+GoPathButton.Parent=Main
 
-local Status = Instance.new("TextLabel")
-Status.Size = UDim2.new(1, -20, 0, 18)
-Status.Position = UDim2.fromOffset(10, 397)
-Status.BackgroundTransparency = 1
-Status.Text = "Ready"
-Status.TextColor3 = Color3.fromRGB(140, 140, 150)
-Status.TextSize = 8
-Status.Font = Enum.Font.Gotham
-Status.TextXAlignment = Enum.TextXAlignment.Left
-Status.Parent = Main
+local GoPathCorner=Instance.new("UICorner")
+GoPathCorner.CornerRadius=UDim.new(0,4)
+GoPathCorner.Parent=GoPathButton
 
-local ServiceMenu = Instance.new("Frame")
-ServiceMenu.Size = UDim2.fromOffset(150, 220)
-ServiceMenu.Position = UDim2.fromOffset(10, 65)
-ServiceMenu.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
-ServiceMenu.BorderSizePixel = 0
-ServiceMenu.Visible = false
-ServiceMenu.ZIndex = 50
-ServiceMenu.Parent = Main
+local Tree=Instance.new("ScrollingFrame")
+Tree.Size=UDim2.fromOffset(245,315)
+Tree.Position=UDim2.fromOffset(10,96)
+Tree.BackgroundColor3=Color3.fromRGB(27,27,33)
+Tree.BorderSizePixel=0
+Tree.ScrollBarThickness=3
+Tree.CanvasSize=UDim2.new()
+Tree.Parent=Main
 
-local ServiceMenuCorner = Instance.new("UICorner")
-ServiceMenuCorner.CornerRadius = UDim.new(0, 5)
-ServiceMenuCorner.Parent = ServiceMenu
+local TreeLayout=Instance.new("UIListLayout")
+TreeLayout.Padding=UDim.new(0,1)
+TreeLayout.Parent=Tree
 
-local ServiceMenuList = Instance.new("UIListLayout")
-ServiceMenuList.Padding = UDim.new(0, 1)
-ServiceMenuList.Parent = ServiceMenu
+local Output=Instance.new("ScrollingFrame")
+Output.Size=UDim2.fromOffset(345,315)
+Output.Position=UDim2.fromOffset(265,96)
+Output.BackgroundColor3=Color3.fromRGB(16,16,20)
+Output.BorderSizePixel=0
+Output.ScrollBarThickness=4
+Output.CanvasSize=UDim2.new()
+Output.Parent=Main
 
-local selectedInstance = nil
-local selectedService = ReplicatedStorage
-local expanded = {}
-local nodeButtons = {}
-local serviceButtons = {}
+local OutputLayout=Instance.new("UIListLayout")
+OutputLayout.Padding=UDim.new(0,0)
+OutputLayout.Parent=Output
 
-local serviceNames = {
+local Status=Instance.new("TextLabel")
+Status.Size=UDim2.new(1,-20,0,18)
+Status.Position=UDim2.fromOffset(10,397)
+Status.BackgroundTransparency=1
+Status.Text="Ready"
+Status.TextColor3=Color3.fromRGB(140,140,150)
+Status.TextSize=8
+Status.Font=Enum.Font.Gotham
+Status.TextXAlignment=Enum.TextXAlignment.Left
+Status.Parent=Main
+
+local ServiceMenu=Instance.new("Frame")
+ServiceMenu.Size=UDim2.fromOffset(150,220)
+ServiceMenu.Position=UDim2.fromOffset(10,65)
+ServiceMenu.BackgroundColor3=Color3.fromRGB(30,30,36)
+ServiceMenu.BorderSizePixel=0
+ServiceMenu.Visible=false
+ServiceMenu.ZIndex=50
+ServiceMenu.Parent=Main
+
+local ServiceMenuCorner=Instance.new("UICorner")
+ServiceMenuCorner.CornerRadius=UDim.new(0,5)
+ServiceMenuCorner.Parent=ServiceMenu
+
+local ServiceMenuList=Instance.new("UIListLayout")
+ServiceMenuList.Padding=UDim.new(0,1)
+ServiceMenuList.Parent=ServiceMenu
+
+local selectedInstance=nil
+local selectedService=ReplicatedStorage
+local expanded={}
+local nodeButtons={}
+local serviceButtons={}
+
+local serviceNames={
     "ReplicatedStorage",
     "Players",
     "Workspace",
@@ -200,404 +240,415 @@ local serviceNames = {
 }
 
 local function safeToString(value)
-    local ok, result = pcall(function()
+    local ok,result=pcall(function()
         return tostring(value)
     end)
-
-    if ok then
-        return result
-    end
-
+    if ok then return result end
     return "<tostring failed>"
 end
 
 local function valueType(value)
-    local ok, result = pcall(function()
+    local ok,result=pcall(function()
         return typeof(value)
     end)
-
-    if ok then
-        return result
-    end
-
+    if ok then return result end
     return type(value)
 end
 
 local function clearOutput()
-    for _, child in ipairs(Output:GetChildren()) do
+    for _,child in ipairs(Output:GetChildren()) do
         if child:IsA("TextLabel") then
             child:Destroy()
         end
     end
-
-    Output.CanvasSize = UDim2.new()
+    Output.CanvasSize=UDim2.new()
 end
 
 local function updateOutputCanvas()
     task.defer(function()
-        Output.CanvasSize = UDim2.fromOffset(
-            0,
-            OutputLayout.AbsoluteContentSize.Y + 8
-        )
+        Output.CanvasSize=UDim2.fromOffset(0,OutputLayout.AbsoluteContentSize.Y+8)
     end)
 end
 
-local function addLine(text, depth)
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -8, 0, 15)
-    label.BackgroundTransparency = 1
-    label.Text = string.rep("  ", depth or 0) .. tostring(text)
-    label.TextColor3 = Color3.fromRGB(210, 210, 220)
-    label.TextSize = 9
-    label.Font = Enum.Font.Code
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextYAlignment = Enum.TextYAlignment.Center
-    label.TextWrapped = false
-    label.TextTruncate = Enum.TextTruncate.AtEnd
-    label.Parent = Output
-
+local function addLine(text,depth)
+    local label=Instance.new("TextLabel")
+    label.Size=UDim2.new(1,-8,0,15)
+    label.BackgroundTransparency=1
+    label.Text=string.rep("  ",depth or 0)..tostring(text)
+    label.TextColor3=Color3.fromRGB(210,210,220)
+    label.TextSize=9
+    label.Font=Enum.Font.Code
+    label.TextXAlignment=Enum.TextXAlignment.Left
+    label.TextYAlignment=Enum.TextYAlignment.Center
+    label.TextWrapped=false
+    label.TextTruncate=Enum.TextTruncate.AtEnd
+    label.Parent=Output
     updateOutputCanvas()
-
     return label
 end
 
-local function inspectValue(value, depth, visited, keyName)
-    if depth > 12 then
-        addLine(
-            tostring(keyName or "") .. " = <max depth>",
-            depth
-        )
+local function addSection(name)
+    addLine("",0)
+    addLine(name,0)
+end
+
+local function inspectValue(value,depth,visited,keyName)
+    if depth>12 then
+        addLine(tostring(keyName or "").." = <max depth>",depth)
         return
     end
 
-    local luaType = type(value)
-    local robloxType = valueType(value)
+    local luaType=type(value)
+    local robloxType=valueType(value)
 
-    if luaType == "table" then
+    if luaType=="table" then
         if visited[value] then
-            addLine(
-                tostring(keyName or "") .. " = <recursive table>",
-                depth
-            )
+            addLine(tostring(keyName or "").." = <recursive table>",depth)
             return
         end
 
-        visited[value] = true
+        visited[value]=true
 
-        local prefix = ""
-
-        if keyName ~= nil then
-            prefix = tostring(keyName) .. " = "
+        local prefix=""
+        if keyName~=nil then
+            prefix=tostring(keyName).." = "
         end
 
-        addLine(prefix .. "{", depth)
+        addLine(prefix.."{",depth)
 
-        local entries = {}
-
-        local ok = pcall(function()
-            for key, childValue in pairs(value) do
-                table.insert(entries, {
-                    key = key,
-                    value = childValue
+        local entries={}
+        local ok=pcall(function()
+            for key,childValue in pairs(value) do
+                table.insert(entries,{
+                    key=key,
+                    value=childValue
                 })
             end
         end)
 
         if not ok then
-            addLine(
-                "<unable to enumerate table>",
-                depth + 1
-            )
+            addLine("<unable to enumerate table>",depth+1)
         else
-            table.sort(entries, function(a, b)
-                return safeToString(a.key) < safeToString(b.key)
+            table.sort(entries,function(a,b)
+                return safeToString(a.key)<safeToString(b.key)
             end)
 
-            for _, entry in ipairs(entries) do
+            for _,entry in ipairs(entries) do
                 inspectValue(
                     entry.value,
-                    depth + 1,
+                    depth+1,
                     visited,
                     entry.key
                 )
             end
         end
 
-        addLine("}", depth)
-
+        addLine("}",depth)
         return
     end
 
-    if luaType == "function" then
+    if luaType=="function" then
         addLine(
-            tostring(keyName or "function") .. " = <function>",
+            tostring(keyName or "function").." = <function>",
             depth
         )
         return
     end
 
-    if luaType == "thread" then
+    if luaType=="thread" then
         addLine(
-            tostring(keyName or "thread") .. " = <thread>",
+            tostring(keyName or "thread").." = <thread>",
             depth
         )
         return
     end
 
-    if luaType == "userdata" then
+    if luaType=="userdata" then
         addLine(
-            tostring(keyName or "userdata") ..
-            " = <userdata> [" ..
-            robloxType ..
+            tostring(keyName or "userdata")..
+            " = <userdata> ["..
+            robloxType..
             "]",
             depth
         )
         return
     end
 
-    local prefix = ""
-
-    if keyName ~= nil then
-        prefix = tostring(keyName) .. " = "
+    local prefix=""
+    if keyName~=nil then
+        prefix=tostring(keyName).." = "
     end
 
     addLine(
-        prefix ..
-        safeToString(value) ..
-        " [" ..
-        robloxType ..
+        prefix..
+        safeToString(value)..
+        " ["..
+        robloxType..
         "]",
         depth
     )
+end
+
+local function inspectBasePart(instance)
+    addSection("BASEPART")
+
+    addLine("Position = "..safeToString(instance.Position),1)
+    addLine("Size = "..safeToString(instance.Size),1)
+    addLine("CFrame = "..safeToString(instance.CFrame),1)
+    addLine("Orientation = "..safeToString(instance.Orientation),1)
+    addLine("Anchored = "..safeToString(instance.Anchored),1)
+    addLine("CanCollide = "..safeToString(instance.CanCollide),1)
+    addLine("CanTouch = "..safeToString(instance.CanTouch),1)
+    addLine("CanQuery = "..safeToString(instance.CanQuery),1)
+    addLine("Transparency = "..safeToString(instance.Transparency),1)
+    addLine("Material = "..safeToString(instance.Material),1)
+    addLine("Massless = "..safeToString(instance.Massless),1)
+    addLine("AssemblyMass = "..safeToString(instance.AssemblyMass),1)
+    addLine("AssemblyLinearVelocity = "..safeToString(instance.AssemblyLinearVelocity),1)
+    addLine("AssemblyAngularVelocity = "..safeToString(instance.AssemblyAngularVelocity),1)
+
+    if instance:IsA("Part") then
+        addLine("Shape = "..safeToString(instance.Shape),1)
+    end
+
+    if instance:IsA("MeshPart") then
+        addLine("MeshId = "..safeToString(instance.MeshId),1)
+        addLine("TextureID = "..safeToString(instance.TextureID),1)
+    end
+end
+
+local function inspectModel(instance)
+    addSection("MODEL")
+
+    addLine("PrimaryPart = "..safeToString(instance.PrimaryPart),1)
+    addLine("WorldPivot = "..safeToString(instance:GetPivot()),1)
+
+    local ok,boundingCFrame,boundingSize=pcall(function()
+        local cf,size=instance:GetBoundingBox()
+        return true,cf,size
+    end)
+
+    if ok and boundingCFrame then
+        addLine("BoundingBox CFrame = "..safeToString(boundingCFrame),1)
+        addLine("BoundingBox Size = "..safeToString(boundingSize),1)
+    end
+end
+
+local function inspectTool(instance)
+    addSection("TOOL")
+
+    addLine("RequiresHandle = "..safeToString(instance.RequiresHandle),1)
+    addLine("CanBeDropped = "..safeToString(instance.CanBeDropped),1)
+    addLine("Enabled = "..safeToString(instance.Enabled),1)
+
+    local handle=instance:FindFirstChild("Handle")
+    if handle then
+        addLine("Handle = "..handle:GetFullName(),1)
+        addLine("Handle Class = "..handle.ClassName,1)
+
+        if handle:IsA("BasePart") then
+            addLine("Handle Position = "..safeToString(handle.Position),2)
+            addLine("Handle Size = "..safeToString(handle.Size),2)
+        end
+    else
+        addLine("Handle = <none>",1)
+    end
+end
+
+local function inspectHumanoid(instance)
+    addSection("HUMANOID")
+
+    addLine("Health = "..safeToString(instance.Health),1)
+    addLine("MaxHealth = "..safeToString(instance.MaxHealth),1)
+    addLine("WalkSpeed = "..safeToString(instance.WalkSpeed),1)
+    addLine("JumpPower = "..safeToString(instance.JumpPower),1)
+    addLine("HipHeight = "..safeToString(instance.HipHeight),1)
+    addLine("RigType = "..safeToString(instance.RigType),1)
+    addLine("AutoRotate = "..safeToString(instance.AutoRotate),1)
 end
 
 local function inspectInstance(instance)
     clearOutput()
 
     if not instance then
-        SelectedLabel.Text = "Selected: --"
-        addLine("Nothing selected.", 0)
+        SelectedLabel.Text="Selected: --"
+        addLine("Nothing selected.",0)
         return
     end
 
-    selectedInstance = instance
+    selectedInstance=instance
 
-    SelectedLabel.Text =
-        "Selected: " ..
-        safeToString(instance.Name)
+    SelectedLabel.Text="Selected: "..safeToString(instance.Name)
 
-    addLine("INSTANCE", 0)
-    addLine(instance.Name, 1)
+    addLine("INSTANCE",0)
+    addLine(instance.Name,1)
+    addLine("Path: "..instance:GetFullName(),1)
+    addLine("Class: "..instance.ClassName,1)
 
-    addLine(
-        "Path: " ..
-        instance:GetFullName(),
-        1
-    )
-
-    addLine(
-        "Class: " ..
-        instance.ClassName,
-        1
-    )
-
-    local attributes = instance:GetAttributes()
+    local attributes=instance:GetAttributes()
 
     if next(attributes) then
-        addLine("", 0)
-        addLine("ATTRIBUTES", 0)
+        addSection("ATTRIBUTES")
 
-        local keys = {}
-
+        local keys={}
         for key in pairs(attributes) do
-            table.insert(keys, key)
+            table.insert(keys,key)
         end
 
         table.sort(keys)
 
-        for _, key in ipairs(keys) do
+        for _,key in ipairs(keys) do
             addLine(
-                tostring(key) ..
-                " = " ..
+                tostring(key)..
+                " = "..
                 safeToString(attributes[key]),
                 1
             )
         end
     end
 
+    if instance:IsA("BasePart") then
+        inspectBasePart(instance)
+    end
+
+    if instance:IsA("Model") then
+        inspectModel(instance)
+    end
+
+    if instance:IsA("Tool") then
+        inspectTool(instance)
+    end
+
+    if instance:IsA("Humanoid") then
+        inspectHumanoid(instance)
+    end
+
     if instance:IsA("ModuleScript") then
-        addLine("", 0)
-        addLine("MODULE", 0)
+        addSection("MODULE")
         addLine(
             "Press REQUIRE to inspect the returned value.",
             1
         )
     elseif instance:IsA("ValueBase") then
-        addLine("", 0)
-        addLine("VALUE", 0)
+        addSection("VALUE")
         addLine(
-            safeToString(instance.Value) ..
-            " [" ..
-            valueType(instance.Value) ..
+            safeToString(instance.Value)..
+            " ["..
+            valueType(instance.Value)..
             "]",
             1
         )
     end
 
-    local children = instance:GetChildren()
+    local children=instance:GetChildren()
 
-    if #children > 0 then
-        addLine("", 0)
-        addLine(
-            "CHILDREN (" ..
-            tostring(#children) ..
-            ")",
-            0
-        )
+    if #children>0 then
+        addSection("CHILDREN ("..tostring(#children)..")")
 
-        table.sort(children, function(a, b)
-            return a.Name < b.Name
+        table.sort(children,function(a,b)
+            return a.Name<b.Name
         end)
 
-        for _, child in ipairs(children) do
+        for _,child in ipairs(children) do
             addLine(
-                child.Name ..
-                " [" ..
-                child.ClassName ..
+                child.Name..
+                " ["..
+                child.ClassName..
                 "]",
                 1
             )
         end
     end
 
-    Status.Text =
-        "Selected: " ..
-        instance:GetFullName()
+    Status.Text="Selected: "..instance:GetFullName()
 end
 
 local function requireModule(module)
     clearOutput()
 
     if not module or not module:IsA("ModuleScript") then
-        addLine("Selected instance is not a ModuleScript.", 0)
-        Status.Text = "Require unavailable"
+        addLine("Selected instance is not a ModuleScript.",0)
+        Status.Text="Require unavailable"
         return
     end
 
-    SelectedLabel.Text =
-        "Selected: " ..
-        module.Name
+    SelectedLabel.Text="Selected: "..module.Name
 
-    addLine("MODULE", 0)
-    addLine(module.Name, 1)
+    addLine("MODULE",0)
+    addLine(module.Name,1)
+    addLine("Path: "..module:GetFullName(),1)
+    addLine("Class: "..module.ClassName,1)
 
-    addLine(
-        "Path: " ..
-        module:GetFullName(),
-        1
-    )
-
-    addLine(
-        "Class: " ..
-        module.ClassName,
-        1
-    )
-
-    local attributes = module:GetAttributes()
+    local attributes=module:GetAttributes()
 
     if next(attributes) then
-        addLine("", 0)
-        addLine("ATTRIBUTES", 0)
+        addSection("ATTRIBUTES")
 
-        local keys = {}
-
+        local keys={}
         for key in pairs(attributes) do
-            table.insert(keys, key)
+            table.insert(keys,key)
         end
 
         table.sort(keys)
 
-        for _, key in ipairs(keys) do
+        for _,key in ipairs(keys) do
             addLine(
-                tostring(key) ..
-                " = " ..
+                tostring(key)..
+                " = "..
                 safeToString(attributes[key]),
                 1
             )
         end
     end
 
-    addLine("", 0)
-    addLine("REQUIRE RESULT", 0)
+    addSection("REQUIRE RESULT")
 
-    local success, result = pcall(function()
+    local success,result=pcall(function()
         return require(module)
     end)
 
     if not success then
-        addLine("ERROR", 1)
-        addLine(
-            safeToString(result),
-            2
-        )
-
-        Status.Text = "Require failed"
+        addLine("ERROR",1)
+        addLine(safeToString(result),2)
+        Status.Text="Require failed"
         return
     end
 
-    local resultType = valueType(result)
+    addLine("Type: "..valueType(result),1)
 
-    addLine(
-        "Type: " ..
-        resultType,
-        1
-    )
-
-    if type(result) == "table" then
-        addLine("", 0)
-
-        inspectValue(
-            result,
-            1,
-            {},
-            nil
-        )
+    if type(result)=="table" then
+        addLine("",0)
+        inspectValue(result,1,{},nil)
     else
-        addLine(
-            "Value: " ..
-            safeToString(result),
-            1
-        )
+        addLine("Value: "..safeToString(result),1)
     end
 
-    Status.Text =
-        "Loaded: " ..
-        module.Name
+    Status.Text="Loaded: "..module.Name
 end
 
 local function updateTreeCanvas()
     task.defer(function()
-        Tree.CanvasSize = UDim2.fromOffset(
+        Tree.CanvasSize=UDim2.fromOffset(
             0,
-            TreeLayout.AbsoluteContentSize.Y + 8
+            TreeLayout.AbsoluteContentSize.Y+8
         )
     end)
 end
 
-local function hasMatchingDescendant(instance, searchText)
-    if searchText == "" then
+local function hasMatchingDescendant(instance,searchText)
+    if searchText=="" then
         return true
     end
 
-    local name = string.lower(instance.Name)
-    local className = string.lower(instance.ClassName)
+    local name=string.lower(instance.Name)
+    local className=string.lower(instance.ClassName)
 
-    if string.find(name, searchText, 1, true) or
-        string.find(className, searchText, 1, true) then
+    if string.find(name,searchText,1,true) or
+        string.find(className,searchText,1,true) then
         return true
     end
 
-    local ok, descendants = pcall(function()
+    local ok,descendants=pcall(function()
         return instance:GetDescendants()
     end)
 
@@ -605,24 +656,12 @@ local function hasMatchingDescendant(instance, searchText)
         return false
     end
 
-    for _, descendant in ipairs(descendants) do
-        local descendantName =
-            string.lower(descendant.Name)
+    for _,descendant in ipairs(descendants) do
+        local descendantName=string.lower(descendant.Name)
+        local descendantClass=string.lower(descendant.ClassName)
 
-        local descendantClass =
-            string.lower(descendant.ClassName)
-
-        if string.find(
-            descendantName,
-            searchText,
-            1,
-            true
-        ) or string.find(
-            descendantClass,
-            searchText,
-            1,
-            true
-        ) then
+        if string.find(descendantName,searchText,1,true) or
+            string.find(descendantClass,searchText,1,true) then
             return true
         end
     end
@@ -639,8 +678,7 @@ local function getIcon(instance)
         return "□"
     end
 
-    if instance:IsA("Script") or
-        instance:IsA("LocalScript") then
+    if instance:IsA("Script") or instance:IsA("LocalScript") then
         return "▣"
     end
 
@@ -648,7 +686,7 @@ local function getIcon(instance)
         return "●"
     end
 
-    if #instance:GetChildren() > 0 then
+    if #instance:GetChildren()>0 then
         return "▸"
     end
 
@@ -657,246 +695,354 @@ end
 
 local rebuildTree
 
-local function createTreeNode(instance, depth)
-    local searchText =
-        string.lower(Search.Text)
+local function createTreeNode(instance,depth)
+    local searchText=string.lower(Search.Text)
 
-    if searchText ~= "" and
-        not hasMatchingDescendant(
-            instance,
-            searchText
-        ) then
+    if searchText~="" and
+        not hasMatchingDescendant(instance,searchText) then
         return
     end
 
-    local children = instance:GetChildren()
+    local children=instance:GetChildren()
 
-    table.sort(children, function(a, b)
-        return a.Name < b.Name
+    table.sort(children,function(a,b)
+        return a.Name<b.Name
     end)
 
-    local hasChildren = #children > 0
+    local hasChildren=#children>0
 
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(
-        1,
-        -6,
-        0,
-        22
-    )
-    button.BackgroundTransparency = 1
-    button.BorderSizePixel = 0
-    button.TextColor3 =
-        Color3.fromRGB(215, 215, 225)
-    button.TextSize = 9
-    button.Font = Enum.Font.Gotham
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.TextTruncate = Enum.TextTruncate.AtEnd
-    button.Active = true
-    button.ZIndex = 5
-    button.Parent = Tree
+    local button=Instance.new("TextButton")
+    button.Size=UDim2.new(1,-6,0,22)
+    button.BackgroundTransparency=1
+    button.BorderSizePixel=0
+    button.TextColor3=Color3.fromRGB(215,215,225)
+    button.TextSize=9
+    button.Font=Enum.Font.Gotham
+    button.TextXAlignment=Enum.TextXAlignment.Left
+    button.TextTruncate=Enum.TextTruncate.AtEnd
+    button.Active=true
+    button.ZIndex=5
+    button.Parent=Tree
 
-    local prefix = ""
-
-    for _ = 1, depth do
-        prefix = prefix .. "    "
+    local prefix=""
+    for _=1,depth do
+        prefix=prefix.."    "
     end
 
-    local arrow = ""
+    local arrow=""
 
     if hasChildren then
         if expanded[instance] then
-            arrow = "▼ "
+            arrow="▼ "
         else
-            arrow = "▶ "
+            arrow="▶ "
         end
     else
-        arrow = "  "
+        arrow="  "
     end
 
-    button.Text =
-        prefix ..
-        arrow ..
-        getIcon(instance) ..
-        " " ..
+    button.Text=
+        prefix..
+        arrow..
+        getIcon(instance)..
+        " "..
         instance.Name
 
     if instance:IsA("ModuleScript") then
-        button.TextColor3 =
-            Color3.fromRGB(180, 220, 190)
+        button.TextColor3=Color3.fromRGB(180,220,190)
     elseif instance:IsA("Folder") then
-        button.TextColor3 =
-            Color3.fromRGB(220, 210, 170)
+        button.TextColor3=Color3.fromRGB(220,210,170)
+    elseif instance:IsA("BasePart") then
+        button.TextColor3=Color3.fromRGB(190,205,225)
+    elseif instance:IsA("Tool") then
+        button.TextColor3=Color3.fromRGB(225,190,150)
     end
 
-    local padding = Instance.new("UIPadding")
-    padding.PaddingLeft = UDim.new(0, 4)
-    padding.Parent = button
+    local padding=Instance.new("UIPadding")
+    padding.PaddingLeft=UDim.new(0,4)
+    padding.Parent=button
 
-    nodeButtons[instance] = button
+    nodeButtons[instance]=button
 
     button.MouseButton1Click:Connect(function()
         if hasChildren then
-            expanded[instance] =
-                not expanded[instance]
-
+            expanded[instance]=not expanded[instance]
             rebuildTree()
         end
 
-        for _, item in pairs(nodeButtons) do
-            item.BackgroundColor3 =
-                Color3.fromRGB(27, 27, 33)
+        for _,item in pairs(nodeButtons) do
+            item.BackgroundColor3=Color3.fromRGB(27,27,33)
         end
 
-        button.BackgroundColor3 =
-            Color3.fromRGB(55, 85, 65)
+        local currentButton=nodeButtons[instance]
+
+        if currentButton then
+            currentButton.BackgroundColor3=Color3.fromRGB(55,85,65)
+        end
 
         inspectInstance(instance)
     end)
 
     if expanded[instance] then
-        for _, child in ipairs(children) do
-            createTreeNode(
-                child,
-                depth + 1
-            )
+        for _,child in ipairs(children) do
+            createTreeNode(child,depth+1)
         end
     end
 end
 
-rebuildTree = function()
-    for _, child in ipairs(Tree:GetChildren()) do
+rebuildTree=function()
+    for _,child in ipairs(Tree:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
 
-    nodeButtons = {}
+    nodeButtons={}
 
     if not selectedService then
         updateTreeCanvas()
         return
     end
 
-    createTreeNode(
-        selectedService,
-        0
-    )
-
+    createTreeNode(selectedService,0)
     updateTreeCanvas()
 end
 
 local function createServiceButton(serviceName)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -4, 0, 22)
-    button.BackgroundTransparency = 1
-    button.BorderSizePixel = 0
-    button.Text = serviceName
-    button.TextColor3 =
-        Color3.fromRGB(220, 220, 230)
-    button.TextSize = 9
-    button.Font = Enum.Font.Gotham
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.Active = true
-    button.ZIndex = 55
-    button.Parent = ServiceMenu
+    local button=Instance.new("TextButton")
+    button.Size=UDim2.new(1,-4,0,22)
+    button.BackgroundTransparency=1
+    button.BorderSizePixel=0
+    button.Text=serviceName
+    button.TextColor3=Color3.fromRGB(220,220,230)
+    button.TextSize=9
+    button.Font=Enum.Font.Gotham
+    button.TextXAlignment=Enum.TextXAlignment.Left
+    button.Active=true
+    button.ZIndex=55
+    button.Parent=ServiceMenu
 
-    local padding = Instance.new("UIPadding")
-    padding.PaddingLeft = UDim.new(0, 7)
-    padding.Parent = button
+    local padding=Instance.new("UIPadding")
+    padding.PaddingLeft=UDim.new(0,7)
+    padding.Parent=button
 
     button.MouseButton1Click:Connect(function()
-        local ok, service =
-            pcall(function()
-                return game:GetService(serviceName)
-            end)
+        local ok,service=pcall(function()
+            return game:GetService(serviceName)
+        end)
 
         if not ok or not service then
-            Status.Text =
-                "Service unavailable: " ..
-                serviceName
+            Status.Text="Service unavailable: "..serviceName
             return
         end
 
-        selectedService = service
-        selectedInstance = nil
-        expanded = {}
+        selectedService=service
+        selectedInstance=nil
+        expanded={}
 
-        ServiceButton.Text =
-            serviceName ..
-            " ▼"
-
-        ServiceMenu.Visible = false
+        ServiceButton.Text=serviceName.." ▼"
+        ServiceMenu.Visible=false
 
         clearOutput()
-
-        SelectedLabel.Text = "Selected: --"
+        SelectedLabel.Text="Selected: --"
 
         rebuildTree()
 
-        Status.Text =
-            "Browsing " ..
-            serviceName
+        Status.Text="Browsing "..serviceName
     end)
 
-    serviceButtons[serviceName] = button
+    serviceButtons[serviceName]=button
 end
 
 local function rebuildServiceMenu()
-    for _, child in ipairs(ServiceMenu:GetChildren()) do
+    for _,child in ipairs(ServiceMenu:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
 
-    serviceButtons = {}
+    serviceButtons={}
 
-    for _, serviceName in ipairs(serviceNames) do
-        local ok, service =
-            pcall(function()
-                return game:GetService(serviceName)
-            end)
+    for _,serviceName in ipairs(serviceNames) do
+        local ok,service=pcall(function()
+            return game:GetService(serviceName)
+        end)
 
         if ok and service then
             createServiceButton(serviceName)
         end
     end
 
-    ServiceMenu.Size =
-        UDim2.fromOffset(
-            150,
-            math.min(
-                220,
-                #serviceButtons * 23 + 4
-            )
-        )
+    ServiceMenu.Size=UDim2.fromOffset(
+        150,
+        math.min(220,#serviceButtons*23+4)
+    )
+end
+
+local function trimText(text)
+    return string.match(text,"^%s*(.-)%s*$") or ""
+end
+
+local function findInstanceFromPath(path)
+    path=trimText(path)
+
+    if path=="" then
+        return nil,"Path is empty"
+    end
+
+    if string.sub(path,1,5)=="game." then
+        path=string.sub(path,6)
+    elseif path=="game" then
+        return game,nil
+    end
+
+    local parts={}
+
+    for part in string.gmatch(path,"[^%.]+") do
+        part=trimText(part)
+
+        if part~="" then
+            table.insert(parts,part)
+        end
+    end
+
+    if #parts==0 then
+        return nil,"Invalid path"
+    end
+
+    local current
+
+    local ok,service=pcall(function()
+        return game:GetService(parts[1])
+    end)
+
+    if ok and service then
+        current=service
+    else
+        return nil,"Service not found: "..parts[1]
+    end
+
+    for i=2,#parts do
+        local child=current:FindFirstChild(parts[i])
+
+        if not child then
+            return nil,"Not found: "..parts[i]
+        end
+
+        current=child
+    end
+
+    return current
+end
+
+local function selectPath(instance,path)
+    if not instance then
+        return
+    end
+
+    local parts={}
+
+    for part in string.gmatch(path,"[^%.]+") do
+        part=trimText(part)
+
+        if part=="game" and #parts==0 then
+        elseif part~="" then
+            table.insert(parts,part)
+        end
+    end
+
+    if #parts==0 then
+        return
+    end
+
+    local ok,service=pcall(function()
+        return game:GetService(parts[1])
+    end)
+
+    if ok and service then
+        selectedService=service
+        ServiceButton.Text=parts[1].." ▼"
+    end
+
+    expanded={}
+
+    local current=instance
+
+    while current and current~=selectedService do
+        expanded[current]=true
+        current=current.Parent
+    end
+
+    expanded[selectedService]=true
+
+    Search.Text=""
+
+    selectedInstance=instance
+
+    rebuildTree()
+
+    for _,button in pairs(nodeButtons) do
+        button.BackgroundColor3=Color3.fromRGB(27,27,33)
+    end
+
+    local targetButton=nodeButtons[instance]
+
+    if targetButton then
+        targetButton.BackgroundColor3=Color3.fromRGB(55,85,65)
+
+        task.defer(function()
+            local targetY=targetButton.AbsolutePosition.Y-Tree.AbsolutePosition.Y+Tree.CanvasPosition.Y
+            Tree.CanvasPosition=Vector2.new(0,math.max(0,targetY-80))
+        end)
+    end
+
+    inspectInstance(instance)
 end
 
 ServiceButton.MouseButton1Click:Connect(function()
-    ServiceMenu.Visible =
-        not ServiceMenu.Visible
+    ServiceMenu.Visible=not ServiceMenu.Visible
 end)
 
 Search:GetPropertyChangedSignal("Text"):Connect(function()
     rebuildTree()
 end)
 
+GoPathButton.MouseButton1Click:Connect(function()
+    local path=PathBox.Text
+    local instance,errorMessage=findInstanceFromPath(path)
+
+    if not instance then
+        clearOutput()
+        addLine("PATH ERROR",0)
+        addLine(errorMessage or "Instance not found",1)
+        Status.Text=errorMessage or "Instance not found"
+        return
+    end
+
+    if instance==game then
+        clearOutput()
+        addLine("GAME",0)
+        addLine("DataModel",1)
+        Status.Text="Selected game"
+        return
+    end
+
+    selectPath(instance,path)
+end)
+
+PathBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        GoPathButton:Activate()
+    end
+end)
+
 RequireButton.MouseButton1Click:Connect(function()
-    if selectedInstance and
-        selectedInstance:IsA("ModuleScript") then
-
+    if selectedInstance and selectedInstance:IsA("ModuleScript") then
         requireModule(selectedInstance)
-
     else
         clearOutput()
-
-        addLine(
-            "Select a ModuleScript first.",
-            0
-        )
-
-        Status.Text =
-            "No ModuleScript selected"
+        addLine("Select a ModuleScript first.",0)
+        Status.Text="No ModuleScript selected"
     end
 end)
 
@@ -904,47 +1050,38 @@ Close.MouseButton1Click:Connect(function()
     Gui:Destroy()
 end)
 
-local dragging = false
+local dragging=false
 local dragStart
 local startPosition
 
 Title.InputBegan:Connect(function(input)
-    if input.UserInputType ==
-        Enum.UserInputType.MouseButton1 then
-
-        dragging = true
-        dragStart = input.Position
-        startPosition = Main.Position
+    if input.UserInputType==Enum.UserInputType.MouseButton1 then
+        dragging=true
+        dragStart=input.Position
+        startPosition=Main.Position
     end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and
-        input.UserInputType ==
-        Enum.UserInputType.MouseMovement then
+    if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then
+        local delta=input.Position-dragStart
 
-        local delta =
-            input.Position - dragStart
-
-        Main.Position = UDim2.new(
+        Main.Position=UDim2.new(
             startPosition.X.Scale,
-            startPosition.X.Offset + delta.X,
+            startPosition.X.Offset+delta.X,
             startPosition.Y.Scale,
-            startPosition.Y.Offset + delta.Y
+            startPosition.Y.Offset+delta.Y
         )
     end
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType ==
-        Enum.UserInputType.MouseButton1 then
-
-        dragging = false
+    if input.UserInputType==Enum.UserInputType.MouseButton1 then
+        dragging=false
     end
 end)
 
 rebuildServiceMenu()
 rebuildTree()
 
-Status.Text =
-    "Browsing ReplicatedStorage"
+Status.Text="Browsing ReplicatedStorage"
