@@ -1,1 +1,80 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
+local player = Players.LocalPlayer
+local ver = "TEST v11.1"
+pcall(function()
+    local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
+    if oldGui then
+        oldGui:Destroy()
+    end
+end)
 
+pcall(function()
+    local oldESP = workspace:FindFirstChild("RAPGUIskrip")
+    if oldESP then
+        oldESP:Destroy()
+    end
+end)
+
+local TEXT_SCALE = 0.80
+
+local function textSize(size)
+    return math.floor(size * TEXT_SCALE)
+end
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "RAPGUIskrip"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.Enabled = true
+Gui.Parent = CoreGui
+
+local DebugLines = {"[SYSTEM] ESP UI loaded."}
+
+local DebugText
+local DebugBox
+
+local function AddDebug(message)
+    table.insert(DebugLines, tostring(message))
+    if #DebugLines > 150 then
+        table.remove(DebugLines, 1)
+    end
+    if DebugText then
+        DebugText.Text = table.concat(DebugLines, "\n")
+    end
+    if DebugText and DebugBox then
+        task.defer(function()
+            if DebugText and DebugBox then
+                DebugBox.CanvasSize = UDim2.fromOffset(
+                    0,
+                    DebugText.AbsoluteSize.Y + 15
+                )
+                DebugBox.CanvasPosition = Vector2.new(
+                    0,
+                    math.max(
+                        0,
+                        DebugText.AbsoluteSize.Y - DebugBox.AbsoluteSize.Y
+                    )
+                )
+            end
+        end)
+    end
+end
+local AntiAFKEnabled = false
+
+player.Idled:Connect(function()
+    if not AntiAFKEnabled then
+        return
+    end
+    pcall(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new(0, 0))
+    end)
+    AddDebug("[ANTI AFK] Idle activity sent")
+end)
+
+
+return Backend
