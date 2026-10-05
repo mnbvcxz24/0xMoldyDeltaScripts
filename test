@@ -1,5 +1,7 @@
 local Players=game:GetService("Players")
+local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local CoreGui=game:GetService("CoreGui")
+local UserInputService=game:GetService("UserInputService")
 
 local player=Players.LocalPlayer
 
@@ -11,11 +13,12 @@ end)
 local Gui=Instance.new("ScreenGui")
 Gui.Name="HatchTest"
 Gui.ResetOnSpawn=false
+Gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
 Gui.Parent=CoreGui
 
 local Main=Instance.new("Frame")
-Main.Size=UDim2.fromOffset(300,220)
-Main.Position=UDim2.new(0.5,-150,0.5,-110)
+Main.Size=UDim2.fromOffset(520,390)
+Main.Position=UDim2.new(0.5,-260,0.5,-195)
 Main.BackgroundColor3=Color3.fromRGB(22,22,27)
 Main.BorderSizePixel=0
 Main.Parent=Gui
@@ -25,7 +28,7 @@ Corner.CornerRadius=UDim.new(0,7)
 Corner.Parent=Main
 
 local Title=Instance.new("TextLabel")
-Title.Size=UDim2.new(1,-20,0,28)
+Title.Size=UDim2.new(1,-90,0,28)
 Title.Position=UDim2.fromOffset(10,5)
 Title.BackgroundTransparency=1
 Title.Text="Hatch Remote Test"
@@ -35,54 +38,91 @@ Title.Font=Enum.Font.GothamBold
 Title.TextXAlignment=Enum.TextXAlignment.Left
 Title.Parent=Main
 
-local Info=Instance.new("TextLabel")
-Info.Size=UDim2.new(1,-20,0,95)
-Info.Position=UDim2.fromOffset(10,38)
-Info.BackgroundTransparency=1
-Info.Text="Finding egg..."
-Info.TextColor3=Color3.fromRGB(190,190,200)
-Info.TextSize=8
-Info.Font=Enum.Font.Code
-Info.TextXAlignment=Enum.TextXAlignment.Left
-Info.TextYAlignment=Enum.TextYAlignment.Top
-Info.TextWrapped=true
-Info.Parent=Main
+local Refresh=Instance.new("TextButton")
+Refresh.Size=UDim2.fromOffset(55,23)
+Refresh.Position=UDim2.new(1,-88,0,7)
+Refresh.BackgroundColor3=Color3.fromRGB(45,85,60)
+Refresh.BorderSizePixel=0
+Refresh.Text="REFRESH"
+Refresh.TextColor3=Color3.fromRGB(240,240,240)
+Refresh.TextSize=7
+Refresh.Font=Enum.Font.GothamBold
+Refresh.Parent=Main
 
-local Test=Instance.new("TextButton")
-Test.Size=UDim2.fromOffset(130,35)
-Test.Position=UDim2.fromOffset(10,145)
-Test.BackgroundColor3=Color3.fromRGB(45,85,60)
-Test.BorderSizePixel=0
-Test.Text="TEST HATCH"
-Test.TextColor3=Color3.fromRGB(240,240,240)
-Test.TextSize=9
-Test.Font=Enum.Font.GothamBold
-Test.Parent=Main
-
-local TestCorner=Instance.new("UICorner")
-TestCorner.CornerRadius=UDim.new(0,5)
-TestCorner.Parent=Test
+local RefreshCorner=Instance.new("UICorner")
+RefreshCorner.CornerRadius=UDim.new(0,4)
+RefreshCorner.Parent=Refresh
 
 local Close=Instance.new("TextButton")
-Close.Size=UDim2.fromOffset(70,35)
-Close.Position=UDim2.fromOffset(150,145)
+Close.Size=UDim2.fromOffset(23,23)
+Close.Position=UDim2.new(1,-29,0,7)
 Close.BackgroundColor3=Color3.fromRGB(45,45,52)
 Close.BorderSizePixel=0
-Close.Text="CLOSE"
+Close.Text="×"
 Close.TextColor3=Color3.fromRGB(240,240,240)
-Close.TextSize=9
+Close.TextSize=14
 Close.Font=Enum.Font.GothamBold
 Close.Parent=Main
 
 local CloseCorner=Instance.new("UICorner")
-CloseCorner.CornerRadius=UDim.new(0,5)
+CloseCorner.CornerRadius=UDim.new(0,4)
 CloseCorner.Parent=Close
 
-local function getEggs()
-    local plots=workspace:FindFirstChild("Plots")
-    local plot=plots and plots:FindFirstChild("Plot")
-    local eggs=plot and plot:FindFirstChild("Eggs")
-    return eggs
+local List=Instance.new("ScrollingFrame")
+List.Size=UDim2.fromOffset(245,320)
+List.Position=UDim2.fromOffset(10,40)
+List.BackgroundColor3=Color3.fromRGB(27,27,33)
+List.BorderSizePixel=0
+List.ScrollBarThickness=3
+List.CanvasSize=UDim2.new()
+List.Parent=Main
+
+local ListCorner=Instance.new("UICorner")
+ListCorner.CornerRadius=UDim.new(0,5)
+ListCorner.Parent=List
+
+local Layout=Instance.new("UIListLayout")
+Layout.Padding=UDim.new(0,3)
+Layout.Parent=List
+
+local Details=Instance.new("ScrollingFrame")
+Details.Size=UDim2.fromOffset(245,320)
+Details.Position=UDim2.fromOffset(265,40)
+Details.BackgroundColor3=Color3.fromRGB(16,16,20)
+Details.BorderSizePixel=0
+Details.ScrollBarThickness=3
+Details.CanvasSize=UDim2.new()
+Details.Parent=Main
+
+local DetailsCorner=Instance.new("UICorner")
+DetailsCorner.CornerRadius=UDim.new(0,5)
+DetailsCorner.Parent=Details
+
+local DetailLayout=Instance.new("UIListLayout")
+DetailLayout.Padding=UDim.new(0,0)
+DetailLayout.Parent=Details
+
+local Status=Instance.new("TextLabel")
+Status.Size=UDim2.new(1,-20,0,20)
+Status.Position=UDim2.fromOffset(10,365)
+Status.BackgroundTransparency=1
+Status.Text="Scanning eggs..."
+Status.TextColor3=Color3.fromRGB(130,130,140)
+Status.TextSize=7
+Status.Font=Enum.Font.Gotham
+Status.TextXAlignment=Enum.TextXAlignment.Left
+Status.TextTruncate=Enum.TextTruncate.AtEnd
+Status.Parent=Main
+
+local selectedEgg=nil
+local eggButtons={}
+local eggsData={}
+
+local function safeString(value)
+    local ok,result=pcall(function()
+        return tostring(value)
+    end)
+    return ok and result or "<error>"
 end
 
 local function getRoot()
@@ -91,7 +131,51 @@ local function getRoot()
     return character:FindFirstChild("HumanoidRootPart")
 end
 
-local function getHatchPrompt(egg)
+local function findMyPlot()
+    local plots=workspace:FindFirstChild("Plots")
+    if not plots then return nil end
+
+    for _,plot in ipairs(plots:GetChildren()) do
+        local data=plot:FindFirstChild("Data")
+        local owner=data and data:FindFirstChild("Owner")
+
+        if owner then
+            local ownerValue=owner.Value
+
+            if ownerValue==player or ownerValue==player.Name or ownerValue==player.DisplayName then
+                return plot
+            end
+
+            if tostring(ownerValue)==tostring(player.Name) then
+                return plot
+            end
+        end
+    end
+
+    return nil
+end
+
+local function getEggs()
+    local plot=findMyPlot()
+    if not plot then return nil end
+    return plot:FindFirstChild("Eggs")
+end
+
+local function getEggPart(egg)
+    local handle=egg:FindFirstChild("Handle")
+
+    if not handle then
+        return nil
+    end
+
+    if handle:IsA("BasePart") then
+        return handle
+    end
+
+    return handle:FindFirstChildWhichIsA("BasePart",true)
+end
+
+local function getHatch(egg)
     local handle=egg:FindFirstChild("Handle")
     if not handle then return nil,nil end
 
@@ -99,121 +183,330 @@ local function getHatchPrompt(egg)
     if not hatch then return nil,nil end
 
     local prompt=hatch:FindFirstChildOfClass("ProximityPrompt")
+
     return hatch,prompt
 end
 
-local function getNearestEgg()
-    local root=getRoot()
-    local eggs=getEggs()
-
-    if not root or not eggs then
-        return nil
-    end
-
-    local nearest=nil
-    local nearestDistance=math.huge
-
-    for _,egg in ipairs(eggs:GetChildren()) do
-        local handle=egg:FindFirstChild("Handle")
-
-        if handle then
-            local part
-
-            if handle:IsA("BasePart") then
-                part=handle
-            else
-                part=handle:FindFirstChildWhichIsA("BasePart",true)
-            end
-
-            if part then
-                local distance=(root.Position-part.Position).Magnitude
-
-                if distance<nearestDistance then
-                    nearestDistance=distance
-                    nearest=egg
-                end
-            end
+local function clearDetails()
+    for _,child in ipairs(Details:GetChildren()) do
+        if child:IsA("TextLabel") or child:IsA("TextButton") then
+            child:Destroy()
         end
     end
 
-    return nearest,nearestDistance
+    Details.CanvasSize=UDim2.new()
 end
 
-local function updateInfo()
-    local egg,distance=getNearestEgg()
-
-    if not egg then
-        Info.Text="No egg found."
-        return
-    end
-
-    local hatch,prompt=getHatchPrompt(egg)
-
-    if not hatch then
-        Info.Text="Egg: "..egg.Name.."\nHandle.Hatch: NOT FOUND"
-        return
-    end
-
-    local available=hatch:GetAttribute("HatchPromptAvailable")
-
-    Info.Text=
-        "Egg: "..egg.Name..
-        "\nDistance: "..string.format("%.2f",distance)..
-        "\nHatchPromptAvailable: "..tostring(available)..
-        "\nPrompt: "..(prompt and "FOUND" or "NOT FOUND")..
-        "\nEnabled: "..(prompt and tostring(prompt.Enabled) or "N/A")..
-        "\nHoldDuration: "..(prompt and tostring(prompt.HoldDuration) or "N/A")..
-        "\nMaxDistance: "..(prompt and tostring(prompt.MaxActivationDistance) or "N/A")
+local function addDetail(text,color,bold)
+    local label=Instance.new("TextLabel")
+    label.Size=UDim2.new(1,-10,0,18)
+    label.BackgroundTransparency=1
+    label.Text=text
+    label.TextColor3=color or Color3.fromRGB(215,215,225)
+    label.TextSize=7
+    label.Font=bold and Enum.Font.GothamBold or Enum.Font.Code
+    label.TextXAlignment=Enum.TextXAlignment.Left
+    label.TextTruncate=Enum.TextTruncate.AtEnd
+    label.Parent=Details
+    return label
 end
 
-Test.MouseButton1Click:Connect(function()
-    local egg,distance=getNearestEgg()
-
-    if not egg then
-        Info.Text="No egg found."
+local function inspectEgg(egg)
+    if not egg or not egg.Parent then
         return
     end
 
-    local hatch,prompt=getHatchPrompt(egg)
+    selectedEgg=egg
+    clearDetails()
 
-    if not hatch or not prompt then
-        Info.Text="No Hatch ProximityPrompt found."
-        return
+    local root=getRoot()
+    local part=getEggPart(egg)
+    local hatch,prompt=getHatch(egg)
+
+    local eggKey=egg:GetAttribute("EggKey")
+    local available=hatch and hatch:GetAttribute("HatchPromptAvailable")
+    local distance=part and root and (root.Position-part.Position).Magnitude
+
+    addDetail("EGG",Color3.fromRGB(100,190,125),true)
+    addDetail("Name: "..egg.Name)
+    addDetail("Class: "..egg.ClassName)
+    addDetail("EggKey: "..safeString(eggKey))
+    addDetail("Distance: "..(distance and string.format("%.2f",distance) or "N/A"))
+
+    addDetail("HATCH",Color3.fromRGB(100,190,125),true)
+    addDetail("Hatch: "..(hatch and "FOUND" or "NOT FOUND"))
+    addDetail("Prompt: "..(prompt and "FOUND" or "NOT FOUND"))
+    addDetail("HatchPromptAvailable: "..safeString(available))
+
+    if prompt then
+        addDetail("Enabled: "..safeString(prompt.Enabled))
+        addDetail("MaxActivationDistance: "..safeString(prompt.MaxActivationDistance))
+
+        if distance then
+            addDetail("Within Max Distance: "..tostring(distance<=prompt.MaxActivationDistance))
+        end
     end
 
-    local available=hatch:GetAttribute("HatchPromptAvailable")
+    addDetail("ATTRIBUTES",Color3.fromRGB(100,190,125),true)
 
-    Info.Text=
-        "Testing: "..egg.Name..
-        "\nDistance: "..string.format("%.2f",distance)..
-        "\nHatchPromptAvailable: "..tostring(available)..
-        "\nPrompt Enabled: "..tostring(prompt.Enabled)
+    local attributes=egg:GetAttributes()
+    local names={}
 
-    if available~=true then
-        Info.Text=Info.Text.."\n\nNOT READY / NOT AVAILABLE"
-        return
+    for name in pairs(attributes) do
+        table.insert(names,name)
     end
 
-    if not prompt.Enabled then
-        Info.Text=Info.Text.."\n\nPrompt is disabled."
-        return
+    table.sort(names)
+
+    if #names==0 then
+        addDetail("<none>")
+    else
+        for _,name in ipairs(names) do
+            addDetail(name.." = "..safeString(attributes[name]).." ["..typeof(attributes[name]).."]")
+        end
     end
 
-    Info.Text=Info.Text.."\n\nStarting prompt..."
-
-    pcall(function()
-        prompt:InputHoldBegin()
+    task.defer(function()
+        Details.CanvasSize=UDim2.fromOffset(0,Details.Layout.AbsoluteContentSize.Y+10)
     end)
 
-    task.wait(math.max(prompt.HoldDuration,0.1))
+    Status.Text="Selected: "..egg.Name
+end
 
-    pcall(function()
-        prompt:InputHoldEnd()
+local function createEggButton(egg,index)
+    local old=eggButtons[egg]
+
+    if old then
+        old:Destroy()
+    end
+
+    local button=Instance.new("TextButton")
+    button.Size=UDim2.new(1,-8,0,58)
+    button.BackgroundColor3=egg==selectedEgg and Color3.fromRGB(55,85,65) or Color3.fromRGB(32,32,39)
+    button.BorderSizePixel=0
+    button.Text=""
+    button.AutoButtonColor=false
+    button.Parent=List
+
+    local corner=Instance.new("UICorner")
+    corner.CornerRadius=UDim.new(0,4)
+    corner.Parent=button
+
+    local name=Instance.new("TextLabel")
+    name.Size=UDim2.new(1,-10,0,18)
+    name.Position=UDim2.fromOffset(5,3)
+    name.BackgroundTransparency=1
+    name.Text=tostring(index)..". "..egg.Name
+    name.TextColor3=Color3.fromRGB(230,230,235)
+    name.TextSize=8
+    name.Font=Enum.Font.GothamBold
+    name.TextXAlignment=Enum.TextXAlignment.Left
+    name.TextTruncate=Enum.TextTruncate.AtEnd
+    name.Parent=button
+
+    local key=Instance.new("TextLabel")
+    key.Size=UDim2.new(1,-10,0,17)
+    key.Position=UDim2.fromOffset(5,21)
+    key.BackgroundTransparency=1
+    key.Text="Key: "..safeString(egg:GetAttribute("EggKey"))
+    key.TextColor3=Color3.fromRGB(150,150,160)
+    key.TextSize=6
+    key.Font=Enum.Font.Code
+    key.TextXAlignment=Enum.TextXAlignment.Left
+    key.TextTruncate=Enum.TextTruncate.AtEnd
+    key.Parent=button
+
+    local status=Instance.new("TextLabel")
+    status.Size=UDim2.new(1,-10,0,15)
+    status.Position=UDim2.fromOffset(5,38)
+    status.BackgroundTransparency=1
+    status.TextColor3=Color3.fromRGB(130,130,140)
+    status.TextSize=6
+    status.Font=Enum.Font.Code
+    status.TextXAlignment=Enum.TextXAlignment.Left
+    status.TextTruncate=Enum.TextTruncate.AtEnd
+    status.Parent=button
+
+    local function update()
+        if not egg.Parent then
+            status.Text="REMOVED"
+            return
+        end
+
+        local root=getRoot()
+        local part=getEggPart(egg)
+        local hatch,prompt=getHatch(egg)
+        local available=hatch and hatch:GetAttribute("HatchPromptAvailable")
+
+        local distance=root and part and (root.Position-part.Position).Magnitude
+
+        local rangeText="Range N/A"
+
+        if distance and prompt then
+            rangeText=string.format("Dist %.1f / Max %.1f",distance,prompt.MaxActivationDistance)
+        elseif distance then
+            rangeText=string.format("Dist %.1f",distance)
+        end
+
+        status.Text="Available="..safeString(available).." | "..rangeText
+    end
+
+    eggButtons[egg]=button
+
+    button.MouseButton1Click:Connect(function()
+        for _,other in pairs(eggButtons) do
+            if other.Parent then
+                other.BackgroundColor3=Color3.fromRGB(32,32,39)
+            end
+        end
+
+        button.BackgroundColor3=Color3.fromRGB(55,85,65)
+        inspectEgg(egg)
     end)
 
-    task.wait(1)
-    updateInfo()
-end)
+    update()
+
+    return button
+end
+
+local function refreshEggs()
+    local eggs=getEggs()
+
+    if not eggs then
+        Status.Text="My plot / Eggs folder not found."
+        return
+    end
+
+    for _,child in ipairs(List:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    eggButtons={}
+    eggsData={}
+
+    local children=eggs:GetChildren()
+
+    table.sort(children,function(a,b)
+        return a.Name:lower()<b.Name:lower()
+    end)
+
+    for index,egg in ipairs(children) do
+        local eggKey=egg:GetAttribute("EggKey")
+
+        if eggKey then
+            table.insert(eggsData,{
+                Egg=egg,
+                EggKey=tostring(eggKey)
+            })
+
+            createEggButton(egg,index)
+        end
+    end
+
+    task.defer(function()
+        List.CanvasSize=UDim2.fromOffset(0,Layout.AbsoluteContentSize.Y+10)
+    end)
+
+    Status.Text="Found "..tostring(#eggsData).." eggs"
+
+    if selectedEgg and selectedEgg.Parent then
+        inspectEgg(selectedEgg)
+    else
+        selectedEgg=nil
+        clearDetails()
+    end
+end
+
+local function hatchSelected()
+    local egg=selectedEgg
+
+    if not egg or not egg.Parent then
+        Status.Text="Select an egg first."
+        return
+    end
+
+    local eggKey=egg:GetAttribute("EggKey")
+
+    if not eggKey then
+        Status.Text="Selected egg has no EggKey."
+        return
+    end
+
+    local HatchEvent=ReplicatedStorage:FindFirstChild("Remotes")
+
+    if not HatchEvent then
+        Status.Text="Remotes not found."
+        return
+    end
+
+    local Game=HatchEvent:FindFirstChild("Game")
+
+    if not Game then
+        Status.Text="Remotes.Game not found."
+        return
+    end
+
+    local Hatch=Game:FindFirstChild("Hatch")
+
+    if not Hatch then
+        Status.Text="Hatch remote not found."
+        return
+    end
+
+    Status.Text="Firing Hatch: "..tostring(eggKey)
+
+    local success,err=pcall(function()
+        Hatch:FireServer({
+            EggKey=tostring(eggKey)
+        })
+    end)
+
+    if success then
+        Status.Text="Hatch fired: "..egg.Name
+    else
+        Status.Text="Hatch error: "..safeString(err)
+    end
+
+    task.wait(0.5)
+    refreshEggs()
+end
+
+local HatchButton=Instance.new("TextButton")
+HatchButton.Size=UDim2.fromOffset(110,28)
+HatchButton.Position=UDim2.fromOffset(275,336)
+HatchButton.BackgroundColor3=Color3.fromRGB(45,85,60)
+HatchButton.BorderSizePixel=0
+HatchButton.Text="HATCH SELECTED"
+HatchButton.TextColor3=Color3.fromRGB(240,240,240)
+HatchButton.TextSize=7
+HatchButton.Font=Enum.Font.GothamBold
+HatchButton.Parent=Main
+
+local HatchCorner=Instance.new("UICorner")
+HatchCorner.CornerRadius=UDim.new(0,4)
+HatchCorner.Parent=HatchButton
+
+local RefreshButton=Instance.new("TextButton")
+RefreshButton.Size=UDim2.fromOffset(75,28)
+RefreshButton.Position=UDim2.fromOffset(390,336)
+RefreshButton.BackgroundColor3=Color3.fromRGB(45,45,52)
+RefreshButton.BorderSizePixel=0
+RefreshButton.Text="REFRESH"
+RefreshButton.TextColor3=Color3.fromRGB(240,240,240)
+RefreshButton.TextSize=7
+RefreshButton.Font=Enum.Font.GothamBold
+RefreshButton.Parent=Main
+
+local RefreshCorner2=Instance.new("UICorner")
+RefreshCorner2.CornerRadius=UDim.new(0,4)
+RefreshCorner2.Parent=RefreshButton
+
+HatchButton.MouseButton1Click:Connect(hatchSelected)
+
+Refresh.MouseButton1Click:Connect(refreshEggs)
+RefreshButton.MouseButton1Click:Connect(refreshEggs)
 
 Close.MouseButton1Click:Connect(function()
     Gui:Destroy()
@@ -221,7 +514,70 @@ end)
 
 task.spawn(function()
     while Gui.Parent do
-        updateInfo()
+        for egg,button in pairs(eggButtons) do
+            if egg.Parent then
+                local root=getRoot()
+                local part=getEggPart(egg)
+                local hatch,prompt=getHatch(egg)
+                local available=hatch and hatch:GetAttribute("HatchPromptAvailable")
+                local distance=root and part and (root.Position-part.Position).Magnitude
+
+                local statusLabel=button:FindFirstChildWhichIsA("TextLabel",true)
+
+                if statusLabel then
+                    local labels=button:GetChildren()
+                    local lastLabel=labels[#labels]
+
+                    for _,child in ipairs(labels) do
+                        if child:IsA("TextLabel") and child.Position.Y.Offset>=35 then
+                            statusLabel=child
+                        end
+                    end
+
+                    if distance and prompt then
+                        statusLabel.Text="Available="..safeString(available).." | Dist "..string.format("%.1f",distance).." / "..string.format("%.1f",prompt.MaxActivationDistance)
+                    elseif distance then
+                        statusLabel.Text="Available="..safeString(available).." | Dist "..string.format("%.1f",distance)
+                    else
+                        statusLabel.Text="Available="..safeString(available)
+                    end
+                end
+            end
+        end
+
         task.wait(0.5)
     end
 end)
+
+local dragging=false
+local dragStart
+local startPosition
+
+Title.InputBegan:Connect(function(input)
+    if input.UserInputType==Enum.UserInputType.MouseButton1 then
+        dragging=true
+        dragStart=input.Position
+        startPosition=Main.Position
+    end
+end)
+
+Title.InputEnded:Connect(function(input)
+    if input.UserInputType==Enum.UserInputType.MouseButton1 then
+        dragging=false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then
+        local delta=input.Position-dragStart
+
+        Main.Position=UDim2.new(
+            startPosition.X.Scale,
+            startPosition.X.Offset+delta.X,
+            startPosition.Y.Scale,
+            startPosition.Y.Offset+delta.Y
+        )
+    end
+end)
+
+refreshEggs()
