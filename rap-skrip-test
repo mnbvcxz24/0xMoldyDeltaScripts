@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v1.3"
+local ver = "TEST v1.4"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -412,6 +412,73 @@ local function createAutoPlaceFilterButtons()
 end
 
 local AutoFilterButtons = {}
+
+local function refreshAutoFilterText()
+    local selected = {}
+    for eggName, enabled in pairs(AutoSelectedEggs) do
+        if enabled then
+            table.insert(selected, eggName)
+        end
+    end
+
+    table.sort(selected)
+
+    if #selected == 0 then
+        AutoFilterButton.Text = "-- ▼"
+        AutoSelectedLabel.Text = "Selected: None"
+    else
+        AutoFilterButton.Text = "Select Eggs ▼"
+        AutoSelectedLabel.Text = "Selected: " .. table.concat(selected, ", ")
+    end
+end
+
+local function createAutoFilterButtons()
+    for _, button in pairs(AutoFilterButtons) do
+        if button then
+            button:Destroy()
+        end
+    end
+
+    table.clear(AutoFilterButtons)
+
+    local y = 5
+
+    for _, eggName in ipairs(EggTypes) do
+        if eggName ~= "--" then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, -10, 0, 28)
+            button.Position = UDim2.fromOffset(5, y)
+            button.BackgroundColor3 = AutoSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
+            button.BorderSizePixel = 0
+            button.Text = (AutoSelectedEggs[eggName] and "✓ " or "") .. eggName
+            button.TextColor3 = Color3.fromRGB(225, 225, 230)
+            button.TextSize = textSize(11)
+            button.Font = Enum.Font.Gotham
+            button.AutoButtonColor = false
+            button.Active = true
+            button.Selectable = true
+            button.ZIndex = 31
+            button.Parent = AutoFilterFrame
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 5)
+            corner.Parent = button
+
+            button.MouseButton1Click:Connect(function()
+                AutoSelectedEggs[eggName] = not AutoSelectedEggs[eggName]
+
+                button.BackgroundColor3 = AutoSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
+                button.Text = (AutoSelectedEggs[eggName] and "✓ " or "") .. eggName
+
+                refreshAutoFilterText()
+                saveConfig()
+            end)
+
+            table.insert(AutoFilterButtons, button)
+            y = y + 33
+        end
+    end
+end
 
 AutoPlaceFilterButton.MouseButton1Click:Connect(function()
     AutoPlaceFilterFrame.Visible = not AutoPlaceFilterFrame.Visible
