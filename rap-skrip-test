@@ -343,6 +343,92 @@ local AutoPlaceFilterFrameCorner = Instance.new("UICorner")
 AutoPlaceFilterFrameCorner.CornerRadius = UDim.new(0, 7)
 AutoPlaceFilterFrameCorner.Parent = AutoPlaceFilterFrame
 
+local AutoPlaceFilterButtons = {}
+
+local function refreshAutoPlaceFilterText()
+    local selected = {}
+    for eggName, enabled in pairs(AutoPlaceSelectedEggs) do
+        if enabled then
+            table.insert(selected, eggName)
+        end
+    end
+
+    table.sort(selected)
+
+    if #selected == 0 then
+        AutoPlaceFilterButton.Text = "-- ▼"
+        AutoPlaceSelectedLabel.Text = "Selected: None"
+    else
+        AutoPlaceFilterButton.Text = "Select Eggs ▼"
+        AutoPlaceSelectedLabel.Text = "Selected: " .. table.concat(selected, ", ")
+    end
+end
+
+local function createAutoPlaceFilterButtons()
+    for _, button in pairs(AutoPlaceFilterButtons) do
+        if button then
+            button:Destroy()
+        end
+    end
+
+    table.clear(AutoPlaceFilterButtons)
+
+    local y = 5
+
+    for _, eggName in ipairs(EggTypes) do
+        if eggName ~= "--" then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, -10, 0, 28)
+            button.Position = UDim2.fromOffset(5, y)
+            button.BackgroundColor3 = AutoPlaceSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
+            button.BorderSizePixel = 0
+            button.Text = (AutoPlaceSelectedEggs[eggName] and "✓ " or "") .. eggName
+            button.TextColor3 = Color3.fromRGB(225, 225, 230)
+            button.TextSize = textSize(11)
+            button.Font = Enum.Font.Gotham
+            button.AutoButtonColor = false
+            button.Active = true
+            button.Selectable = true
+            button.ZIndex = 31
+            button.Parent = AutoPlaceFilterFrame
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 5)
+            corner.Parent = button
+
+            button.MouseButton1Click:Connect(function()
+                AutoPlaceSelectedEggs[eggName] = not AutoPlaceSelectedEggs[eggName]
+
+                button.BackgroundColor3 = AutoPlaceSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
+                button.Text = (AutoPlaceSelectedEggs[eggName] and "✓ " or "") .. eggName
+
+                refreshAutoPlaceFilterText()
+            end)
+
+            table.insert(AutoPlaceFilterButtons, button)
+            y = y + 33
+        end
+    end
+end
+
+local AutoFilterButtons = {}
+
+AutoPlaceFilterButton.MouseButton1Click:Connect(function()
+    AutoPlaceFilterFrame.Visible = not AutoPlaceFilterFrame.Visible
+
+    if AutoPlaceFilterFrame.Visible then
+        AutoPlaceSelectedLabel.Visible = false
+        AutoPlaceFilterButton.Text = "Select Eggs ▲"
+        createAutoPlaceFilterButtons()
+    else
+        AutoPlaceSelectedLabel.Visible = true
+        refreshAutoPlaceFilterText()
+    end
+end)
+
+createAutoPlaceFilterButtons()
+refreshAutoPlaceFilterText()
+
 local ESPContent2 = Instance.new("Frame")
 ESPContent2.Name = "ESPContent2"
 ESPContent2.Size = UDim2.fromScale(1, 1)
@@ -954,92 +1040,6 @@ AutoMovementButton.MouseButton1Click:Connect(function()
     AutoMovementInfo.Text ="Teleport active • Glide reserved"
     AddDebug("[AUTO] Movement mode: Teleport")
 end)
-
-local AutoFilterButtons = {}
-
-AutoPlaceFilterButton.MouseButton1Click:Connect(function()
-    AutoPlaceFilterFrame.Visible = not AutoPlaceFilterFrame.Visible
-
-    if AutoPlaceFilterFrame.Visible then
-        AutoPlaceSelectedLabel.Visible = false
-        AutoPlaceFilterButton.Text = "Select Eggs ▲"
-        createAutoPlaceFilterButtons()
-    else
-        AutoPlaceSelectedLabel.Visible = true
-        refreshAutoPlaceFilterText()
-    end
-end)
-
-createAutoPlaceFilterButtons()
-refreshAutoPlaceFilterText()
-
-local AutoPlaceFilterButtons = {}
-
-local function refreshAutoPlaceFilterText()
-    local selected = {}
-    for eggName, enabled in pairs(AutoPlaceSelectedEggs) do
-        if enabled then
-            table.insert(selected, eggName)
-        end
-    end
-
-    table.sort(selected)
-
-    if #selected == 0 then
-        AutoPlaceFilterButton.Text = "-- ▼"
-        AutoPlaceSelectedLabel.Text = "Selected: None"
-    else
-        AutoPlaceFilterButton.Text = "Select Eggs ▼"
-        AutoPlaceSelectedLabel.Text = "Selected: " .. table.concat(selected, ", ")
-    end
-end
-
-local function createAutoPlaceFilterButtons()
-    for _, button in pairs(AutoPlaceFilterButtons) do
-        if button then
-            button:Destroy()
-        end
-    end
-
-    table.clear(AutoPlaceFilterButtons)
-
-    local y = 5
-
-    for _, eggName in ipairs(EggTypes) do
-        if eggName ~= "--" then
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, -10, 0, 28)
-            button.Position = UDim2.fromOffset(5, y)
-            button.BackgroundColor3 = AutoPlaceSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
-            button.BorderSizePixel = 0
-            button.Text = (AutoPlaceSelectedEggs[eggName] and "✓ " or "") .. eggName
-            button.TextColor3 = Color3.fromRGB(225, 225, 230)
-            button.TextSize = textSize(11)
-            button.Font = Enum.Font.Gotham
-            button.AutoButtonColor = false
-            button.Active = true
-            button.Selectable = true
-            button.ZIndex = 31
-            button.Parent = AutoPlaceFilterFrame
-
-            local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0, 5)
-            corner.Parent = button
-
-            button.MouseButton1Click:Connect(function()
-                AutoPlaceSelectedEggs[eggName] = not AutoPlaceSelectedEggs[eggName]
-
-                button.BackgroundColor3 = AutoPlaceSelectedEggs[eggName] and Color3.fromRGB(55, 85, 60) or Color3.fromRGB(38, 38, 45)
-                button.Text = (AutoPlaceSelectedEggs[eggName] and "✓ " or "") .. eggName
-
-                refreshAutoPlaceFilterText()
-            end)
-
-            table.insert(AutoPlaceFilterButtons, button)
-            y = y + 33
-        end
-    end
-end
 
 AutoDipButton.MouseButton1Click:Connect(function()
     AutoDipEnabled = not AutoDipEnabled
@@ -3845,6 +3845,8 @@ local function showPage(page)
     end
     FilterFrame.Visible = false
     AutoFilterFrame.Visible = false
+    AutoPlaceFilterFrame.Visible = false
+    AutoPlaceSelectedLabel.Visible = true
 end
 
 AutoButton.MouseButton1Click:Connect(function()
