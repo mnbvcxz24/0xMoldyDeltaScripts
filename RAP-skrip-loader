@@ -1,4 +1,0 @@
-local BASE="https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/"
-local Backend=loadstring(game:HttpGet(BASE.."rap-backend"))()
-local UI=loadstring(game:HttpGet(BASE.."rap-ui"))()
-UI(Backend)
