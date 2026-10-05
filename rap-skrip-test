@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "TEST v1.4"
+local ver = "TEST v1.5"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -493,9 +493,6 @@ AutoPlaceFilterButton.MouseButton1Click:Connect(function()
     end
 end)
 
-createAutoPlaceFilterButtons()
-refreshAutoPlaceFilterText()
-
 local ESPContent2 = Instance.new("Frame")
 ESPContent2.Name = "ESPContent2"
 ESPContent2.Size = UDim2.fromScale(1, 1)
@@ -799,6 +796,9 @@ local AutoVolcanoWaitingForMessage = false
 
 local VolcanoDipEvent
 local VolcanoDipResultEvent
+
+createAutoPlaceFilterButtons()
+refreshAutoPlaceFilterText()
 
 local VolcanoEntrance1Position = Vector3.new(-4918.390625,41274.457031,-3673.695312)
 local VolcanoEntrance2Position = Vector3.new(-4933.537109,41275.101562,-3672.198486)
