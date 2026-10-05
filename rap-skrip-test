@@ -566,6 +566,7 @@ local SelectedEggs = {}
 local FilterButtons = {}
 
 local AutoSelectedEggs = {}
+local AutoPlaceSelectedEggs = {}
 local AutoPickupRunning = false
 local AutoDipEnabled = false
 local AutoPickupBusy = false
