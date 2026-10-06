@@ -12,7 +12,7 @@ pcall(function()
         oldGui:Destroy()
     end
 end)
-local ver = "TEST v1.5"
+local ver = "TEST v1.6"
 pcall(function()
     local oldESP = workspace:FindFirstChild("RAPGUIskrip")
     if oldESP then
@@ -905,6 +905,7 @@ AutoMovementButton.MouseButton1Click:Connect(function()
 end)
 
 local AutoFilterButtons = {}
+local saveConfig
 
 local function refreshAutoFilterText()
     local selected = {}
@@ -1156,7 +1157,7 @@ end)
 local CONFIG_FOLDER = "RAPSkrip"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_skrip_config.json"
 
-local function saveConfig()
+saveConfig = function()
     if not writefile then
         AddDebug("[CONFIG] writefile unavailable")
         return
