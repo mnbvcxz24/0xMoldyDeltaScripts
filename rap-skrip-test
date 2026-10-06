@@ -1,4 +1,3 @@
-local ver = "TEST v1.5"
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,7 +11,7 @@ pcall(function()
         oldGui:Destroy()
     end
 end)
-
+local ver = "TEST v1.5"
 pcall(function()
     local oldESP = workspace:FindFirstChild("RAPGUIskrip")
     if oldESP then
