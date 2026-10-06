@@ -1,4 +1,3 @@
-print("RAP START")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -6,13 +5,14 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
+local ver = "DEPLOY v1.1"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
         oldGui:Destroy()
     end
 end)
-local ver = "TEST v1.6"
+
 pcall(function()
     local oldESP = workspace:FindFirstChild("RAPGUIskrip")
     if oldESP then
@@ -566,7 +566,6 @@ local SelectedEggs = {}
 local FilterButtons = {}
 
 local AutoSelectedEggs = {}
-local AutoPlaceSelectedEggs = {}
 local AutoPickupRunning = false
 local AutoDipEnabled = false
 local AutoPickupBusy = false
@@ -905,7 +904,6 @@ AutoMovementButton.MouseButton1Click:Connect(function()
 end)
 
 local AutoFilterButtons = {}
-local saveConfig
 
 local function refreshAutoFilterText()
     local selected = {}
@@ -1157,7 +1155,7 @@ end)
 local CONFIG_FOLDER = "RAPSkrip"
 local CONFIG_FILE = CONFIG_FOLDER .. "/rap_skrip_config.json"
 
-saveConfig = function()
+local function saveConfig()
     if not writefile then
         AddDebug("[CONFIG] writefile unavailable")
         return
