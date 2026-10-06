@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
-local ver = "DEPLOY v1.1"
+local ver = "DEPLOY v1.2"
 pcall(function()
     local oldGui = CoreGui:FindFirstChild("RAPGUIskrip")
     if oldGui then
@@ -291,6 +291,25 @@ AutoPlaceFilterLabel.TextSize = textSize(10)
 AutoPlaceFilterLabel.Font = Enum.Font.GothamMedium
 AutoPlaceFilterLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoPlaceFilterLabel.Parent = AutoContent2
+
+local AutoPlaceFilterButton = Instance.new("TextButton")
+AutoPlaceFilterButton.Name = "AutoPlaceFilterButton"
+AutoPlaceFilterButton.Size = UDim2.new(1, -10, 0, 28)
+AutoPlaceFilterButton.Position = UDim2.fromOffset(5, 92)
+AutoPlaceFilterButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+AutoPlaceFilterButton.Text = "-- ▼"
+AutoPlaceFilterButton.TextColor3 = Color3.fromRGB(220, 220, 225)
+AutoPlaceFilterButton.TextSize = textSize(10)
+AutoPlaceFilterButton.Font = Enum.Font.Gotham
+AutoPlaceFilterButton.AutoButtonColor = false
+AutoPlaceFilterButton.Active = true
+AutoPlaceFilterButton.Selectable = true
+AutoPlaceFilterButton.ZIndex = 25
+AutoPlaceFilterButton.Parent = AutoContent2
+
+local AutoPlaceFilterCorner = Instance.new("UICorner")
+AutoPlaceFilterCorner.CornerRadius = UDim.new(0, 7)
+AutoPlaceFilterCorner.Parent = AutoPlaceFilterButton
 
 local ESPContent2 = Instance.new("Frame")
 ESPContent2.Name = "ESPContent2"
