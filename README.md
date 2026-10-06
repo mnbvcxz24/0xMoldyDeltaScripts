@@ -1,1 +1,1 @@
-loadstring(game:HttpGet("https://pastebin.com/raw/VSCm5WyE"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/mnbvcxz24/0xMoldyDeltaScripts/refs/heads/main/rap-skrip-test"))()
